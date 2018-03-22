@@ -1,0 +1,36 @@
+Package: PCMStep
+Type: Package
+Title: Stepwize phylogenetic comparative model selection
+Version: 0.1.0
+Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
+                 role = c("aut", "cre", "cph")))
+Maintainer: The package maintainer <vmitov@gmail.com>
+Description: This package performs phylogenetic comparative model (PCM) selection on 
+    a phylogenetic tree with phenotypic data at its tips. The phylogenetic comparative
+    model is selected from a set of multi-regime mixed Gaussian models (MRGs), 
+    such as combinations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) 
+    processes running on different lineages of the tree. The function SearchForwardBackward
+    performs a greedy search of the best assignment of "break-nodes" on the tree 
+    up to a given number of nodes. Each "break-node" assignment defines a "coloring"
+    of the branches in the tree, such that each color (or regime)
+    is mapped to an instance of a specific PCM, such as BM
+    or OU. For each "break-node" assignment, the best regime mapping is found using
+    an optimal information score like the Akaike Information Criterion (AIC). 
+License: GPL (>= 3.0)
+LazyData: true
+Depends:
+    R (>= 3.1.0)
+Imports:
+    ape,
+    PCMBase,
+    OptimMCMC,
+    foreach,
+    iterators,
+    ggplot2,
+    ggtree,
+    grDevices
+Suggests:
+    PCMBaseCpp,
+    testthat
+RoxygenNote: 6.0.1
+VignetteBuilder: knitr
