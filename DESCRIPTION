@@ -1,6 +1,6 @@
-Package: PCMStep
+Package: PCMFit
 Type: Package
-Title: Stepwize phylogenetic comparative model selection
+Title: Fitting and model selection of phylogenetic comparative models
 Version: 0.1.0
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
@@ -25,10 +25,7 @@ Imports:
     PCMBase,
     OptimMCMC,
     foreach,
-    iterators,
-    ggplot2,
-    ggtree,
-    grDevices
+    iterators
 Suggests:
     PCMBaseCpp,
     testthat

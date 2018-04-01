@@ -1,7 +1,7 @@
 library(ape)
 library(testthat)
 library(PCMBase)
-library(PCMStep)
+library(PCMFit)
 library(abind)
 
 set.seed(2)
@@ -12,7 +12,7 @@ R <- 2
 k <- 2
 
 # number of tips
-N <- 100
+N <- 80
 
 # rate mtrix of transition from one regime to another
 Q <- matrix(c(-0.1, 0.1, 0.01, -0.01), R, R)
@@ -37,49 +37,40 @@ if(require(phytools)) {
 }
 tree.ab.singles$edge.jump <- rep(0, nrow(tree.ab.singles$edge))
 
-PCMPlotTree(tree.ab.singles)
+#PCMPlotTree(tree.ab.singles)
 
-model <- MRG(k = 2, models = c("BM3", "OU3"), mapping = c(a = "BM3", b = "OU3"),
+model <- MRG(k = 2, modelTypes = c("BM3", "OU3"), mapping = c(a = "BM3", b = "OU3"),
              X0 = list(default = rep(as.double(NA), 2), type = c("gvector", "fixed")),
-             Sigmae = list(default = matrix(0, 2, 2), type = c("gmatrix", "fixed"),
-                           description = "variance-covariance matrix for the non-phylogenetic trait component"))
+             Sigmae_x = list(default = matrix(0, 2, 2), type = c("gmatrix", "fixed"),
+                           description = "Fixed upper triangular Choleski factor of the variance-covariance matrix for the non-phylogenetic trait component"))
 
 X0 <- c(5, 5)
 
-a.Sigma <- rbind(
-  c(1.6, 0),
+a.Sigma_x <- rbind(
+  c(1.6, 4),
   c(0, 2.4))
 
 b.H <- rbind(
-  c(2, .1),
-  c(.1, .6))
+  c(2, 2),
+  c(0, .6))
 b.Theta <- c(10, 6)
-b.Sigma <- rbind(
-  c(1.6, .3),
-  c(.3, 0.3))
-
-Sigmae <- rbind(
-  c(.2, 0),
-  c(0, .3))
+b.Sigma_x <- rbind(
+  c(1.6, 3),
+  c(0, 0.3))
 
 
-model$a$Sigma[,,1] <- a.Sigma
+model$a$Sigma_x[,,1] <- a.Sigma_x
 
 model$b$H[,,1] <- b.H
 model$b$Theta[, 1] <- b.Theta
-model$b$Sigma[,, 1] <- b.Sigma
-
-#model$Sigmae <- Sigmae
+model$b$Sigma_x[,, 1] <- b.Sigma_x
 
 traits.ab.123 <- PCMSim(tree.ab.singles, model, X0, verbose=TRUE)
 
 options(PCMBase.Value.NA = -1e20)
 values <- traits.ab.123[, 1:length(tree.ab.singles$tip.label)]
 
-
-PCMLik(values, tree.ab.singles, model)
-
-likFun <- PCMCreateLikelihood(values, tree.ab.singles, model)
+likOrig <- PCMLik(values, tree.ab.singles, model)
 
 if(require(PCMBaseCpp)) {
   metaInfo <- PCMInfoCpp(values, tree.ab.singles, model)
@@ -89,72 +80,9 @@ if(require(PCMBaseCpp)) {
 
 likFun2 <- PCMCreateLikelihood(values, tree.ab.singles, model, metaInfo)
 
-#fit <- PCMFit(values, tree.ab.singles, model)
-library(OptimMCMC)
-# listParInitOptim = genInitStates(rep(-10, 12), rep(10, 12), 10, likFun2, minValue = -1e20, verbose = TRUE)
+fit2 <- PCMFit(values, tree.ab.singles, model, metaI = metaInfo,
+               argsConfigOptimAndMCMC = list(nCallsOptim = 20, genInitVerbose = TRUE),
+               verbose = TRUE)
 
-fit2 <- PCMFit(values, tree.ab.singles, model, metaI = metaInfo, nCallsOptim = 500,
-               minGenInitValue = -1e20, maxGenInitIter = 5000, verboseGenInit = TRUE, verbose = TRUE)
-
-model2 <- model
-PCMSetOrGetVecParams(model2, fit2$Optim$par)
-print(model2)
-
-# toString(likFun2(fit2$Optim$par))
-#
-
-if(FALSE) {
-
-
-  par <- c(9.20387191445074, -3.36841497851032, 9.07657202847133, 5.73227273365591, -8.11659779441043, 6.81959596230008, -1.7395069588348, -0.39438765743306, -1.78697063300318, 8.58882728994634, -1.50839757416005, 8.06732489221055)
-
-  likFun(par)
-  likFun2(par)
-
-  model2 <- model
-
-  PCMSetOrGetVecParams(model2, par)
-  model2
-
-  par2 <- par
-  PCMSetOrGetVecParams(model, par2, set=FALSE)
-
-  Lmr<-PCMLmr(X = values, tree = tree.ab.singles, model = model2)
-  Lmr2<-PCMLmr(X = values, tree = tree.ab.singles, model = model2, metaInfo)
-
-  metaInfoR <- PCMInfo(values, tree.ab.singles, model2)
-  condOU <- PCMCond(tree = tree.ab.singles, model = model2, r = 2)
-  edgeIndex <- which(tree.ab.singles$edge[, 2]==8)
-  time <- tree.ab.singles$edge.length[edgeIndex]
-
-  V <- condOU$V(time, edgeIndex, metaInfoR)
-
-
-  lstR <- PCMBase:::PCMPLambdaP_1(model2$b$H[,,1])
-  Lambda_ij <- PCMBase:::PCMPairSums(lstR$lambda)
-  fLambda_ij <- PCMBase:::PCMPExpxMeanExp(Lambda_ij)(time)
-
-  P_1SigmaP_1_t <- lstR$P_1 %*% model2$b$Sigma[,,1] %*% t(lstR$P_1)
-
-  lstR$P %*% (fLambda_ij * P_1SigmaP_1_t) %*% t(lstR$P)
-
-  lst <- PCMBaseCpp:::VOU(model2$b$H[,,1], model2$b$Sigma[,,1], time, 1e-6, 1e-6)
-  lst$P <- lst$P_real + lst$P_imag*1i
-  lst$P_1 <- lst$P_1_real + lst$P_1_imag*1i
-  lst$fLambda_ij  <- lst$fLambda_ij_real + lst$fLambda_ij_imag*1i
-  lst$P_1SigmaP_1_t <- lst$P_1SigmaP_1_t_real + lst$P_1SigmaP_1_t_imag*1i
-
-
-  lst$Sigma - model2$b$Sigma[,,1]
-  lst$P - lstR$P
-  lst$P_1 - lstR$P_1
-  lst$fLambda_ij - fLambda_ij
-  lst$P_1SigmaP_1_t - P_1SigmaP_1_t
-
-  lst$P_1_real %*% model2$b$Sigma[,,1] %*% t(lst$P_1_real)
-
-  lst$P_1 %*% (model2$b$Sigma[,,1] %*% t(lst$P_1))
-
-  lst$P %*% (lst$fLambda_ij * lst$P_1SigmaP_1_t) %*% t(lst$P)
-  lst$P %*% (lst$fLambda_ij * P_1SigmaP_1_t) %*% t(lst$P)
-}
+test_that("ML value is better than original",
+          expect_true(logLik(fit2) < 0 && logLik(fit2) > likOrig))
