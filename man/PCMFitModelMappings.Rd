@@ -7,13 +7,13 @@
 PCMFitModelMappings(X, tree, modelTypes = c("BM3", "OU3"),
   metaIFun = PCMInfo, lik = NULL, prior = NULL, input.data = NULL,
   config = NULL, fitToClades = FALSE,
-  cladeRootNodes = PCMTreeGetStartingNodesRegimes(tree), cladeFits = NULL,
-  numJitterRootCladeFit = 100, sdJitterRootCladeFit = 0.5,
-  numJitterAllCladeFits = 100, sdJitterAllCladeFits = 0.5, argsMRG = NULL,
-  argsPCMLowerBound = NULL, argsPCMUpperBound = NULL,
-  argsPCMSetOrGetVecParams = NULL, argsConfigOptimAndMCMC = NULL,
-  printFitVectorsToConsole = FALSE, setAttributes = TRUE,
-  doParallel = FALSE, verbose = FALSE)
+  cladeRootNodes = PCMTreeGetStartingNodesRegimes(tree), fitToCladeRoot = 0,
+  cladeFits = NULL, numJitterRootCladeFit = 100,
+  sdJitterRootCladeFit = 0.5, numJitterAllCladeFits = 100,
+  sdJitterAllCladeFits = 0.5, argsMRG = NULL, argsPCMLowerBound = NULL,
+  argsPCMUpperBound = NULL, argsPCMSetOrGetVecParams = NULL,
+  argsConfigOptimAndMCMC = NULL, printFitVectorsToConsole = FALSE,
+  setAttributes = TRUE, doParallel = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} entries. Each

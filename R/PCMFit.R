@@ -384,7 +384,7 @@ PCMFitModelMappings <- function(
 
   metaIFun = PCMInfo, lik = NULL, prior = NULL, input.data = NULL, config = NULL,
 
-  fitToClades = FALSE, cladeRootNodes = PCMTreeGetStartingNodesRegimes(tree),
+  fitToClades = FALSE, cladeRootNodes = PCMTreeGetStartingNodesRegimes(tree), fitToCladeRoot = 0,
 
   cladeFits = NULL,
   numJitterRootCladeFit = 100, sdJitterRootCladeFit = 0.5,
@@ -452,7 +452,7 @@ PCMFitModelMappings <- function(
       res[[as.character(n)]] <-
         PCMFitModelMappings(X = Xclade, tree = clade, modelTypes = modelTypes,
                             metaIFun = metaIFun, lik = lik, prior = prior, input.data = input.data, config = config,
-                            fitToClades = FALSE, cladeRootNodes = NULL,
+                            fitToClades = FALSE, cladeRootNodes = NULL, fitToCladeRoot = n,
                             cladeFits = cladeFits,
                             numJitterRootCladeFit = numJitterRootCladeFit, sdJitterRootCladeFit = sdJitterRootCladeFit,
                             numJitterAllCladeFits = numJitterAllCladeFits, sdJitterAllCladeFits = sdJitterAllCladeFits,
@@ -657,7 +657,7 @@ PCMFitModelMappings <- function(
         vec <- c(coef(fit), logLik = ll, df = attr(ll, "df"), nobs = attr(ll, "nobs"), AIC = AIC(fit))
 
         if(printFitVectorsToConsole) {
-          cat(toString(unname(vec)), "\n")
+          cat(fitToCladeRoot, ":", toString(unname(vec)), "\n", sep="")
         }
         vec
       }
@@ -676,6 +676,7 @@ PCMFitModelMappings <- function(
     attr(res, "config") <- config
     attr(res, "fitToClades") <- fitToClades
     attr(res, "cladeRootNodes") <- cladeRootNodes
+    attr(res, "fitToCladeRoot") <- fitToCladeRoot
     attr(res, "cladeFits") <- cladeFits
     attr(res, "numJitterRootCladeFit") <- numJitterRootCladeFit
     attr(res, "sdJitterRootCladeFit") <- sdJitterRootCladeFit
