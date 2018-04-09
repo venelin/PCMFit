@@ -4,10 +4,9 @@
 \alias{PCMFitModelMappings}
 \title{Fit all possible model-type mappings to the regimes in a tree.}
 \usage{
-PCMFitModelMappings(X, tree, modelTypes = c("BM3", "OU3"),
-  metaIFun = PCMInfo, lik = NULL, prior = NULL, input.data = NULL,
-  config = NULL, fitToClades = FALSE,
-  cladeRootNodes = PCMTreeGetStartingNodesRegimes(tree), fitToCladeRoot = 0,
+PCMFitModelMappings(X, tree, modelTypes = c("BM__noX0__noSigmae_x",
+  "OU__noX0__noSigmae_x"), metaIFun = PCMInfo, positiveValueGuard = Inf,
+  lik = NULL, prior = NULL, input.data = NULL, config = NULL,
   cladeFits = NULL, numJitterRootCladeFit = 100,
   sdJitterRootCladeFit = 0.5, numJitterAllCladeFits = 100,
   sdJitterAllCladeFits = 0.5, argsMRG = NULL, argsPCMLowerBound = NULL,

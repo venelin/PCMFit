@@ -25,7 +25,8 @@ Imports:
     PCMBase,
     OptimMCMC,
     foreach,
-    iterators
+    iterators,
+    digest
 Suggests:
     PCMBaseCpp,
     testthat

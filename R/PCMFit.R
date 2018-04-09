@@ -25,12 +25,12 @@
 #' model <- PCM("BM3", 3)
 #' PCMLowerBound(model)
 #' @export
-PCMLowerBound <- function(model, ...) {
+PCMLowerBound <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
   UseMethod("PCMLowerBound", model)
 }
 
 #' @export
-PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, ...) {
+PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, ...) {
   if(lowerBoundValuePositiveDiag < 0 ) {
     stop("ERR:04000:PCMFit:PCMFit.R:PCMLowerBound.PCM:: lowerBoundValuePositiveDiag should be non-negative.")
   }
@@ -78,25 +78,42 @@ PCMLowerBound.PCM <- function(model, lowerBoundValue = -10, lowerBoundValuePosit
     }
   }
   PCMSetOrGetVecParams(model, par)
+
+  if(is.list(namedLowerBoundValues)) {
+    PCMSetParams(model, namedLowerBoundValues)
+  }
+
   model
 }
 
 #' @export
-PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
+PCMLowerBound.MRG <- function(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0, namedLowerBoundValues = NULL, namedLowerBoundValuesSubmodels = NULL, ...) {
   model <- NextMethod()
   specParams <- attr(model, "specParams", exact = TRUE)
 
-  if(!is.null(specParams$X0) && !is.null(X0)) {
-    model$X0 <- X0
-  }
+  # if(!is.null(specParams$X0) && !is.null(X0)) {
+  #   model$X0 <- X0
+  # }
   for(name in names(specParams)) {
     if(specParams[[name]]$type[1]=="model") {
-      model[[name]] <- PCMLowerBound(model[[name]], X0 = X0, Sigmae_x = Sigmae_x, ...)
+      if(is.null(namedLowerBoundValuesSubmodels) || is.null(namedLowerBoundValuesSubmodels[[name]])) {
+        model[[name]] <- PCMLowerBound(model[[name]],
+                                       lowerBoundValue = lowerBoundValue,
+                                       lowerBoundValuePositiveDiag = lowerBoundValuePositiveDiag,
+                                       ...)
+      } else {
+        model[[name]] <- PCMLowerBound(model[[name]],
+                                       lowerBoundValue = lowerBoundValue,
+                                       lowerBoundValuePositiveDiag = lowerBoundValuePositiveDiag,
+                                       namedLowerBoundValues = namedLowerBoundValuesSubmodels[[name]],
+                                       ...)
+      }
+
     }
   }
-  if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
-    model$Sigmae_x <- Sigmae_x
-  }
+  # if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
+  #   model$Sigmae_x <- Sigmae_x
+  # }
   model
 }
 
@@ -109,12 +126,12 @@ PCMLowerBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
 #' #' model <- PCM("BM3", 3)
 #' PCMLowerBound(model)
 #' @export
-PCMUpperBound <- function(model, ...) {
+PCMUpperBound <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
   UseMethod("PCMUpperBound", model)
 }
 
 #' @export
-PCMUpperBound.PCM <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, ...) {
+PCMUpperBound.PCM <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, ...) {
   if(upperBoundValuePositiveDiag <= 0 ) {
     stop("ERR:04010:PCMFit:PCMFit.R:PCMUpperBound.PCM:: upperBoundValuePositiveDiag should be positive.")
   }
@@ -162,25 +179,43 @@ PCMUpperBound.PCM <- function(model, upperBoundValue = 10, upperBoundValuePositi
     }
   }
   PCMSetOrGetVecParams(model, par)
+
+  if(is.list(namedUpperBoundValues)) {
+    PCMSetParams(model, namedUpperBoundValues)
+  }
+
   model
 }
 
 #' @export
-PCMUpperBound.MRG <- function(model, X0 = NULL, Sigmae_x = NULL, ...) {
+PCMUpperBound.MRG <- function(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10, namedUpperBoundValues = NULL, namedUpperBoundValuesSubmodels = NULL, ...) {
   model <- NextMethod()
   specParams <- attr(model, "specParams", exact = TRUE)
 
-  if(!is.null(specParams$X0) && !is.null(X0)) {
-    model$X0 <- X0
-  }
+  # if(!is.null(specParams$X0) && !is.null(X0)) {
+  #   model$X0 <- X0
+  # }
   for(name in names(specParams)) {
     if(specParams[[name]]$type[1]=="model") {
-      model[[name]] <- PCMUpperBound(model[[name]], X0 = X0, Sigmae_x = Sigmae_x, ...)
+
+      if(is.null(namedUpperBoundValuesSubmodels) || is.null(namedUpperBoundValuesSubmodels[[name]])) {
+        model[[name]] <- PCMUpperBound(model[[name]],
+                                       upperBoundValue = upperBoundValue,
+                                       upperBoundValuePositiveDiag = upperBoundValuePositiveDiag,
+                                       ...)
+      } else {
+        model[[name]] <- PCMUpperBound(model[[name]],
+                                       upperBoundValue = upperBoundValue,
+                                       upperBoundValuePositiveDiag = upperBoundValuePositiveDiag,
+                                       namedUpperBoundValues = namedUpperBoundValuesSubmodels[[name]],
+                                       ...)
+      }
+
     }
   }
-  if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
-    model$Sigmae_x <- Sigmae_x
-  }
+  # if(!is.null(specParams$Sigmae_x) && !is.null(Sigmae_x)) {
+  #   model$Sigmae_x <- Sigmae_x
+  # }
   model
 }
 
@@ -197,7 +232,7 @@ PCMFit <- function(X, tree, model, ...) {
 #' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMNumParams
 #' @export
 PCMFit.PCM <- function(
-  X, tree, model, metaI = PCMInfo(X, tree, model),
+  X, tree, model, metaI = PCMInfo(X, tree, model), positiveValueGuard = Inf,
   lik = NULL, prior = NULL, input.data = NULL, config = NULL,
   argsPCMLowerBound = NULL,
   argsPCMUpperBound = NULL,
@@ -206,7 +241,7 @@ PCMFit.PCM <- function(
   verbose = FALSE) {
 
   if(is.null(lik)) {
-    lik <- PCMCreateLikelihood(X, tree, model, metaI)
+    lik <- PCMCreateLikelihood(X, tree, model, metaI, positiveValueGuard)
   }
   if(is.null(config)) {
     # lowerVecParams <- double(PCMNumParams(model))
@@ -380,11 +415,9 @@ PCMIteratorMapping <- function(mapping, models) {
 #' @importFrom PCMBase PCMTreeNumUniqueRegimes PCMTreeGetStartingNodesRegimes PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetDefaultRegime PCMTreeNumUniqueRegimes PCMGetVecParams PCMSetOrGetVecParams PCMNumParams
 #' @export
 PCMFitModelMappings <- function(
-  X, tree, modelTypes = c("BM3", "OU3"),
+  X, tree, modelTypes = c("BM__noX0__noSigmae_x", "OU__noX0__noSigmae_x"), metaIFun = PCMInfo, positiveValueGuard = Inf,
 
-  metaIFun = PCMInfo, lik = NULL, prior = NULL, input.data = NULL, config = NULL,
-
-  fitToClades = FALSE, cladeRootNodes = PCMTreeGetStartingNodesRegimes(tree), fitToCladeRoot = 0,
+  lik = NULL, prior = NULL, input.data = NULL, config = NULL,
 
   cladeFits = NULL,
   numJitterRootCladeFit = 100, sdJitterRootCladeFit = 0.5,
@@ -425,251 +458,216 @@ PCMFitModelMappings <- function(
          identical to tree$tip.label.")
   }
 
-  if(fitToClades) {
-    if(verbose) {
-      cat("Fitting to clades...\n")
-    }
-
-    tableAnc <- PCMTreeTableAncestors(tree)
-
-    `%op%` <- if(doParallel) `%dopar%` else `%do%`
-
-    res <- foreach(n = cladeRootNodes, .packages = (.packages()), .combine='c') %op% {
+  `%op%` <- if(doParallel) `%dopar%` else `%do%`
+  res <- foreach(
+    mpp = PCMIteratorMapping(rep(1, PCMTreeNumUniqueRegimes(tree)), 1:length(modelTypes)),
+    .packages = (.packages()) ) %op% {
       # set PCMBase options from parent process: necessary if this is executed by
       # a worker process from a cluster.
-
       options(listPCMOptions)
-      treeSplit <- PCMTreeSplitAtNode(tree, n, tableAnc, X)
-      clade <- treeSplit$clade
-      Xclade <- treeSplit$Xclade
 
-      PCMTreeSetDefaultRegime(clade, 1)
+      # create an mrg model
+      model <- do.call(MRG, c(list(k = nrow(X),
+                                   modelTypes = modelTypes,
+                                   mapping = mpp),
+                              argsMRG))
+
+      argsConfigOptimAndMCMC_mpp <- argsConfigOptimAndMCMC
+
+      if(!is.null(cladeFits)) {
+        # load listParInitOptim with the parameter vector from the ML fits to all clades
+        # starting at startingNodesRegimes
+        specParams <- attr(model, "specParams", exact = TRUE)
+        subModelsLoaded <- rep(FALSE, length(mpp))
+
+        for(r in 1:length(startingNodesRegimes)) {
+          nr <- startingNodesRegimes[r]
+          mr <- modelTypes[mpp[r]]
+          if(is.null(cladeFits[[as.character(nr)]]) ||
+             is.null(cladeFits[[as.character(nr)]][[mr]])) {
+            stop("ERR:04034:PCMFit:PCMFit.R:PCMFitModelMappings:: missing fitVector for clade starting at node ", nr, "with mapped model-type ", mr, ", while creating initial parameter vector for startingNodesRegimes=c(", toString(startingNodesRegimes),                    ") and mapping c(", toString(mpp), "). Check the cladeFits argument.")
+          }
+          if(verbose) {
+            cat("Loading cladeFit for nr=", nr,"; mr=", mr, "\n")
+          }
+
+          fitCladeModel <-
+            do.call(PCMLoadMRGFromFitVector,
+                    c(list(fitVector = cladeFits[[as.character(nr)]][[mr]],
+                           modelTypes = attr(cladeFits, "modelTypes", exact = TRUE),
+                           k = nrow(X)),
+                      argsMRG))
+
+          for(name in names(fitCladeModel)) {
+            if(verbose) {
+              cat("Setting model or global parameter with name=", name, "\n")
+            }
+
+            if(name %in% names(specParams) &&
+               specParams[[name]]$type[1] %in% c("gscalar", "gvector", "gmatrix")) {
+              if( specParams[[name]]$type[2] != "fixed" ) {
+                # set all global non-fixed parameters to the mean of their best fits for the
+                # clades
+                model[[name]] <- model[[name]] + (fitCladeModel[[name]]/R)
+              }
+            } else if(specParams[[name]]$type[1] == "model" &&
+                      class(fitCladeModel[[name]])[1] == mr) {
+              if(!subModelsLoaded[r]) {
+                model[[as.character(r)]] <- fitCladeModel[[name]]
+                subModelsLoaded[r] <- TRUE
+              } else {
+                stop("ERR:04035:PCMFit:PCMFit.R:PCMFitModelMappings:: submodel for regime ", r, " was already loaded from a best clade fit.")
+              }
+            } else {
+              stop("ERR:04036:PCMFit:PCMFit.R:PCMFitModelMappings:: Found a member (", name, ") in fitCladeModel starting from node (", nr, ") and with class '", class(fitCladeModel[[name]]), "' which is neither a global parameter nor a model of the needed type (", mr, ").")
+            }
+          }
+        }
+
+        matParamsFromCladeFits <- matrix(PCMGetVecParams(model), 1, PCMNumParams(model), byrow = TRUE)
+        matParamsJitterRootCladeFit <- matParamsJitterAllCladeFits <- NULL
+
+        # if there is more than one clade in the tree and numJitterRootCladeFit > 0
+        if( !is.null(model[["2"]]) && numJitterRootCladeFit > 0 ) {
+          vecParamIndex <- 1:ncol(matParamsFromCladeFits)
+          modelIndexParams <- model
+          PCMSetOrGetVecParams(modelIndexParams, vecParamIndex)
+          vecParamIndexRootClade <- as.integer(PCMGetVecParams(modelIndexParams[["1"]]))
+          matParamsJitterRootCladeFit <-
+            matrix(matParamsFromCladeFits[1,], 2*numJitterRootCladeFit, ncol(matParamsFromCladeFits), byrow=TRUE)
+          for(j in vecParamIndexRootClade) {
+            matParamsJitterRootCladeFit[, j] <- rnorm(2 * numJitterRootCladeFit,
+                                                      mean = matParamsFromCladeFits[1, j],
+                                                      sd = sdJitterRootCladeFit)
+          }
+        }
+
+        if( numJitterAllCladeFits > 0 ) {
+          matParamsJitterAllCladeFits <-
+            matrix(matParamsFromCladeFits[1,], 2*numJitterAllCladeFits, ncol(matParamsFromCladeFits), byrow=TRUE)
+          for(j in 1:ncol(matParamsFromCladeFits)) {
+            matParamsJitterAllCladeFits[, j] <- rnorm(2*numJitterAllCladeFits,
+                                                      mean = matParamsFromCladeFits[1, j],
+                                                      sd = sdJitterRootCladeFit)
+          }
+        }
+
+        if(!is.null(matParamsJitterRootCladeFit) || !is.null(matParamsJitterAllCladeFits)) {
+          # need to remove the parameters that go out of the lower-upper bound
+          lowerModel <- do.call(PCMLowerBound, c(list(model = model), argsPCMLowerBound))
+          lowerVecParams <- do.call(PCMGetVecParams, c(list(model = lowerModel), argsPCMSetOrGetVecParams))
+
+          upperModel <- do.call(PCMUpperBound, c(list(model = model), argsPCMUpperBound))
+          upperVecParams <- do.call(PCMGetVecParams, c(list(model = upperModel), argsPCMSetOrGetVecParams))
+
+          if( !is.null(matParamsJitterRootCladeFit) ) {
+            matParamsJitterRootCladeFit <-
+              do.call(rbind,
+                      lapply(1:nrow(matParamsJitterRootCladeFit), function(i) {
+                        if(isTRUE(all(matParamsJitterRootCladeFit[i,] >= lowerVecParams)) &&
+                           isTRUE(all(matParamsJitterRootCladeFit[i,] <= upperVecParams))
+                        ) {
+                          matParamsJitterRootCladeFit[i,]
+                        } else {
+                          NULL
+                        }
+                      }))
+            if(nrow(matParamsJitterRootCladeFit) > numJitterRootCladeFit) {
+              matParamsJitterRootCladeFit <- matParamsJitterRootCladeFit[1:numJitterRootCladeFit, ]
+            }
+            matParamsFromCladeFits <- rbind(matParamsFromCladeFits,
+                                            matParamsJitterRootCladeFit)
+          }
+
+          if( !is.null(matParamsJitterAllCladeFits) ) {
+            matParamsJitterAllCladeFits <-
+              do.call(rbind,
+                      lapply(1:nrow(matParamsJitterAllCladeFits), function(i) {
+                        if(isTRUE(all(matParamsJitterAllCladeFits[i,] >= lowerVecParams)) &&
+                           isTRUE(all(matParamsJitterAllCladeFits[i,] <= upperVecParams))
+                        ) {
+                          matParamsJitterAllCladeFits[i,]
+                        } else {
+                          NULL
+                        }
+                      }))
+            if(nrow(matParamsJitterAllCladeFits) > numJitterAllCladeFits) {
+              matParamsJitterAllCladeFits <- matParamsJitterAllCladeFits[1:numJitterAllCladeFits, ]
+            }
+            matParamsFromCladeFits <- rbind(matParamsFromCladeFits,
+                                            matParamsJitterAllCladeFits)
+          }
+        }
+
+
+        if(is.null(argsConfigOptimAndMCMC_mpp)) {
+          argsConfigOptimAndMCMC_mpp <- list()
+        }
+
+        if( !is.null(argsConfigOptimAndMCMC_mpp[["listParInitOptim"]]) ) {
+          if(verbose) {
+            cat("Prepending the following parameter vectors to argsConfigOptimAndMCMC[['listParInitOptim']] : ")
+            print(matParamsFromCladeFits)
+          }
+          argsConfigOptimAndMCMC_mpp[["listParInitOptim"]] <-
+            c(lapply(1:nrow(matParamsFromCladeFits), function(i) matParamsFromCladeFits[i, ]),
+              argsConfigOptimAndMCMC_mpp[["listParInitOptim"]])
+        } else {
+          if(verbose) {
+            cat("Setting listParInitOptim to : ")
+            print(matParamsFromCladeFits)
+          }
+          argsConfigOptimAndMCMC_mpp[["listParInitOptim"]] <-
+            lapply(1:nrow(matParamsFromCladeFits), function(i) matParamsFromCladeFits[i, ])
+        }
+
+        if( !is.null(argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]]) ) {
+          argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]] <- argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]] + nrow(matParamsFromCladeFits)
+        } else {
+          argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]] <- nrow(matParamsFromCladeFits)
+        }
+      }
 
       if(verbose) {
-        cat("Fitting model-types (", toString(modelTypes), ") to clade starting at node ", n, " ...\n")
+        cat("Performing ML fit on mapping: (", toString(mpp), ") of model-types (", modelTypes, ")\n")
+        # cat("Initial model:\n", do.call(paste, c(as.list(capture.output(print(model))), sep = "\n")))
+        # cat("names(model): (", toString(names(model)), ").\n")
+        # cat("attr(model, 'regimes'): (", toString(attr(model, "regimes")), ").\n")
+        # cat("PCMRegimes(model, tree): (", toString(PCMRegimes(model, tree)), ").\n")
       }
-      res <- list()
-      res[[as.character(n)]] <-
-        PCMFitModelMappings(X = Xclade, tree = clade, modelTypes = modelTypes,
-                            metaIFun = metaIFun, lik = lik, prior = prior, input.data = input.data, config = config,
-                            fitToClades = FALSE, cladeRootNodes = NULL, fitToCladeRoot = n,
-                            cladeFits = cladeFits,
-                            numJitterRootCladeFit = numJitterRootCladeFit, sdJitterRootCladeFit = sdJitterRootCladeFit,
-                            numJitterAllCladeFits = numJitterAllCladeFits, sdJitterAllCladeFits = sdJitterAllCladeFits,
-                            argsMRG = argsMRG,
-                            argsPCMLowerBound = argsPCMLowerBound, argsPCMUpperBound = argsPCMUpperBound,
-                            argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams, argsConfigOptimAndMCMC = argsConfigOptimAndMCMC,
-                            printFitVectorsToConsole = printFitVectorsToConsole,
-                            setAttributes = FALSE,
-                            doParallel = doParallel,
-                            verbose = verbose)
-      res
+
+      fit <- PCMFit(X = X, tree = tree, model = model, metaI = metaIFun, positiveValueGuard = positiveValueGuard,
+                    lik = lik, prior = prior, input.data = input.data,
+                    config = config,
+                    argsPCMLowerBound = argsPCMLowerBound,
+                    argsPCMUpperBound = argsPCMUpperBound,
+                    argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams,
+                    argsConfigOptimAndMCMC = argsConfigOptimAndMCMC_mpp,
+                    verbose = verbose)
+
+      ll <- logLik(fit)
+      vec <- c(coef(fit), logLik = ll, df = attr(ll, "df"), nobs = attr(ll, "nobs"), AIC = AIC(fit))
+
+      if(printFitVectorsToConsole) {
+        cat(fitToCladeRoot, ":", toString(unname(vec)), "\n", sep="")
+      }
+      vec
     }
+
+
+
+  if(fitToClades) {
+    class(res) <- "PCMCladeFits"
   } else {
-    `%op%` <- if(doParallel) `%dopar%` else `%do%`
-    res <- foreach(
-      mpp = PCMIteratorMapping(rep(1, PCMTreeNumUniqueRegimes(tree)), 1:length(modelTypes)),
-      .packages = (.packages()) ) %op% {
-        # set PCMBase options from parent process: necessary if this is executed by
-        # a worker process from a cluster.
-        options(listPCMOptions)
-
-        # create an mrg model
-        model <- do.call(MRG, c(list(k = nrow(X),
-                                     modelTypes = modelTypes,
-                                     mapping = mpp),
-                                argsMRG))
-
-        argsConfigOptimAndMCMC_mpp <- argsConfigOptimAndMCMC
-
-        if(!is.null(cladeFits)) {
-          # load listParInitOptim with the parameter vector from the ML fits to all clades
-          # starting at startingNodesRegimes
-          specParams <- attr(model, "specParams", exact = TRUE)
-          subModelsLoaded <- rep(FALSE, length(mpp))
-
-          for(r in 1:length(startingNodesRegimes)) {
-            nr <- startingNodesRegimes[r]
-            mr <- mpp[r]
-            if(is.null(cladeFits[[as.character(nr)]]) ||
-               is.null(cladeFits[[as.character(nr)]][[mr]])) {
-              stop("ERR:04034:PCMFit:PCMFit.R:PCMFitModelMappings:: missing fitVector for clade starting at node ", nr, "with mapped model-type ", mr, ", while creating initial parameter vector for startingNodesRegimes=c(", toString(startingNodesRegimes),                    ") and mapping c(", toString(mpp), "). Check the cladeFits argument.")
-            }
-            if(verbose) {
-              cat("Loading cladeFit for nr=", nr,"; mr=", mr, "\n")
-            }
-
-            fitCladeModel <-
-              do.call(PCMLoadMRGFromFitVector,
-                      c(list(fitVector = cladeFits[[as.character(nr)]][[mr]],
-                             modelTypes = modelTypes,
-                             k = nrow(X)),
-                        argsMRG))
-
-            for(name in names(fitCladeModel)) {
-              if(verbose) {
-                cat("Setting model or global parameter with name=", name, "\n")
-              }
-
-              if(name %in% names(specParams) &&
-                 specParams[[name]]$type[1] %in% c("gscalar", "gvector", "gmatrix")) {
-                if( specParams[[name]]$type[2] != "fixed" ) {
-                  # set all global non-fixed parameters to the mean of their best fits for the
-                  # clades
-                  model[[name]] <- model[[name]] + (fitCladeModel[[name]]/R)
-                }
-              } else if(specParams[[name]]$type[1] == "model" &&
-                        class(fitCladeModel[[name]])[1] == modelTypes[mr]) {
-                if(!subModelsLoaded[r]) {
-                  model[[as.character(r)]] <- fitCladeModel[[name]]
-                  subModelsLoaded[r] <- TRUE
-                } else {
-                  stop("ERR:04035:PCMFit:PCMFit.R:PCMFitModelMappings:: submodel for regime ", r, " was already loaded from a best clade fit.")
-                }
-              } else {
-                stop("ERR:04036:PCMFit:PCMFit.R:PCMFitModelMappings:: Found a member (", name, ") in fitCladeModel starting from node (", nr, ") and with class '", class(fitCladeModel[[name]]), "' which is neither a global parameter nor a model of the needed type (", modelTypes[mr], ").")
-              }
-            }
-          }
-
-          matParamsFromCladeFits <- matrix(PCMGetVecParams(model), 1, PCMNumParams(model), byrow = TRUE)
-          matParamsJitterRootCladeFit <- matParamsJitterAllCladeFits <- NULL
-
-          # if there is more than one clade in the tree and numJitterRootCladeFit > 0
-          if( !is.null(model[["2"]]) && numJitterRootCladeFit > 0 ) {
-            vecParamIndex <- 1:ncol(matParamsFromCladeFits)
-            modelIndexParams <- model
-            PCMSetOrGetVecParams(modelIndexParams, vecParamIndex)
-            vecParamIndexRootClade <- as.integer(PCMGetVecParams(modelIndexParams[["1"]]))
-            matParamsJitterRootCladeFit <-
-              matrix(matParamsFromCladeFits[1,], 2*numJitterRootCladeFit, ncol(matParamsFromCladeFits), byrow=TRUE)
-            for(j in vecParamIndexRootClade) {
-              matParamsJitterRootCladeFit[, j] <- rnorm(2 * numJitterRootCladeFit,
-                                                        mean = matParamsFromCladeFits[1, j],
-                                                        sd = sdJitterRootCladeFit)
-            }
-          }
-
-          if( numJitterAllCladeFits > 0 ) {
-            matParamsJitterAllCladeFits <-
-              matrix(matParamsFromCladeFits[1,], 2*numJitterAllCladeFits, ncol(matParamsFromCladeFits), byrow=TRUE)
-            for(j in 1:ncol(matParamsFromCladeFits)) {
-              matParamsJitterAllCladeFits[, j] <- rnorm(2*numJitterAllCladeFits,
-                                                        mean = matParamsFromCladeFits[1, j],
-                                                        sd = sdJitterRootCladeFit)
-            }
-          }
-
-          if(!is.null(matParamsJitterRootCladeFit) || !is.null(matParamsJitterAllCladeFits)) {
-            # need to remove the parameters that go out of the lower-upper bound
-            lowerModel <- do.call(PCMLowerBound, c(list(model = model), argsPCMLowerBound))
-            lowerVecParams <- do.call(PCMGetVecParams, c(list(model = lowerModel), argsPCMSetOrGetVecParams))
-
-            upperModel <- do.call(PCMUpperBound, c(list(model = model), argsPCMUpperBound))
-            upperVecParams <- do.call(PCMGetVecParams, c(list(model = upperModel), argsPCMSetOrGetVecParams))
-
-            if( !is.null(matParamsJitterRootCladeFit) ) {
-              matParamsJitterRootCladeFit <-
-                do.call(rbind,
-                        lapply(1:nrow(matParamsJitterRootCladeFit), function(i) {
-                          if(isTRUE(all(matParamsJitterRootCladeFit[i,] >= lowerVecParams)) &&
-                             isTRUE(all(matParamsJitterRootCladeFit[i,] <= upperVecParams))
-                          ) {
-                            matParamsJitterRootCladeFit[i,]
-                          } else {
-                            NULL
-                          }
-                        }))
-              if(nrow(matParamsJitterRootCladeFit) > numJitterRootCladeFit) {
-                matParamsJitterRootCladeFit <- matParamsJitterRootCladeFit[1:numJitterRootCladeFit, ]
-              }
-              matParamsFromCladeFits <- rbind(matParamsFromCladeFits,
-                                              matParamsJitterRootCladeFit)
-            }
-
-            if( !is.null(matParamsJitterAllCladeFits) ) {
-              matParamsJitterAllCladeFits <-
-                do.call(rbind,
-                        lapply(1:nrow(matParamsJitterAllCladeFits), function(i) {
-                          if(isTRUE(all(matParamsJitterAllCladeFits[i,] >= lowerVecParams)) &&
-                             isTRUE(all(matParamsJitterAllCladeFits[i,] <= upperVecParams))
-                          ) {
-                            matParamsJitterAllCladeFits[i,]
-                          } else {
-                            NULL
-                          }
-                        }))
-              if(nrow(matParamsJitterAllCladeFits) > numJitterAllCladeFits) {
-                matParamsJitterAllCladeFits <- matParamsJitterAllCladeFits[1:numJitterAllCladeFits, ]
-              }
-              matParamsFromCladeFits <- rbind(matParamsFromCladeFits,
-                                              matParamsJitterAllCladeFits)
-            }
-          }
-
-
-          if(is.null(argsConfigOptimAndMCMC_mpp)) {
-            argsConfigOptimAndMCMC_mpp <- list()
-          }
-
-          if( !is.null(argsConfigOptimAndMCMC_mpp[["listParInitOptim"]]) ) {
-            if(verbose) {
-              cat("Prepending the following parameter vectors to argsConfigOptimAndMCMC[['listParInitOptim']] : ")
-              print(matParamsFromCladeFits)
-            }
-            argsConfigOptimAndMCMC_mpp[["listParInitOptim"]] <-
-              c(lapply(1:nrow(matParamsFromCladeFits), function(i) matParamsFromCladeFits[i, ]),
-                argsConfigOptimAndMCMC_mpp[["listParInitOptim"]])
-          } else {
-            if(verbose) {
-              cat("Setting listParInitOptim to : ")
-              print(matParamsFromCladeFits)
-            }
-            argsConfigOptimAndMCMC_mpp[["listParInitOptim"]] <-
-              lapply(1:nrow(matParamsFromCladeFits), function(i) matParamsFromCladeFits[i, ])
-          }
-
-          if( !is.null(argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]]) ) {
-            argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]] <- argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]] + nrow(matParamsFromCladeFits)
-          } else {
-            argsConfigOptimAndMCMC_mpp[["genInitNumEvals"]] <- nrow(matParamsFromCladeFits)
-          }
-        }
-
-        if(verbose) {
-          cat("Performing ML fit on mapping: (", toString(mpp), ") of model-types (", modelTypes, ")\n")
-          # cat("Initial model:\n", do.call(paste, c(as.list(capture.output(print(model))), sep = "\n")))
-          # cat("names(model): (", toString(names(model)), ").\n")
-          # cat("attr(model, 'regimes'): (", toString(attr(model, "regimes")), ").\n")
-          # cat("PCMRegimes(model, tree): (", toString(PCMRegimes(model, tree)), ").\n")
-        }
-
-        fit <- PCMFit(X = X, tree = tree, model = model, metaI = metaIFun,
-                      lik = lik, prior = prior, input.data = input.data,
-                      config = config,
-                      argsPCMLowerBound = argsPCMLowerBound,
-                      argsPCMUpperBound = argsPCMUpperBound,
-                      argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams,
-                      argsConfigOptimAndMCMC = argsConfigOptimAndMCMC_mpp,
-                      verbose = verbose)
-
-        ll <- logLik(fit)
-        vec <- c(coef(fit), logLik = ll, df = attr(ll, "df"), nobs = attr(ll, "nobs"), AIC = AIC(fit))
-
-        if(printFitVectorsToConsole) {
-          cat(fitToCladeRoot, ":", toString(unname(vec)), "\n", sep="")
-        }
-        vec
-      }
-    res
+    class(res) <- "PCMMRGFits"
   }
 
-  class(res) <- "PCMFitModelMappings"
   if(setAttributes) {
     attr(res, "X") <- X
     attr(res, "tree") <- tree
     attr(res, "modelTypes") <- modelTypes
     attr(res, "metaIFun") <- metaIFun
+    attr(res, "positiveValueGuard") <- positiveValueGuard
     attr(res, "lik") <- lik
     attr(res, "prior") <- prior
     attr(res, "input.data") <- input.data
@@ -717,6 +715,7 @@ PCMLoadMRGFromFitVector <- function(fitVector, modelTypes, k, ...) {
   numNumericParams <- fitVector[last - 4]
 
   mappingModelsToRegimes <- matrix(as.integer(fitVector[(numNumericParams+1):(last-5)]), nrow = 2, byrow = TRUE)
+
   model <- MRG(k = k, modelTypes = modelTypes, mapping = mappingModelsToRegimes[2,], ...)
 
   PCMSetOrGetVecParams(model, fitVector)
@@ -727,4 +726,22 @@ PCMLoadMRGFromFitVector <- function(fitVector, modelTypes, k, ...) {
   attr(model, "nobs") <- nobs
   attr(model, "AIC") <- AIC
   model
+}
+
+#' @importFrom data.table as.data.table
+#' @export
+as.data.table.PCMCladeFits <- function(cladeFits) {
+  modelTypes <- attr(cladeFits, "modelTypes")
+
+  dt <- data.table(
+    root = as.vector(sapply(names(cladeFits), function(node) as.integer(rep(node, length(cladeFits[[node]]))))),
+    modelType = as.vector(sapply(names(cladeFits), function(node) modelTypes[1:length(cladeFits[[node]])])),
+    vecParams = unlist(lapply(names(cladeFits), function(node) lapply(1:length(cladeFits[[node]]), function(i) cladeFits[[node]][[i]][1:(length(cladeFits[[node]][[i]]) - 7)])), recursive = FALSE),
+    numParam = unlist(lapply(names(cladeFits), function(node) sapply(1:length(cladeFits[[node]]), function(i) cladeFits[[node]][[i]]["numParam"]))),
+    logLik = unlist(lapply(names(cladeFits), function(node) sapply(1:length(cladeFits[[node]]), function(i) cladeFits[[node]][[i]]["logLik"]))),
+    df = unlist(lapply(names(cladeFits), function(node) sapply(1:length(cladeFits[[node]]), function(i) cladeFits[[node]][[i]]["df"]))),
+    nobs = unlist(lapply(names(cladeFits), function(node) sapply(1:length(cladeFits[[node]]), function(i) cladeFits[[node]][[i]]["nobs"]))),
+    AIC = unlist(lapply(names(cladeFits), function(node) sapply(1:length(cladeFits[[node]]), function(i) cladeFits[[node]][[i]]["AIC"])))
+  )
+  dt
 }

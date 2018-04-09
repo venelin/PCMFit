@@ -4,7 +4,8 @@
 \alias{PCMLowerBound}
 \title{Numerical lower bound}
 \usage{
-PCMLowerBound(model, ...)
+PCMLowerBound(model, lowerBoundValue = -10, lowerBoundValuePositiveDiag = 0,
+  namedLowerBoundValues = NULL, ...)
 }
 \arguments{
 \item{model}{a PCM object}

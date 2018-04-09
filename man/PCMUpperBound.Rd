@@ -4,7 +4,8 @@
 \alias{PCMUpperBound}
 \title{Numerical upper bound}
 \usage{
-PCMUpperBound(model, ...)
+PCMUpperBound(model, upperBoundValue = 10, upperBoundValuePositiveDiag = 10,
+  namedUpperBoundValues = NULL, ...)
 }
 \arguments{
 \item{model}{a PC
