@@ -1,7 +1,7 @@
 Package: PCMFit
 Type: Package
 Title: Fitting and model selection of phylogenetic comparative models
-Version: 0.1.0
+Version: 0.2.2
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
 Maintainer: The package maintainer <vmitov@gmail.com>
@@ -26,9 +26,11 @@ Imports:
     OptimMCMC,
     foreach,
     iterators,
-    digest
+    digest,
+    data.table
 Suggests:
     PCMBaseCpp,
-    testthat
+    testthat,
+    knitr
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

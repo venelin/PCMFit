@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^tests/testthat/.*.RData
+^tests/testthat/.*.txt
+^vignettes/.*.pdf
