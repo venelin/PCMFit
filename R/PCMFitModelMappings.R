@@ -140,7 +140,7 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
   #res <- modelTypes[indices]
   names(res) <- names(mapping)
   res
-  }
+}
 
 #' Iterator over combinations with repetions of a given set of modelTypes
 #' @param mapping a vector of elements from modelTypes giving the initial combination
@@ -185,7 +185,8 @@ PCMIteratorMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
 
 #' Load a mixed-regime Gaussian model from a fit vector
 #' @export
-PCMLoadMRGFromFitVector <- function(fitVector, modelTypes, k, ...) {
+PCMLoadMixedGaussianFromFitVector <- function(fitVector, modelTypes, k,
+                                              remapModelTypeIndicesInFitVector = seq_along(modelTypes), ...) {
   # the last entries in fitVector are in the following order from left to right:
   # numNumericParams, logLik, df, nobs, AIC;
   # the first elements from 1 to numNumericParams are the actual numeric parameters;
@@ -203,9 +204,10 @@ PCMLoadMRGFromFitVector <- function(fitVector, modelTypes, k, ...) {
 
   mappingModelsToRegimes <- matrix(as.integer(fitVector[(numNumericParams+1):(last-5)]), nrow = 2, byrow = TRUE)
 
-  model <- MRG(k = k, modelTypes = modelTypes, mapping = mappingModelsToRegimes[2,], ...)
+  model <- MixedGaussian(k = k, modelTypes = modelTypes,
+                         mapping = remapModelTypeIndicesInFitVector[mappingModelsToRegimes[2, ]], ...)
 
-  PCMSetOrGetVecParams(model, fitVector)
+  PCMParamLoadOrStore(model, fitVector, offset = 0, load = TRUE)
 
   attr(model, "startingNodesRegimes") <- mappingModelsToRegimes[1,]
   attr(model, "ll") <- ll
@@ -255,7 +257,6 @@ HashCodes <- function(tree, modelTypes, startingNodesRegimesLabels, modelMapping
 #' Lookup a fit vector for a given tree and model mapping in a data.table of
 #' previously run fits.
 #'
-#' @description This is an internal function
 #' @param tree a phylo object
 #' @param modelTypes character vector
 #' @param modelMapping an integer or character vector to by matched against modelTypes
@@ -278,18 +279,36 @@ LookupFit <- function(tree, modelTypes, modelMapping, tableFits,
   tableFits[hashCodes, , mult="first", nomatch=0]
 }
 
-#' Compose an MRG model
-#' @importFrom PCMBase PCMTreeExtractClade
+#' Compose a MixedGaussian model
+#' @importFrom PCMBase PCMTreeExtractClade is.Fixed is.PCM PCMParamLoadOrStore PCMParamGetShortVector
 #' @export
-ComposeMRGFromFits <- function(
+ComposeMixedGaussianFromFits <- function(
   tree, startingNodesRegimes, modelTypes, k, R, mapping,
-  argsMRG, tableFits, tableAncestors = NULL, verbose = FALSE) {
-  # create an mrg model
-  model <- do.call(MRG, c(list(k = k, modelTypes = modelTypes, mapping = mapping), argsMRG))
+  argsMixedGaussian,
+  tableFits, modelTypesInTableFits,
+  tableAncestors = NULL, verbose = FALSE) {
+
+  if(verbose) {
+    cat("Composing a MixedGaussian model:\n")
+    cat("startingNodesRegimes=c(", toString(startingNodesRegimes), ")\n")
+    cat("mapping=c(", toString(mapping), ")\n")
+  }
+
+  # tableFits can be supplied from a previous fit with different modelTypes which partially
+  # overlap with modelTypes.
+  # In this case, we need to remap the model indices in fitVector to the new modelTypes.
+  remapModelTypeIndicesInFitVector <- match(modelTypesInTableFits, modelTypes)
+  if(verbose) {
+    cat("remapModelTypeIndicesInFitVector=c(", toString(remapModelTypeIndicesInFitVector), ");")
+    cat("NAs indicate that some of modelTypesInTableFits are not present in modelTypes.\n")
+  }
+
+  # create a MixedGaussian model
+  model <- do.call(MixedGaussian, c(list(k = k, modelTypes = modelTypes, mapping = mapping), argsMixedGaussian))
 
   # load listParInitOptim with the parameter vector from the ML fits to all clades
   # starting at startingNodesRegimes
-  specParams <- attr(model, "specParams", exact = TRUE)
+  spec <- attr(model, "spec", exact = TRUE)
   subModelsLoaded <- rep(FALSE, length(mapping))
 
   for(r in 1:length(startingNodesRegimes)) {
@@ -300,7 +319,7 @@ ComposeMRGFromFits <- function(
     fit <- LookupFit(tree = tree_nr, modelTypes = modelTypes, modelMapping = mr, tableFits = tableFits)
 
     if(nrow(fit) == 0) {
-      stop("ERR:04120:PCMFit:PCMFit.R:ComposeMRGFromCladeFits:: no entry in tableFits for the given tree and modelMapping.")
+      stop("ERR:04120:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: no entry in tableFits for the given tree and modelMapping.")
     }
 
     fitVector <- fit$fitVector[[1]]
@@ -310,65 +329,78 @@ ComposeMRGFromFits <- function(
     }
 
     fitModel <-
-      do.call(PCMLoadMRGFromFitVector,
+      do.call(PCMLoadMixedGaussianFromFitVector,
               c(list(fitVector = fitVector,
                      modelTypes = modelTypes,
-                     k = k),
-                argsMRG))
+                     k = k,
+                     remapModelTypeIndicesInFitVector = remapModelTypeIndicesInFitVector),
+                argsMixedGaussian))
 
     for(name in names(fitModel)) {
       if(verbose) {
         cat("Setting model or global parameter with name=", name, "\n")
       }
 
-      if(name %in% names(specParams) &&
-         specParams[[name]]$type[1] %in% c("gscalar", "gvector", "gmatrix")) {
-        if( specParams[[name]]$type[2] != "fixed" ) {
-          # set all global non-fixed parameters to the mean of their best fits for the
-          # clades
-          model[[name]] <- model[[name]] + (fitModel[[name]]/R)
+      if( name %in% names(model) &&
+          is.Global(model[[name]]) &&
+          is.Global(fitModel[[name]]) &&
+          !is.Fixed(model[[name]]) ) {
+
+        # set all global non-fixed parameters to the mean of their best fits for the
+        # clades
+        vecCurrent <- PCMParamGetShortVector(model[[name]], k = k, R = 1)
+        vecFitModel <- PCMParamGetShortVector(fitModel[[name]], k = k, R = 1)
+
+        if(! length(vecCurrent) == length(vecFitModel) ) {
+          stop(paste0("ERR:04121:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: a global parameter ", name,
+                      " in a fit-model has a different short-vector length from the to-be fit model length(vecToFit)=",
+                      length(vecCurrent), ", length(vecFitModel)=", length(vecFitModel), "; class model to fit = ", mr,
+                      "; class fitted model = ", toString(class(fitModel[[name]]))))
         }
-      } else if(specParams[[name]]$type[1] == "model" &&
-                class(fitModel[[name]])[1] == mr) {
+        vecCurrent <- vecCurrent + vecFitModel/R
+        PCMParamLoadOrStore(model[[name]], vecCurrent, 0, k, 1, load = TRUE)
+        #model[[name]][] <- model[[name]][] + (fitModel[[name]][]/R)
+
+      } else if(is.PCM(spec[[name]]) && class(fitModel[[name]])[1] == mr) {
         if(!subModelsLoaded[r]) {
           model[[as.character(r)]] <- fitModel[[name]]
           subModelsLoaded[r] <- TRUE
         } else {
-          stop("ERR:04121:PCMFit:PCMFit.R:ComposeMRGFromCladeFits:: submodel for regime ", r, " was already loaded from a best clade fit.")
+          stop("ERR:04122:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: submodel for regime ", r, " was already loaded from a best clade fit.")
         }
       } else {
-        stop("ERR:04122:PCMFit:PCMFit.R:ComposeMRGFromCladeFits:: Found a member (", name, ") in fitModel starting from node (", nr, ") and with class '", class(fitModel[[name]]), "' which is neither a global parameter nor a model of the needed type (", mr, ").")
+        stop("ERR:04123:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: Found a member (", name, ") in fitModel starting from node (", nr, ") and with class '", class(fitModel[[name]]), "' which is neither a global parameter nor a model of the needed type (", mr, ").")
       }
     }
   }
   model
 }
 
-#' @importFrom PCMBase PCMGetVecParams PCMSetOrGetVecParams
+#' @importFrom PCMBase PCMParamGetShortVector PCMParamLoadOrStore
 #' @importFrom stats rnorm
 #' @export
 AdaptArgsConfigOptimAndMCMC <- function(
   model,
 
-  argsPCMLowerBound,
-  argsPCMUpperBound,
+  argsPCMParamLowerLimit,
+  argsPCMParamUpperLimit,
 
-  argsPCMSetOrGetVecParams,
+  argsPCMParamLoadOrStore,
   argsConfigOptimAndMCMC,
   numJitterRootRegimeFit, sdJitterRootRegimeFit,
   numJitterAllRegimeFits, sdJitterAllRegimeFits,
   verbose = FALSE
 ) {
 
-  matParamsFromTableFits <- matrix(PCMGetVecParams(model), 1, PCMNumParams(model), byrow = TRUE)
+  matParamsFromTableFits <- matrix(PCMParamGetShortVector(model), 1, PCMParamCount(model), byrow = TRUE)
   matParamsJitterRootCladeFit <- matParamsJitterAllCladeFits <- NULL
 
   # if there is more than one clade in the tree and numJitterRootRegimeFit > 0
   if( !is.null(model[["2"]]) && numJitterRootRegimeFit > 0 ) {
     vecParamIndex <- 1:ncol(matParamsFromTableFits)
     modelIndexParams <- model
-    PCMSetOrGetVecParams(modelIndexParams, vecParamIndex)
-    vecParamIndexRootClade <- as.integer(PCMGetVecParams(modelIndexParams[["1"]]))
+    PCMParamLoadOrStore(modelIndexParams, vecParamIndex, offset = 0, load = TRUE)
+    vecParamIndexRootClade <- as.integer(PCMParamGetShortVector(modelIndexParams[["1"]]))
     matParamsJitterRootCladeFit <-
       matrix(matParamsFromTableFits[1,], 2*numJitterRootRegimeFit, ncol(matParamsFromTableFits), byrow=TRUE)
     for(j in vecParamIndexRootClade) {
@@ -390,11 +422,11 @@ AdaptArgsConfigOptimAndMCMC <- function(
 
   if(!is.null(matParamsJitterRootCladeFit) || !is.null(matParamsJitterAllCladeFits)) {
     # need to remove the parameters that go out of the lower-upper bound
-    lowerModel <- do.call(PCMLowerBound, c(list(model = model), argsPCMLowerBound))
-    lowerVecParams <- do.call(PCMGetVecParams, c(list(model = lowerModel), argsPCMSetOrGetVecParams))
+    lowerModel <- do.call(PCMParamLowerLimit, c(list(model), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
 
-    upperModel <- do.call(PCMUpperBound, c(list(model = model), argsPCMUpperBound))
-    upperVecParams <- do.call(PCMGetVecParams, c(list(model = upperModel), argsPCMSetOrGetVecParams))
+    upperModel <- do.call(PCMParamUpperLimit, c(list(model), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
 
     if( !is.null(matParamsJitterRootCladeFit) ) {
       matParamsJitterRootCladeFit <-
@@ -444,16 +476,16 @@ AdaptArgsConfigOptimAndMCMC <- function(
 
   if( !is.null(argsConfigOptimAndMCMC[["listParInitOptim"]]) ) {
     if(verbose) {
-      cat("Prepending the following parameter vectors to argsConfigOptimAndMCMC[['listParInitOptim']] : ")
-      print(matParamsFromTableFits)
+      cat("Prepending the ", nrow(matParamsFromTableFits), " parameter vectors to argsConfigOptimAndMCMC[['listParInitOptim']] \n ")
+      #print(matParamsFromTableFits)
     }
     argsConfigOptimAndMCMC[["listParInitOptim"]] <-
       c(lapply(1:nrow(matParamsFromTableFits), function(i) matParamsFromTableFits[i, ]),
         argsConfigOptimAndMCMC[["listParInitOptim"]])
   } else {
     if(verbose) {
-      cat("Setting listParInitOptim to : ")
-      print(matParamsFromTableFits)
+      cat("Setting ", nrow(matParamsFromTableFits), " param vectors into listParInitOptim \n ")
+      #print(matParamsFromTableFits)
     }
     argsConfigOptimAndMCMC[["listParInitOptim"]] <-
       lapply(1:nrow(matParamsFromTableFits), function(i) matParamsFromTableFits[i, ])
@@ -472,34 +504,38 @@ AdaptArgsConfigOptimAndMCMC <- function(
 #' Fit regime-assignments to (sub-)trees in a tree with different assigned model types to each regime.
 #'
 #' @description This function performs multiple model fits of mixed regime models
-#' (MRG) mapping different model-types (e.g. BM and OU) to different regimes in a tree and
+#' (MixedGaussian) mapping different model-types (e.g. BM and OU) to different regimes in a tree and
 #' testing different regime assignments to the branches in the tree (TODO describe algorithm).
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedED PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MRG PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
+#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedED PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
 #' @export
 PCMFitModelMappings <- function(
-  X, tree,  modelTypes = c("BM__noX0__noSigmae_x", "OU__noX0__noSigmae_x"),
+  X, tree,  modelTypes,
+  generatePCMModelsFun = NULL,
   metaIFun = PCMInfo, positiveValueGuard = Inf,
 
   lik = NULL, prior = NULL, input.data = NULL, config = NULL,
 
-  fitMappingsPrev = NULL, tableFitsPrev = fitMappingsPrev$tableFits,
+  fitMappingsPrev = NULL,
+  tableFitsPrev = fitMappingsPrev$tableFits,
+  modelTypesInTableFitsPrev = NULL,
+
   skipFitWhenFoundInTableFits = TRUE,
 
   prefixFiles = "fits_",
 
-  maxCladePartitionLevel = 1, maxNumNodesPerCladePartition = Inf, minCladeSizes = 25,
+  maxCladePartitionLevel = 8, maxNumNodesPerCladePartition = 1, minCladeSizes = 25,
 
   listPCMOptions = PCMOptions(),
 
-  argsMRG = NULL,
-  argsPCMLowerBound = NULL,
-  argsPCMUpperBound = NULL,
-  argsPCMSetOrGetVecParams = NULL,
+  argsMixedGaussian = NULL,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  argsPCMParamLoadOrStore = NULL,
 
   argsConfigOptimAndMCMC1 = NULL,
   argsConfigOptimAndMCMC2 = NULL,
@@ -514,24 +550,36 @@ PCMFitModelMappings <- function(
 
   verbose = TRUE,
   verbosePCMFit = FALSE,
-  verboseComposeMRGFromFits = FALSE,
+  verboseComposeMixedGaussianFromFits = FALSE,
   verboseAdaptArgsConfigOptimAndMCMC = FALSE
 ) {
+
+  treeOriginal <- tree
 
   treeEDExpression = "tree"
   PCMTreeSetLabels(tree)
   PCMTreeSetDefaultRegime(tree, 1)
-  treeOriginal <- tree
+
   colnames(X) <- as.character(1:PCMTreeNumTips(tree))
 
   tableFits <- tableFitsPrev
+  if(is.null(modelTypesInTableFitsPrev)) {
+    # assume that tableFitsPrev has the same modelTypes unless the user specifies otherwise
+    modelTypesInTableFits <- modelTypes
+  }
+
 
   if(!is.null(fitMappingsPrev)) {
     tableFits <- tableFitsPrev <- fitMappingsPrev$tableFits
     if(!identical(modelTypes, fitMappingsPrev$arguments$modelTypes)) {
+
+      # this should remap the model-type indices in the fit vectors, show
+      # table fits is correctly converted.
       tableFits <- RetrieveFittedModelsFromFitVectors(
         fitMappings = fitMappingsPrev, tableFits = tableFitsPrev,
         modelTypesNew = modelTypes)
+
+      modelTypesInTableFits <- modelTypes
     }
   }
   if(!is.data.table(tableFits)) {
@@ -550,6 +598,7 @@ PCMFitModelMappings <- function(
                            nobs = integer(),
                            aic = double(),
                            duplicated = logical())
+    modelTypesInTableFits <- modelTypes
   }
   setkey(tableFits, hashCodeTree,hashCodeStartingNodesRegimesLabels,hashCodeMapping )
 
@@ -559,10 +608,13 @@ PCMFitModelMappings <- function(
   }
   MIN_CLADE_SIZE <- min(minCladeSizes, na.rm = TRUE)
 
+  mainLoopHistory <- list()
+
   if(PCMTreeNumTips(tree) > MIN_CLADE_SIZE) {
 
     preorderTree <- PCMTreePreorder(tree)
     tableAncestors <- PCMTreeTableAncestors(tree, preorder = preorderTree)
+
 
     # 1. (fitsToClades) Perform a fit of each model-type to each clade
 
@@ -578,9 +630,22 @@ PCMFitModelMappings <- function(
       cat("Step 1: perform a fit on", length(cladeRoots), " clades x", length(modelTypes), " model-types...\n")
     }
 
-    envCombineAndSave1 <- new.env()
-    envCombineAndSave1$ncalls <- 0
-    CombineAndSave <- function(..., filePrefix, envNCalls) {
+    envCombineTaskResults1 <- new.env()
+    envCombineTaskResults1$ncalls <- 0
+
+    SaveCurrentResults <- function(..., filePrefix) {
+      status <- try(
+        save(..., file = paste0("CurrentResults_", filePrefix, ".RData")),
+       silent = TRUE)
+      if(class(status) == 'try-error') {
+        warning(paste0("An error occurred while saving tableFits to file ",
+                       paste0("CurrentResults_", filePrefix, ".RData"), " :", status))
+      }
+    }
+
+    # combine fits from parallel tasks into a data.table and saves this data.table to
+    # an .RData file
+    CombineTaskResults <- function(..., filePrefix, envNCalls) {
       envNCalls$ncalls <- envNCalls$ncalls + 1
       data <- rbindlist(
         lapply(
@@ -598,6 +663,23 @@ PCMFitModelMappings <- function(
       data
     }
 
+    CleanTemporaryFitFiles <- function(filePrefix) {
+      status <- try(
+        {
+          files <- list.files(".", pattern=paste0("^", filePrefix, ".*.RData"))
+          # cat("Cleaning temporary data-files:")
+          # print(files)
+          if(length(files) > 0) {
+            do.call(file.remove, as.list(files))
+          }
+
+        }, silent = TRUE)
+      if(class(status) == 'try-error') {
+        warning(paste0("An error occurred while cleaning up temporary data-files: ", status))
+      }
+    }
+
+
     nodeLabelsTree <- PCMTreeGetLabels(tree)
     `%op%` <- if(doParallel) `%dopar%` else `%do%`
 
@@ -612,21 +694,41 @@ PCMFitModelMappings <- function(
       foreach(
         modelMapping = 1:length(modelTypes),
         .combine = function(...) {
-          CombineAndSave(
+          CombineTaskResults(
             ...,
             filePrefix = paste0(prefixFiles, "_clades_"),
-            envNCalls = envCombineAndSave1)
+            envNCalls = envCombineTaskResults1)
         },
         .multicombine = TRUE,
         .inorder = FALSE,
         .errorhandling = "pass",
         .packages = (.packages()) ) %op% {
 
+
+          # recreate tableAncestors under a different name, to avoid exporting a potentially big
+          # tableAncestors
+          if(!exists("tableAncestorsTree", .GlobalEnv)) {
+            if(verbose) {
+              cat("Creating tableAncestorsTree in .GlobalEnv during clade-fits\n")
+            }
+            assign("tableAncestorsTree", PCMTreeTableAncestors(tree, preorderTree), .GlobalEnv)
+          }
+
+          if(!exists("generatedPCMModels", .GlobalEnv) && !is.null(generatePCMModelsFun)) {
+            if(verbose) {
+              cat("Calling generatePCMModelsFun()...\n")
+            }
+            # this should generate PCMParentClasses and PCMSpecify functions
+            # for all models in modelTypes
+            generatePCMModelsFun()
+            assign("generatedPCMModels", TRUE, .GlobalEnv)
+          }
+
           # don't want the names in modelMapping
           modelMapping <- unname(modelMapping)
 
           options(listPCMOptions)
-          treeSplit <- PCMTreeSplitAtNode(tree, clRoot, tableAncestors, X)
+          treeSplit <- PCMTreeSplitAtNode(tree, clRoot, tableAncestorsTree, X)
           clade <- treeSplit$clade
           Xclade <- treeSplit$Xclade
 
@@ -655,20 +757,20 @@ PCMFitModelMappings <- function(
               cat("  Fitting ", modelTypes[modelMapping], " to clade starting at node ", clRoot, " ...\n")
             }
 
-            # create an mrg model
-            model <- do.call(MRG, c(list(k = nrow(Xclade),
+            # create an MixedGaussian model
+            model <- do.call(MixedGaussian, c(list(k = nrow(Xclade),
                                          modelTypes = modelTypes,
                                          mapping = modelMapping),
-                                    argsMRG))
+                                    argsMixedGaussian))
 
             fit <- PCMFit(X = Xclade, tree = clade, model = model,
                           metaI = metaIFun, positiveValueGuard = positiveValueGuard,
 
                           lik = lik, prior = prior, input.data = input.data,
                           config = config,
-                          argsPCMLowerBound = argsPCMLowerBound,
-                          argsPCMUpperBound = argsPCMUpperBound,
-                          argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams,
+                          argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+                          argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+                          argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
                           argsConfigOptimAndMCMC = argsConfigOptimAndMCMC1,
                           verbose = verbosePCMFit)
 
@@ -710,6 +812,9 @@ PCMFitModelMappings <- function(
     tableFits <- tableFits[duplicated == FALSE]
     setkey(tableFits, hashCodeTree,hashCodeStartingNodesRegimesLabels,hashCodeMapping)
 
+    SaveCurrentResults(tableFits, filePrefix = prefixFiles)
+    CleanTemporaryFitFiles(filePrefix = prefixFiles)
+
 
     # 2. Perform fits to clade-partitions with different model mappings
 
@@ -737,16 +842,18 @@ PCMFitModelMappings <- function(
           hashCodeBestMappingLevel = hashCodeMapping[iMinAIC]
         )
       }]
-    setkey(queuePartitionRoots, level, node)
+    #setkey(queuePartitionRoots, level, node)
     # index of the head row in queuePartitionRoots
     headQPR <- 1L
 
-    envCombineAndSave2 <- new.env()
-    envCombineAndSave2$ncalls <- 0
+    envCombineTaskResults2 <- new.env()
+    envCombineTaskResults2$ncalls <- 0
 
+    # Main loop:
     while(headQPR <= nrow(queuePartitionRoots)) {
       # 2.2. pop the first partition root from the queue
-      partitionRootLabel <- nodeLabelsTree[queuePartitionRoots[headQPR, node]]
+      partitionRootNode <- queuePartitionRoots[headQPR, node]
+      partitionRootLabel <- nodeLabelsTree[partitionRootNode]
       partitionRootLevel <- queuePartitionRoots[headQPR, level]
 
       hashCodeBestPartition <- queuePartitionRoots[headQPR, hashCodeBestPartitionLevel]
@@ -768,11 +875,21 @@ PCMFitModelMappings <- function(
                                                     hashCodeBestMappingLevel)],
                            aic[[1]]]
 
-      if(verbose) {
-        cat("Step 2.2: headQPR=", headQPR, ": bestPartition/mapping/AIC: ", toString(bestPartition), " / ", toString(bestMapping), " / ", bestAIC, " ; ",
-            " performing clade-partitioning at partitionRootLabel=", partitionRootLabel, "; partitionRootLevel=", partitionRootLevel, "\n")
-        cat("  Remaining queue:\n")
+      # prepare an entry in the mainLoopHistory for this iteration
+      mainLoopHistoryEntry <- list(
+        headQPR = headQPR,
+        lengthQPR = nrow(queuePartitionRoots),
+        headQPR_PartitionRootNode = partitionRootNode,
+        headQPR_PartitionRootLabel = partitionRootLabel,
+        headQPR_PartitionRootLevel = partitionRootLevel,
+        headQPR_Partition = bestPartition,
+        headQPR_MappingIdx = match(bestMapping, modelTypes),
+        headQPR_Mapping = bestMapping,
+        headQPR_AIC = bestAIC)
 
+      if(verbose) {
+        cat("Step 2.2: headQPR=", headQPR, ": bestPartition/mapping/AIC: ", toString(bestPartition), " / ", toString(match(bestMapping, modelTypes)), "(", toString(bestMapping), ") / ", bestAIC, " ; \n")
+        cat("  Remaining queue:\n")
 
         print(cbind(
           queuePartitionRoots[-(1:headQPR), list(level, node, partitionParentNode)],
@@ -786,6 +903,8 @@ PCMFitModelMappings <- function(
                                              hashCodeBestPartitionLevel,
                                              hashCodeBestMappingLevel)],
                     list(partCurrent = startingNodesRegimesLabels)]))
+
+        cat("Performing clade-partitioning at partitionRootLabel=", partitionRootLabel, "; partitionRootLevel=", partitionRootLevel, "\n")
       }
 
       # advance the head to the next entry in the queue
@@ -798,6 +917,8 @@ PCMFitModelMappings <- function(
           edExpression <- paste0("D(", edExpression, ",", label, ")")
         }
       }
+      mainLoopHistoryEntry[["headQPR_EDExpression"]] <- edExpression
+
       subtree <- PCMTreeEvalNestedEDxOnTree(edExpression, tree)
       labelsSubtree <- PCMTreeGetLabels(subtree)
 
@@ -806,9 +927,6 @@ PCMFitModelMappings <- function(
       }
       # labels of all root nodes of clades in subtree starting from its root
       cladeRootsSubtree <- partitionRootLabel
-
-      tableAncestorsSubtree <- tableAncestors[labelsSubtree, labelsSubtree]
-
 
       # 2.4. listCladePartitionsSubtree: Create a list of all possible clade-partitions
       # of subtree into clades not smaller than minCladeSizes[partitionRootLevel].
@@ -829,7 +947,7 @@ PCMFitModelMappings <- function(
           tree = subtree,
           nNodes = numPartNodes,
           minCladeSize = minCladeSizeLevel,
-          tableAncestors = tableAncestorsSubtree)
+          tableAncestors = tableAncestors[labelsSubtree, labelsSubtree])
 
         if(numPartNodes == 1) {
           cladeRootsSubtree <- c(cladeRootsSubtree, labelsSubtree[unlist(listNew)])
@@ -871,8 +989,12 @@ PCMFitModelMappings <- function(
 
 
       listCladePartitions <- listCladePartitions[!sapply(listCladePartitions, is.null)]
+      mainLoopHistoryEntry[["listCladePartitions"]] <- listCladePartitions
 
       # 2.6. Prepare "seeds" for the modelMappingIterators for each clade-partition
+      if(verbose) {
+        cat("Step 2.6: Preparing allowed-model-indices for the modelMappingIterators for each clade-partition\n")
+      }
       PCMTreeSetRegimes(tree, as.integer(bestPartition))
       listAllowedModelTypesIndices <- list()
       for(label in union(bestPartition, cladeRootsSubtree)) {
@@ -881,9 +1003,10 @@ PCMFitModelMappings <- function(
           # we test all possible model mappings to the partition-root-table
           listAllowedModelTypesIndices[[label]] <- 1:length(modelTypes)
         } else {
+
           # for all other nodes in the clade-partition, we cut to the best
           # model for the clade originating at the node and the model from the
-          # bestMapping corresponding to that node.
+          # bestMapping over the entire tree corresponding to that node.
           bestCladeRootMapping <- tableFits[
             sapply(startingNodesRegimesLabels, function(s) match(label, s, nomatch = 0L)) == 1,
             match(mapping[[which.min(aic)]][1], modelTypes)]
@@ -898,16 +1021,26 @@ PCMFitModelMappings <- function(
           }
           bestCladePartitionMapping <- match(bestMapping[iRegime], modelTypes)
 
-          listAllowedModelTypesIndices[[label]] <- sort(unique(c(bestCladeRootMapping, bestCladePartitionMapping)))
+          listAllowedModelTypesIndices[[label]] <- unique(c(bestCladePartitionMapping, bestCladeRootMapping))
+
+          # if a previously inferred tableFits was supplied, it might contain clade-fits for model-types other than
+          # the supplied modelTypes in this fit. These result in NA entries in allowedModelTypes-vectors.
+          # We remove them here:
+          listAllowedModelTypesIndices[[label]] <-
+            listAllowedModelTypesIndices[[label]][!is.na(listAllowedModelTypesIndices[[label]])]
         }
       }
 
+      mainLoopHistoryEntry[["listAllowedModelTypesIndices"]] <- listAllowedModelTypesIndices
+
       if(verbose) {
-        cat("Step 2.6: listAllowedModelTypesIndices: ",
-            do.call(paste,
+        cat("listAllowedModelTypesIndices: ",
+            do.call(paste0,
                     c(as.list(capture.output(print(listAllowedModelTypesIndices))),
-                      list(sep="\n"))))
+                      list(sep="; "))))
       }
+
+
 
       # 2.7 Nested foreach over the clade-partitions and the allowed model-type mappings
       if(verbose) {
@@ -927,20 +1060,39 @@ PCMFitModelMappings <- function(
         foreach(
           modelMapping = PCMIteratorMapping2(
             mapping = unlist(sapply(listAllowedModelTypesIndices[cladePartition], function(.) .[1])),
-            modelTypes = 1:length(modelTypes),
-            allowedModelTypesIndices = listAllowedModelTypesIndices[cladePartition]),
+            modelTypes = seq_len(length(modelTypes)),
+            allowedModelTypesIndices = lapply(listAllowedModelTypesIndices[cladePartition], sort)),
 
           .combine=function(...) {
-            CombineAndSave(
+            CombineTaskResults(
               ...,
               filePrefix = paste0(prefixFiles, partitionRootLevel, "_cladeparts_"),
-              envNCalls = envCombineAndSave2)
+              envNCalls = envCombineTaskResults2)
           },
           .multicombine=TRUE,
           .inorder = FALSE,
           .errorhandling = "pass",
           .packages = (.packages()) ) %op% {
             try({
+              # recreate tableAncestors under a different name, to avoid exporting a potentially big
+              # tableAncestors
+              if(!exists("tableAncestorsTree", .GlobalEnv)) {
+                if(verbose) {
+                  cat("Creating tableAncestorsTree in .GlobalEnv during tree-fits\n")
+                }
+                assign("tableAncestorsTree", PCMTreeTableAncestors(tree, preorderTree), .GlobalEnv)
+              }
+
+              if(!exists("generatedPCMModels", .GlobalEnv) && !is.null(generatePCMModelsFun)) {
+                if(verbose) {
+                  cat("Calling generatePCMModelsFun()...\n")
+                }
+                # this should generate PCMParentClasses and PCMSpecify functions
+                # for all models in modelTypes
+                generatePCMModelsFun()
+                assign("generatedPCMModels", TRUE, .GlobalEnv)
+              }
+
               # don't want the names in modelMapping, the positions correspond to cladePartition
               modelMapping <- unname(modelMapping)
 
@@ -970,30 +1122,31 @@ PCMFitModelMappings <- function(
                       "); mapping: (", toString(modelMapping), ")\n")
                 }
 
-                model <- ComposeMRGFromFits(
+                model <- ComposeMixedGaussianFromFits(
                   tree = tree,
                   startingNodesRegimes = as.integer(cladePartition),
                   modelTypes = modelTypes,
                   k = nrow(X),
                   R = length(cladePartition),
                   mapping = modelMapping,
-                  argsMRG = argsMRG,
+                  argsMixedGaussian = argsMixedGaussian,
                   tableFits = tableFits,
-                  tableAncestors = tableAncestors,
-                  verbose = verboseComposeMRGFromFits)
+                  modelTypesInTableFits = modelTypesInTableFits,
+                  tableAncestors = tableAncestorsTree,
+                  verbose = verboseComposeMixedGaussianFromFits)
 
                 fit <- PCMFit(
                   X = X, tree = tree, model = model, metaI = metaIFun, positiveValueGuard = positiveValueGuard,
                   lik = lik, prior = prior, input.data = input.data,
                   config = config,
-                  argsPCMLowerBound = argsPCMLowerBound,
-                  argsPCMUpperBound = argsPCMUpperBound,
-                  argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams,
+                  argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+                  argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+                  argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
                   argsConfigOptimAndMCMC = AdaptArgsConfigOptimAndMCMC(
                     model,
-                    argsPCMLowerBound = argsPCMLowerBound,
-                    argsPCMUpperBound = argsPCMUpperBound,
-                    argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams,
+                    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+                    argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+                    argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
                     argsConfigOptimAndMCMC = argsConfigOptimAndMCMC2,
                     numJitterRootRegimeFit = numJitterRootRegimeFit,
                     sdJitterRootRegimeFit = sdJitterRootRegimeFit,
@@ -1038,6 +1191,14 @@ PCMFitModelMappings <- function(
       tableFits <- tableFits[duplicated == FALSE]
       setkey(tableFits, hashCodeTree,hashCodeStartingNodesRegimesLabels,hashCodeMapping)
 
+      # add new entry to the main loop history
+      mainLoopHistory[[length(mainLoopHistory) + 1]] <- mainLoopHistoryEntry
+
+      # Save the current results to a file "CurrentResults<filePrefix>.RData"
+      SaveCurrentResults(tableFits, mainLoopHistory, queuePartitionRoots, filePrefix = prefixFiles)
+
+      CleanTemporaryFitFiles(filePrefix = prefixFiles)
+
       # 2.8 Identify the best partition and mapping after the partitioning using fitsToTree
 
       if( length(listCladePartitions) > 0 ) {
@@ -1045,7 +1206,7 @@ PCMFitModelMappings <- function(
            partitionRootLevel < maxCladePartitionLevel ) {
           # a partitioning with a better AIC was found
 
-          # put new partitioning nodes and the partitionRootNode in the queue with an augmented level
+          # put new partitioning nodes and the partition root-node in the queue with an augmented level
           queuePartitionRootsNew <- fitsToTree[, {
             iMinAIC <- which.min(aic)
             list(
@@ -1077,11 +1238,11 @@ PCMFitModelMappings <- function(
           # append the new nodes to the queue and reset the key
           queuePartitionRoots <- rbindlist(list(queuePartitionRoots,
                                                 queuePartitionRootsNew))
-          setkey(queuePartitionRoots, level, node)
+          #setkey(queuePartitionRoots, level, node)
         }
       }
 
-    } # end of while(length(queuePartitionRoots) > 0)
+    } # end of main loop: while(headQPR <= nrow(queuePartitionRoots))
 
 
   } else {
@@ -1089,14 +1250,19 @@ PCMFitModelMappings <- function(
   }
 
   res <- list(
-    tree = treeOriginal,
+    options = PCMOptions(),
+    treeOriginal = treeOriginal,
+    tree = tree,
     hashCodeTree = hashCodeEntireTree,
     X = X,
     tableFits = tableFits,
     queuePartitionRoots = queuePartitionRoots,
+    mainLoopHistory = mainLoopHistory,
     arguments = list(
       modelTypes = modelTypes,
-      metaIFun = metaIFun, positiveValueGuard = positiveValueGuard,
+      metaIFun = metaIFun, generatePCMModelsFun = generatePCMModelsFun,
+
+      positiveValueGuard = positiveValueGuard,
 
       lik = lik, prior = prior, input.data = input.data, config = config,
 
@@ -1106,10 +1272,10 @@ PCMFitModelMappings <- function(
 
       listPCMOptions = listPCMOptions,
 
-      argsMRG = argsMRG,
-      argsPCMLowerBound = argsPCMLowerBound,
-      argsPCMUpperBound = argsPCMUpperBound,
-      argsPCMSetOrGetVecParams = argsPCMSetOrGetVecParams,
+      argsMixedGaussian = argsMixedGaussian,
+      argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+      argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+      argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
 
       argsConfigOptimAndMCMC1 = argsConfigOptimAndMCMC1,
       argsConfigOptimAndMCMC2 = argsConfigOptimAndMCMC2,
@@ -1123,7 +1289,7 @@ PCMFitModelMappings <- function(
       doParallel = doParallel,
       verbose = verbose,
       verbosePCMFit = verbosePCMFit,
-      verboseComposeMRGFromFits = verboseComposeMRGFromFits,
+      verboseComposeMixedGaussianFromFits = verboseComposeMixedGaussianFromFits,
       verboseAdaptArgsConfigOptimAndMCMC = verboseAdaptArgsConfigOptimAndMCMC
     )
   )
@@ -1143,7 +1309,7 @@ PCMFitModelMappings <- function(
 #'   Default FALSE.
 #' @return a copy of tableFits with added column "model" and, if necessary, updated
 #'  integer model-type indices in the "fitVector" column.
-#' @importFrom PCMBase MRG PCMTreeEvalNestedEDxOnTree
+#' @importFrom PCMBase MixedGaussian PCMTreeEvalNestedEDxOnTree
 #'
 #' @export
 RetrieveFittedModelsFromFitVectors <- function(
@@ -1152,26 +1318,26 @@ RetrieveFittedModelsFromFitVectors <- function(
   setAttributes = FALSE) {
 
   tableFits2 <- copy(tableFits)
-  tableFits2[, fittedModel:=lapply(1:.N, function(i) {
+  tableFits2[, fittedModel:=lapply(1:.N, function(i, numRows) {
     model <- do.call(
-      PCMLoadMRGFromFitVector,
+      PCMLoadMixedGaussianFromFitVector,
       c(list(fitVector = fitVector[[i]],
            modelTypes = fitMappings$arguments$modelTypes,
            k = nrow(fitMappings$X)),
-        fitMappings$arguments$argsMRG)
+        fitMappings$arguments$argsMixedGaussian)
     )
     if(!is.null(modelTypesNew)) {
       # update the modelTypes and mapping attribute of the model appropriately
       if(is.character(modelTypesNew) && all(fitMappings$arguments$modelTypes %in% modelTypesNew) ) {
-        # note that the constructor MRG accepts character vector as well as integer vector for mapping.
+        # note that the constructor MixedGaussian accepts character vector as well as integer vector for mapping.
         mappingNew <- attr(model, "modelTypes")[attr(model, "mapping")]
         modelNew <- do.call(
-          MRG,
+          MixedGaussian,
           c(list(k = nrow(fitMappings$X),
                  modelTypes = modelTypesNew,
                  mapping = mappingNew),
-            fitMappings$arguments$argsMRG))
-        PCMSetOrGetVecParams(modelNew, PCMGetVecParams(model))
+            fitMappings$arguments$argsMixedGaussian))
+        PCMParamLoadOrStore(modelNew, PCMParamGetShortVector(model), offset = 0, load = TRUE)
         model <- modelNew
       } else {
         stop(paste0("ERR:04141:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (", toString(fitMappings$arguments$modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
@@ -1184,16 +1350,21 @@ RetrieveFittedModelsFromFitVectors <- function(
       attr(model, "tree") <- tree
       attr(model, "X") <- X
     }
-    model
-  })]
+    if(numRows == 1) {
+      list(model)
+    } else {
+      model
+    }
+  }, numRows = .N)]
+
   if(!is.null(modelTypesNew)) {
     # update the fitVectors according to the new modelTypes
     if(is.character(modelTypesNew) && all(fitMappings$arguments$modelTypes %in% modelTypesNew) ) {
-      # note that the constructor MRG accepts character vector as well as integer vector for mapping.
+      # note that the constructor MixedGaussian accepts character vector as well as integer vector for mapping.
       tableFits2[, fitVector:=lapply(1:.N, function(i) {
         treei <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], fitMappings$tree)
         PCMTreeSetRegimes(treei, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(treei)))
-        par <- c(PCMGetVecParamsRegimesAndModels(fittedModel[[i]], treei), numParam = PCMNumParams(fittedModel[[i]]))
+        par <- c(PCMGetVecParamsRegimesAndModels(fittedModel[[i]], treei), numParam = PCMParamCount(fittedModel[[i]]))
         fitVec <- fitVector[[i]]
         fitVec[1:length(par)] <- par
         fitVec
@@ -1204,3 +1375,120 @@ RetrieveFittedModelsFromFitVectors <- function(
   }
   tableFits2
 }
+
+#' @export
+RetrieveBestFitAIC <- function(fitMappings, rank = 1) {
+  tableFits <- RetrieveFittedModelsFromFitVectors(
+    fitMappings,
+    fitMappings$tableFits[treeEDExpression=="tree"][order(aic)][rank],
+    setAttributes = TRUE)
+
+
+  res <- list(
+    tree = fitMappings$tree,
+    X = fitMappings$X,
+    modelTypes = fitMappings$arguments$modelTypes,
+    inferredRegimeNodes = tableFits$startingNodesRegimesLabels[[1]],
+    inferredMapping = tableFits$mapping[[1]],
+    inferredMappingIdx = match(tableFits$mapping[[1]], fitMappings$arguments$modelTypes),
+    inferredModel = tableFits$fittedModel[[1]]
+  )
+
+  PCMTreeSetLabels(res$tree)
+  PCMTreeSetRegimes(res$tree, res$inferredRegimeNodes)
+
+  res[["inferredMappedModels"]] <- attr(res$inferredModel, "mapping")[res$tree$edge.regime]
+  res
+}
+
+#' @importFrom data.table data.table
+#' @export
+PlotSearchHistory <- function(
+  fit,
+  sizeGreyNodepoints = 2.2, sizeColorNodepoints = 2.2,
+  sizeBlackAllowedModelTypes = 1.4, sizeColorAllowedModelTypes = 1.4, sizeRankInQueue = 1.4,
+  vjustBlackAllowedModelTypes = -1.6, vjustColorAllowedModelTypes = -1.6,
+  ...) {
+  tree <- fit$tree
+
+  treeRootInt <- PCMTreeNumTips(tree) + 1L
+  PCMTreeSetLabels(tree)
+
+  plotList <- lapply(1:length(fit$mainLoopHistory), function(i) {
+    #cat("Step ", i, "\n")
+
+    historyEntry <- fit$mainLoopHistory[[i]]
+    rootNodei <- fit$queuePartitionRoots[i, node]
+
+    PCMTreeSetRegimes(tree, historyEntry$headQPR_Partition)
+
+    if(length(historyEntry$listCladePartitions) > 0) {
+      dtCladePartition <- data.table(node=unique(unlist(historyEntry$listCladePartitions)))
+      #print(dtCladePartition[, node])
+      setkey(dtCladePartition, node)
+
+      dtCladePartition[node%in%historyEntry$headQPR_Partition, selected:=TRUE]
+      dtCladePartition[!(node%in%historyEntry$headQPR_Partition), candidate:=TRUE]
+
+      # trying to reconstruct the remaining queue is hard - better to save it at runtime;
+      remainingQueuei <- fit$queuePartitionRoots[i:historyEntry$lengthQPR, list(node = as.character(node))]
+
+      remainingQueuei[, rankInQueue:=(i + .I - 1)]
+      remainingQueuei <- remainingQueuei[!is.na(node)]
+      setkey(remainingQueuei, node)
+
+
+      dtCladePartition[, allowedModelTypes:=sapply(node, function(n) {
+          iLabel <- as.integer(n)
+          # we need the if(), because PCMTreeGetRegimeForNode returns an empty vector for the root-node
+          iRegime <- if(iLabel == treeRootInt) {
+            historyEntry$headQPR_MappingIdx[1]
+          } else {
+            historyEntry$headQPR_MappingIdx[PCMTreeGetRegimeForNode(tree, iLabel)]
+          }
+
+          text <- do.call(paste,
+                          c(as.list(LETTERS[unique(c(iRegime, historyEntry$listAllowedModelTypesIndices[[n]]))]),
+                            list(sep="")))
+          paste0("{",text,"}")
+      })]
+      dtCladePartition[node%in%historyEntry$headQPR_Partition, allowedModelTypesSelected:=allowedModelTypes]
+      dtCladePartition[!(node%in%historyEntry$headQPR_Partition), allowedModelTypesCandidate:=allowedModelTypes]
+
+      fitTablei <- RetrieveFittedModelsFromFitVectors(
+        fit,
+        LookupFit(tree,
+                  fit$arguments$modelTypes,
+                  historyEntry$headQPR_Mapping,
+                  fit$tableFits), setAttributes = TRUE)
+
+      ploti <- PCMTreePlot(tree, ...) %<+% as.data.frame(dtCladePartition) %<+% as.data.frame(remainingQueuei) +
+        geom_nodepoint(aes(shape=selected), size=sizeColorNodepoints, na.rm = TRUE) +
+        geom_nodepoint(aes(shape=candidate), size=sizeGreyNodepoints, color = "grey", na.rm = TRUE) +
+        geom_text(aes(label=allowedModelTypesSelected), size=sizeColorAllowedModelTypes, vjust=vjustColorAllowedModelTypes) +
+        geom_text(aes(label=allowedModelTypesCandidate), color = "black", size=sizeBlackAllowedModelTypes, vjust=vjustBlackAllowedModelTypes) +
+        geom_text(aes(label=rankInQueue), color="black", size=sizeRankInQueue) +
+        ggtitle(paste0("(",i,") AIC=", round(fitTablei$aic[[1]]), ", logLik=", round(fitTablei$logLik[[1]]), ", p=", fitTablei$df[[1]]))
+
+      ploti
+    } else {
+      NULL
+    }
+  })
+  plotList
+}
+
+#' @export
+PlotTreeRegimesAndMapping <- function(tree, regimeNodes, mappingIdx = NULL) {
+  PCMTreeSetLabels(tree)
+  PCMTreeSetRegimes(tree, regimeNodes)
+  pl <- PCMTreePlot(tree) #+ geom_nodelab(size = 2)
+
+  if(!is.null(mappingIdx)) {
+    dtModelMapping <- data.table(node = regimeNodes, mappedModel = LETTERS[mappingIdx])
+    pl <- pl %<+% dtModelMapping +
+      geom_text(aes(label = mappedModel), size=1.6, vjust=-1)
+  }
+  pl
+}
+

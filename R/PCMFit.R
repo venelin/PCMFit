@@ -25,14 +25,14 @@ PCMFit <- function(X, tree, model, ...) {
 }
 
 #' @importFrom OptimMCMC runOptimAndMCMC configOptimAndMCMC
-#' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMNumParams PCMGetVecParams PCMSetOrGetVecParams PCMLowerBound PCMUpperBound
+#' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMOptions
 #' @export
 PCMFit.PCM <- function(
   X, tree, model, metaI = PCMInfo(X, tree, model), positiveValueGuard = Inf,
   lik = NULL, prior = NULL, input.data = NULL, config = NULL,
-  argsPCMLowerBound = NULL,
-  argsPCMUpperBound = NULL,
-  argsPCMSetOrGetVecParams = NULL,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  argsPCMParamLoadOrStore = NULL,
   argsConfigOptimAndMCMC = NULL,
   verbose = FALSE, ...) {
 
@@ -40,12 +40,11 @@ PCMFit.PCM <- function(
     lik <- PCMCreateLikelihood(X, tree, model, metaI, positiveValueGuard)
   }
   if(is.null(config)) {
-    lowerModel <- do.call(PCMLowerBound, c(list(model = model), argsPCMLowerBound))
-    lowerVecParams <- do.call(PCMGetVecParams, c(list(model = lowerModel),
-                                                 argsPCMSetOrGetVecParams))
+    lowerModel <- do.call(PCMParamLowerLimit, c(list(model), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
 
-    upperModel <- do.call(PCMUpperBound, c(list(model = model), argsPCMUpperBound))
-    upperVecParams <- do.call(PCMGetVecParams, c(list(model = upperModel), argsPCMSetOrGetVecParams))
+    upperModel <- do.call(PCMParamUpperLimit, c(list(model), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
 
     config <- do.call(configOptimAndMCMC, c(list(lik = lik, parLower = lowerVecParams, parUpper = upperVecParams), argsConfigOptimAndMCMC) )
   }
@@ -61,11 +60,12 @@ PCMFit.PCM <- function(
   res$lowerModel <- lowerModel
   res$upperVecParams <- upperVecParams
   res$upperModel <- upperModel
+  res$PCMOptions <- PCMOptions()
 
   if(!is.null(res$Optim)) {
     par <- res$Optim$par
     res$modelOptim <- model
-    PCMSetOrGetVecParams(model = res$modelOptim, vecParams = par)
+    PCMParamLoadOrStore(res$modelOptim, vecParams = par, offset = 0, load = TRUE)
     res$logLikOptim <- res$Optim$value
   } else {
     res$modelOptim <- NULL
@@ -94,7 +94,7 @@ logLik.PCMFit <- function(object, ...) {
     value <- object$logLikOptim
   }
 
-  attr(value, "df") <- PCMNumParams(object$modelInit, countRegimeChanges = TRUE, countModelTypes = TRUE)
+  attr(value, "df") <- PCMParamCount(object$modelInit, countRegimeChanges = TRUE, countModelTypes = TRUE)
   attr(value, "nobs") <- PCMTreeNumTips(object$tree)
 
   value
@@ -114,6 +114,6 @@ coef.PCMFit <- function(object, ...) {
   }
 
   par <- PCMGetVecParamsRegimesAndModels(model, object$tree, ...)
-  c(par, numParam = PCMNumParams(model))
+  c(par, numParam = PCMParamCount(model))
 }
 

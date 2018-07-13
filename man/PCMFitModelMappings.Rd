@@ -4,20 +4,21 @@
 \alias{PCMFitModelMappings}
 \title{Fit regime-assignments to (sub-)trees in a tree with different assigned model types to each regime.}
 \usage{
-PCMFitModelMappings(X, tree, modelTypes = c("BM__noX0__noSigmae_x",
-  "OU__noX0__noSigmae_x"), metaIFun = PCMInfo, positiveValueGuard = Inf,
-  lik = NULL, prior = NULL, input.data = NULL, config = NULL,
+PCMFitModelMappings(X, tree, modelTypes, generatePCMModelsFun = NULL,
+  metaIFun = PCMInfo, positiveValueGuard = Inf, lik = NULL,
+  prior = NULL, input.data = NULL, config = NULL,
   fitMappingsPrev = NULL, tableFitsPrev = fitMappingsPrev$tableFits,
-  skipFitWhenFoundInTableFits = TRUE, prefixFiles = "fits_",
-  maxCladePartitionLevel = 1, maxNumNodesPerCladePartition = Inf,
-  minCladeSizes = 25, listPCMOptions = PCMOptions(), argsMRG = NULL,
-  argsPCMLowerBound = NULL, argsPCMUpperBound = NULL,
-  argsPCMSetOrGetVecParams = NULL, argsConfigOptimAndMCMC1 = NULL,
+  modelTypesInTableFitsPrev = NULL, skipFitWhenFoundInTableFits = TRUE,
+  prefixFiles = "fits_", maxCladePartitionLevel = 8,
+  maxNumNodesPerCladePartition = 1, minCladeSizes = 25,
+  listPCMOptions = PCMOptions(), argsMixedGaussian = NULL,
+  argsPCMParamLowerLimit = NULL, argsPCMParamUpperLimit = NULL,
+  argsPCMParamLoadOrStore = NULL, argsConfigOptimAndMCMC1 = NULL,
   argsConfigOptimAndMCMC2 = NULL, numJitterRootRegimeFit = 100,
   sdJitterRootRegimeFit = 0.5, numJitterAllRegimeFits = 100,
   sdJitterAllRegimeFits = 0.5, printFitVectorsToConsole = FALSE,
   setAttributes = TRUE, doParallel = FALSE, verbose = TRUE,
-  verbosePCMFit = FALSE, verboseComposeMRGFromFits = FALSE,
+  verbosePCMFit = FALSE, verboseComposeMixedGaussianFromFits = FALSE,
   verboseAdaptArgsConfigOptimAndMCMC = FALSE)
 }
 \value{
@@ -25,6 +26,6 @@ an S3 object of class PCMFitModelMappings.
 }
 \description{
 This function performs multiple model fits of mixed regime models
-(MRG) mapping different model-types (e.g. BM and OU) to different regimes in a tree and
+(MixedGaussian) mapping different model-types (e.g. BM and OU) to different regimes in a tree and
 testing different regime assignments to the branches in the tree (TODO describe algorithm).
 }

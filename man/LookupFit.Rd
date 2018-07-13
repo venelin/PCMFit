@@ -30,5 +30,6 @@ the corresponding fit-vector to the given tree and model mapping or
 if no such entry is found, issues an error.
 }
 \description{
-This is an internal function
+Lookup a fit vector for a given tree and model mapping in a data.table of
+previously run fits.
 }
