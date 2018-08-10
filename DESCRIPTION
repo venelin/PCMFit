@@ -1,7 +1,7 @@
 Package: PCMFit
 Type: Package
 Title: Fitting and model selection of phylogenetic comparative models
-Version: 0.3.8
+Version: 0.3.9
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
 Maintainer: The package maintainer <vmitov@gmail.com>
