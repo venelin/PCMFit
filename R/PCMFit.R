@@ -20,15 +20,20 @@
 #' @inheritParams PCMBase::PCMLik
 #' @return an object of class PCMFit
 #' @export
-PCMFit <- function(X, tree, model, ...) {
+PCMFit <- function(X, tree, model,
+                   SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+                   ...) {
   UseMethod("PCMFit", model)
 }
+
 
 #' @importFrom OptimMCMC runOptimAndMCMC configOptimAndMCMC
 #' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMOptions
 #' @export
 PCMFit.PCM <- function(
-  X, tree, model, metaI = PCMInfo(X, tree, model), positiveValueGuard = Inf,
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE), positiveValueGuard = Inf,
   lik = NULL, prior = NULL, input.data = NULL, config = NULL,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
@@ -37,7 +42,7 @@ PCMFit.PCM <- function(
   verbose = FALSE, ...) {
 
   if(is.null(lik)) {
-    lik <- PCMCreateLikelihood(X, tree, model, metaI, positiveValueGuard)
+    lik <- PCMCreateLikelihood(X, tree, model, SE, metaI, positiveValueGuard)
   }
   if(is.null(config)) {
     lowerModel <- do.call(PCMParamLowerLimit, c(list(model), argsPCMParamLowerLimit))
@@ -46,7 +51,11 @@ PCMFit.PCM <- function(
     upperModel <- do.call(PCMParamUpperLimit, c(list(model), argsPCMParamUpperLimit))
     upperVecParams <- PCMParamGetShortVector(upperModel)
 
-    config <- do.call(configOptimAndMCMC, c(list(lik = lik, parLower = lowerVecParams, parUpper = upperVecParams), argsConfigOptimAndMCMC) )
+    config <- do.call(configOptimAndMCMC,
+                      c(list(lik = lik,
+                             parLower = lowerVecParams,
+                             parUpper = upperVecParams),
+                        argsConfigOptimAndMCMC) )
   }
 
   res <- runOptimAndMCMC(lik, prior, input.data, config, verbose)
@@ -54,6 +63,7 @@ PCMFit.PCM <- function(
   res$X <- X
   res$tree <- tree
   res$modelInit <- model
+  res$SE <- SE
   res$lik <- lik
   res$config <- config
   res$lowerVecParams <- lowerVecParams
@@ -76,10 +86,12 @@ PCMFit.PCM <- function(
   res
 }
 
+
 #' @export
 is.PCMFit <- function(object) {
   inherits(object, "PCMFit")
 }
+
 
 #' @importFrom PCMBase PCMOptions PCMTreeNumTips
 #' @export
@@ -94,11 +106,14 @@ logLik.PCMFit <- function(object, ...) {
     value <- object$logLikOptim
   }
 
-  attr(value, "df") <- PCMParamCount(object$modelInit, countRegimeChanges = TRUE, countModelTypes = TRUE)
+  attr(value, "df") <- PCMParamCount(object$modelInit,
+                                     countRegimeChanges = TRUE,
+                                     countModelTypes = TRUE)
   attr(value, "nobs") <- PCMTreeNumTips(object$tree)
 
   value
 }
+
 
 #' @importFrom PCMBase PCMGetVecParamsRegimesAndModels
 #' @export

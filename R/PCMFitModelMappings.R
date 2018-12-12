@@ -9,8 +9,11 @@ PCMNextMapping <- function(mapping, modelTypes) {
   mappingInd <- match(mapping, modelTypes)
   if(any(is.na(mappingInd))) {
     stop(paste0("ERR:04100:PCMFit:PCMFit.R:PCMNextMapping:: mapping should have
-                length ", R, " and contain only elements among modelTypes; mapping = (", toString(mapping),")",
-                ", modelTypes=(", toString(modelTypes), "), mappingInd=(", toString(mappingInd), ")."))
+                length ", R,
+                " and contain only elements among modelTypes; mapping = (",
+                toString(mapping),")",
+                ", modelTypes=(", toString(modelTypes), "), mappingInd=(",
+                toString(mappingInd), ")."))
   }
 
 
@@ -508,13 +511,15 @@ AdaptArgsConfigOptimAndMCMC <- function(
 #' testing different regime assignments to the branches in the tree (TODO describe algorithm).
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedED PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
+#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
 #' @export
 PCMFitModelMappings <- function(
-  X, tree,  modelTypes,
+  X, tree, modelTypes,
+  SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
+
   generatePCMModelsFun = NULL,
   metaIFun = PCMInfo, positiveValueGuard = Inf,
 
@@ -763,7 +768,7 @@ PCMFitModelMappings <- function(
                                          mapping = modelMapping),
                                     argsMixedGaussian))
 
-            fit <- PCMFit(X = Xclade, tree = clade, model = model,
+            fit <- PCMFit(X = Xclade, tree = clade, model = model, SE = SE,
                           metaI = metaIFun, positiveValueGuard = positiveValueGuard,
 
                           lik = lik, prior = prior, input.data = input.data,
@@ -1136,7 +1141,8 @@ PCMFitModelMappings <- function(
                   verbose = verboseComposeMixedGaussianFromFits)
 
                 fit <- PCMFit(
-                  X = X, tree = tree, model = model, metaI = metaIFun, positiveValueGuard = positiveValueGuard,
+                  X = X, tree = tree, model = model, SE = SE,
+                  metaI = metaIFun, positiveValueGuard = positiveValueGuard,
                   lik = lik, prior = prior, input.data = input.data,
                   config = config,
                   argsPCMParamLowerLimit = argsPCMParamLowerLimit,
@@ -1255,6 +1261,7 @@ PCMFitModelMappings <- function(
     tree = tree,
     hashCodeTree = hashCodeEntireTree,
     X = X,
+    SE = SE,
     tableFits = tableFits,
     queuePartitionRoots = queuePartitionRoots,
     mainLoopHistory = mainLoopHistory,
@@ -1280,13 +1287,17 @@ PCMFitModelMappings <- function(
       argsConfigOptimAndMCMC1 = argsConfigOptimAndMCMC1,
       argsConfigOptimAndMCMC2 = argsConfigOptimAndMCMC2,
 
-      numJitterRootRegimeFit = numJitterRootRegimeFit, sdJitterRootRegimeFit = sdJitterRootRegimeFit,
-      numJitterAllRegimeFits = numJitterAllRegimeFits, sdJitterAllRegimeFits = sdJitterAllRegimeFits,
+      numJitterRootRegimeFit = numJitterRootRegimeFit,
+      sdJitterRootRegimeFit = sdJitterRootRegimeFit,
+
+      numJitterAllRegimeFits = numJitterAllRegimeFits,
+      sdJitterAllRegimeFits = sdJitterAllRegimeFits,
 
       printFitVectorsToConsole = printFitVectorsToConsole,
       setAttributes = setAttributes,
 
       doParallel = doParallel,
+
       verbose = verbose,
       verbosePCMFit = verbosePCMFit,
       verboseComposeMixedGaussianFromFits = verboseComposeMixedGaussianFromFits,

@@ -8,8 +8,8 @@ previously run fits.}
 LookupFit(tree, modelTypes, modelMapping, tableFits,
   hashCodes = HashCodes(tree = tree, modelTypes = modelTypes,
   startingNodesRegimesLabels =
-  PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)], modelMapping =
-  modelMapping))
+  PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)],
+  modelMapping = modelMapping))
 }
 \arguments{
 \item{tree}{a phylo object}

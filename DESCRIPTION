@@ -10,6 +10,7 @@ Description: This package performs phylogenetic comparative model (PCM) selectio
     model is selected from a set of mixed Gaussian phylogenetic models (MGPMs), 
     such as combinations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) 
     processes running on different lineages of the tree. 
+Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true
 Depends:
@@ -26,5 +27,5 @@ Suggests:
     PCMBaseCpp,
     testthat,
     knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
