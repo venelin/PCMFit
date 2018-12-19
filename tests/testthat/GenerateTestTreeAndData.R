@@ -2,9 +2,9 @@ library(ape)
 library(testthat)
 library(PCMBase)
 
-#library(PCMFit)
 library(abind)
 library(data.table)
+library(ggtree)
 
 source("GeneratePCMModels.R")
 set.seed(2)
@@ -17,27 +17,19 @@ R <- 2
 k <- 2
 
 # number of tips
-N <- 200
+N <- 100
 
 # rate mtrix of transition from one regime to another
 # Q <- matrix(c(-0.8, 0.8, 0.01, -0.01), R, R)
 # colnames(Q) <- rownames(Q) <- letters[1:R]
 
 
-if(require(phytools)) {
-  tree.a <- pbtree(n=N, scale=1, b = 1, d = 0.4, extant.only = TRUE)
-  # tree.ab <- phytools::sim.history(tree.a, Q, anc='a')
-  # tree.ab$edge.regime <- names(tree.ab$edge.length)
-  #
-  # # convert the simmap tree to a normal phylo object with singleton nodes at the
-  # # within-branch regime changes. The regimes are encoded as names of the edge.length
-  # # vector
-  # tree.ab.singles <- map.to.singleton(tree.ab)
-  # tree.ab.singles$edge.regime <- names(tree.ab.singles$edge.length)
+tree.a <- rcoal(n=N)
 
-  PCMTreeSetRegimes(tree.a, c(322, 482), regimes = c("a", "b", "c"))
-  PCMTreeSetLabels(tree.a)
-}
+PCMTreeSetDefaultRegime(tree.a, "a")
+PCMTreeSetRegimes(tree.a, c(104, 102), regimes = c("a", "b", "c"))
+PCMTreeSetLabels(tree.a)
+
 
 tree.a$edge.jump <- rep(0, nrow(tree.a$edge))
 
@@ -83,10 +75,10 @@ if(require(PCMBaseCpp)) {
   metaInfo <- PCMInfo(values, tree.a, model1)
 }
 
-likC <- PCMLik(values, tree.a, model1, PCMInfoCpp(values, tree.a, model1))
+likC <- PCMLik(values, tree.a, model1, metaI = PCMInfoCpp(values, tree.a, model1))
 
 likRT <- PCMLik(values, tree.a, PCMApplyTransformation(model1))
-likCT <- PCMLik(values, tree.a, PCMApplyTransformation(model1), PCMInfoCpp(values, tree.a, PCMApplyTransformation(model1)))
+likCT <- PCMLik(values, tree.a, PCMApplyTransformation(model1), metaI = PCMInfoCpp(values, tree.a, PCMApplyTransformation(model1)))
 
 #likFun2 <- PCMCreateLikelihood(values, tree.a, model1, metaInfo)
 

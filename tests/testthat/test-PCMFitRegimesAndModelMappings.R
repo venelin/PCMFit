@@ -1,6 +1,6 @@
 library(data.table)
 library(PCMFit)
-prefixFiles <- "local_201806064_"
+prefixFiles <- "local_201812171_"
 
 if(!exists("cluster") || is.null(cluster)) {
   if(require(doMPI)) {
@@ -10,7 +10,8 @@ if(!exists("cluster") || is.null(cluster)) {
     cluster <- startMPIcluster(count = p-1, verbose = TRUE)
     doMPI::registerDoMPI(cluster)
   } else {
-    cluster <- parallel::makeCluster(parallel::detectCores(logical = TRUE), outfile = paste0("log_", prefixFiles, ".txt"))
+    cluster <- parallel::makeCluster(parallel::detectCores(logical = TRUE),
+                                     outfile = paste0("log_", prefixFiles, ".txt"))
     doParallel::registerDoParallel(cluster)
   }
 
@@ -40,9 +41,31 @@ options(PCMBase.Lmr.mode = 11)
 
 tableFits <- NULL
 
-load("tableFits_local_201806063.RData")
-tableFits[, duplicated:=FALSE]
-tableFits <- tableFits[seq(1, .N, by=2)]
+# load("tableFits_local_201806063.RData")
+# tableFits[, duplicated:=FALSE]
+# tableFits <- tableFits[seq(1, .N, by=2)]
+
+# fitsToClades <- PCMFitModelMappingsToClades(
+#   values, tree.a, modelTypes = modelTypes,
+#   generatePCMModelsFun = generatePCMModels,
+#   metaIFun = PCMInfoCpp, positiveValueGuard = 1000,
+#
+#   tableFits = tableFits,
+#
+#   prefixFiles = prefixFiles,
+#
+#   minCladeSize = 30,
+#
+#   argsMixedGaussian = argsMixedGaussian,
+#   argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+#   argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+#   argsConfigOptimAndMCMC = list(nCallsOptim = 2, genInitNumEvals = 1000, genInitVerbose = FALSE),
+#
+#   printFitVectorsToConsole = TRUE,
+#   doParallel = TRUE,
+#   verbose = TRUE)
+#
+# tableFits <- fitsToClades
 
 fitMappings <- PCMFitModelMappings(
   values, tree.a, modelTypes = modelTypes,
@@ -53,13 +76,13 @@ fitMappings <- PCMFitModelMappings(
 
   prefixFiles = prefixFiles,
 
-  maxCladePartitionLevel = 10, maxNumNodesPerCladePartition = 1, minCladeSizes = 100,
+  maxCladePartitionLevel = 10, maxNumNodesPerCladePartition = 1, minCladeSizes = 30,
 
   argsMixedGaussian = argsMixedGaussian,
   argsPCMParamLowerLimit = argsPCMParamLowerLimit,
   argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-  argsConfigOptimAndMCMC1 = list(nCallsOptim = 4, genInitNumEvals = 1000, genInitVerbose = FALSE),
-  argsConfigOptimAndMCMC2 = list(nCallsOptim = 4, genInitNumEvals = 1000, genInitVerbose = FALSE),
+  argsConfigOptimAndMCMC1 = list(nCallsOptim = 2, genInitNumEvals = 1000, genInitVerbose = FALSE),
+  argsConfigOptimAndMCMC2 = list(nCallsOptim = 2, genInitNumEvals = 1000, genInitVerbose = FALSE),
 
   numJitterAllRegimeFits = 1000, numJitterRootRegimeFit = 1000,
 

@@ -4,7 +4,8 @@
 \alias{PCMFit}
 \title{Fitting a PCM model to a given tree and data}
 \usage{
-PCMFit(X, tree, model, ...)
+PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
+  PCMTreeNumTips(tree)), ...)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -18,6 +19,12 @@ likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 \item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
 well as the concrete model parameter values at which the likelihood is to be
 calculated (see also Details).}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Choleski factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 }
 \value{
 an object of class PCMFit

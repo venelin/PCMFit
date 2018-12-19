@@ -2,9 +2,11 @@
 % Please edit documentation in R/PCMFitModelMappings.R
 \name{PCMFitModelMappings}
 \alias{PCMFitModelMappings}
-\title{Fit regime-assignments to (sub-)trees in a tree with different assigned model types to each regime.}
+\title{Fit regime-assignments to (sub-)trees in a tree with different assigned model
+types to each regime.}
 \usage{
-PCMFitModelMappings(X, tree, modelTypes, generatePCMModelsFun = NULL,
+PCMFitModelMappings(X, tree, modelTypes, SE = matrix(0, nrow(X),
+  PCMTreeNumTips(tree)), generatePCMModelsFun = NULL,
   metaIFun = PCMInfo, positiveValueGuard = Inf, lik = NULL,
   prior = NULL, input.data = NULL, config = NULL,
   fitMappingsPrev = NULL, tableFitsPrev = fitMappingsPrev$tableFits,
@@ -26,6 +28,7 @@ an S3 object of class PCMFitModelMappings.
 }
 \description{
 This function performs multiple model fits of mixed regime models
-(MixedGaussian) mapping different model-types (e.g. BM and OU) to different regimes in a tree and
-testing different regime assignments to the branches in the tree (TODO describe algorithm).
+(MixedGaussian) mapping different model-types (e.g. BM and OU) to different
+regimes in a tree and testing different regime assignments to the branches in
+the tree.
 }
