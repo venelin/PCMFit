@@ -163,7 +163,7 @@ PCMFitModelMappings <- function(
           hashCodeBestMappingLevel = hashCodeMapping[iMinAIC]
         )
       }]
-    #setkey(queuePartitionRoots, level, node)
+
     # index of the head row in queuePartitionRoots
     headQPR <- 1L
 
@@ -472,19 +472,9 @@ PCMFitModelMappings <- function(
             (c("hashCodeBestPartitionLevel", "hashCodeBestMappingLevel")) :=
               list(hashCodeBestPartitionLevelNew, hashCodeBestMappingLevelNew)]
 
-          # previously the update was done only for the nodes at the current
-          # level:
-          # queuePartitionRoots[
-          #   list(partitionRootLevel),
-          #   hashCodeBestPartitionLevel:=hashCodeBestPartitionLevelNew]
-          # queuePartitionRoots[
-          #      list(partitionRootLevel),
-          #      hashCodeBestMappingLevel:=hashCodeBestMappingLevelNew]
-
           # append the new nodes to the queue and reset the key
           queuePartitionRoots <- rbindlist(list(queuePartitionRoots,
                                                 queuePartitionRootsNew))
-          #setkey(queuePartitionRoots, level, node)
         }
       }
 
