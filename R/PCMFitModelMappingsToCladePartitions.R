@@ -1,26 +1,3 @@
-#' Fit possible model mappings from a set of model types to a list of clade partitions of a tree
-#' @param X a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
-#'   column of X contains the measured trait values for one species (tip in tree).
-#'   Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-#'   Thse two values have are treated differently when calculating
-#'   likelihoods: see \code{\link{PCMPresentCoordinates}}.
-#' @param tree a phylo object with N tips.
-#' @param model an S3 object specifying both, the model type (class, e.g. "OU") as
-#'   well as the concrete model parameter values at which the likelihood is to be
-#'   calculated (see also Details).
-#' @param SE a k x N matrix specifying the standard error for each measurement in
-#' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-#' Choleski factor of the variance covariance matrix for the measurement error
-#' for each node i=1, ..., N.
-#' Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.
-#'
-#'
-#' @importFrom foreach foreach when %do% %dopar% %:%
-#' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
-#' @importFrom stats logLik coef AIC
-#'
-#' @export
 PCMFitModelMappingsToCladePartitions <- function(
   X, tree, modelTypes,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
@@ -67,10 +44,6 @@ PCMFitModelMappingsToCladePartitions <- function(
 ) {
 
   treeEDExpression = "tree"
-  PCMTreeSetLabels(tree)
-  PCMTreeSetDefaultRegime(tree, 1)
-
-  colnames(X) <- colnames(SE) <- as.character(1:PCMTreeNumTips(tree))
 
   tableFits <- InitTableFits(modelTypes,
                              fitMappingsPrev,

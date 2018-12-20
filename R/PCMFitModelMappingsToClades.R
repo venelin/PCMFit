@@ -1,8 +1,3 @@
-#' @importFrom foreach foreach when %do% %dopar% %:%
-#' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
-#' @importFrom stats logLik coef AIC
-#' @export
 PCMFitModelMappingsToClades <- function(
   X, tree, modelTypes,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
@@ -43,10 +38,6 @@ PCMFitModelMappingsToClades <- function(
 ) {
 
   treeEDExpression = "tree"
-  PCMTreeSetLabels(tree)
-  PCMTreeSetDefaultRegime(tree, 1)
-
-  colnames(X) <- colnames(SE) <- as.character(1:PCMTreeNumTips(tree))
 
   tableFits <- InitTableFits(modelTypes,
                              fitMappingsPrev,

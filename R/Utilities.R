@@ -371,6 +371,18 @@ InitTableFits <- function(
   tableFits
 }
 
+UpdateTableFits <- function(tableFits, newFits) {
+  if(nrow(tableFits)>0) {
+    tableFits <- rbindlist(list(tableFits, newFits))
+  } else {
+    tableFits <- newFits
+  }
+  tableFits <- tableFits[duplicated == FALSE]
+  setkey(tableFits,
+         hashCodeTree,hashCodeStartingNodesRegimesLabels,hashCodeMapping)
+  tableFits
+}
+
 
 
 #' Retrieve the ML fits from the fitVectors column in a table of fits.

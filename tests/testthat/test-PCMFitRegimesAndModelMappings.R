@@ -41,9 +41,8 @@ options(PCMBase.Lmr.mode = 11)
 
 tableFits <- NULL
 
-# load("tableFits_local_201806063.RData")
-# tableFits[, duplicated:=FALSE]
-# tableFits <- tableFits[seq(1, .N, by=2)]
+#load("FitMappings_local_201812171_.RData")
+#tableFits <- fitMappings$tableFits[, duplicated:=FALSE]
 
 # fitsToClades <- PCMFitModelMappingsToClades(
 #   values, tree.a, modelTypes = modelTypes,
