@@ -25,10 +25,15 @@ X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 Choleski factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+
+\item{...}{other arguments used by methods.}
 }
 \value{
 an object of class PCMFit
 }
 \description{
 Fitting a PCM model to a given tree and data
+}
+\details{
+This is a generic method.
 }

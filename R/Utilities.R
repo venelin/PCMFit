@@ -4,7 +4,7 @@ PCMLoadMixedGaussianFromFitVector <- function(
   fitVector, modelTypes, k,
   remapModelTypeIndicesInFitVector = seq_along(modelTypes), ...) {
   # the last entries in fitVector are in the following order from left to right:
-  # numNumericParams, logLik, df, nobs, AIC;
+  # numNumericParams, logLik, df, nobs, score;
   # the first elements from 1 to numNumericParams are the actual numeric parameters;
   # the entries that follow are between the numeric parameters and numNumericParams.
   # These must be a pair number 2R, where R is the number of regimes in the tree.
@@ -12,7 +12,7 @@ PCMLoadMixedGaussianFromFitVector <- function(
   # which is always the starting node for the first regime); The second R are the indices that
   # map modelTypes to the regimes on the tree.
   last <- length(fitVector)
-  v_aic <- fitVector[last]
+  v_score <- fitVector[last]
   nobs <- fitVector[last - 1]
   df <- fitVector[last - 2]
   ll <- fitVector[last - 3]
@@ -29,7 +29,7 @@ PCMLoadMixedGaussianFromFitVector <- function(
   attr(model, "ll") <- ll
   attr(model, "df") <- df
   attr(model, "nobs") <- nobs
-  attr(model, "aic") <- v_aic
+  attr(model, "score") <- v_score
   model
 }
 
@@ -169,7 +169,8 @@ AdaptArgsConfigOptimAndMCMC <- function(
   verbose = FALSE
 ) {
 
-  matParamsFromTableFits <- matrix(PCMParamGetShortVector(model), 1, PCMParamCount(model), byrow = TRUE)
+  matParamsFromTableFits <-
+    matrix(PCMParamGetShortVector(model), 1, PCMParamCount(model), byrow = TRUE)
   matParamsJitterRootCladeFit <- matParamsJitterAllCladeFits <- NULL
 
   # if there is more than one clade in the tree and numJitterRootRegimeFit > 0
@@ -239,7 +240,9 @@ AdaptArgsConfigOptimAndMCMC <- function(
                 }))
       if(!is.null(matParamsJitterAllCladeFits) &&
          nrow(matParamsJitterAllCladeFits) > numJitterAllRegimeFits) {
-        matParamsJitterAllCladeFits <- matParamsJitterAllCladeFits[1:numJitterAllRegimeFits, ]
+
+        matParamsJitterAllCladeFits <-
+          matParamsJitterAllCladeFits[1:numJitterAllRegimeFits, ]
       }
       matParamsFromTableFits <- rbind(matParamsFromTableFits,
                                       matParamsJitterAllCladeFits)
@@ -287,6 +290,23 @@ SaveCurrentResults <- function(listResults, filePrefix) {
   }
 }
 
+SaveTempWorkerResults <- function(fitsNew, filePrefix) {
+  workerPid <- Sys.getpid()
+  fileName <- paste0(filePrefix, "_worker_", workerPid, ".RData")
+
+  # load file with fits table for this worker
+  status <- try({
+    # previous fits stored in file
+    fits <- NULL
+    # loads a variable fits
+    if(file.exists(fileName)) {
+      load(fileName)
+    }
+    fits <- rbindlist(list(fits, fitsNew))
+    save(fits, file = fileName)
+  }, silent = TRUE)
+}
+
 # combine fits from parallel tasks into a data.table and saves this data.table to
 # an .RData file
 CombineTaskResults <- function(..., filePrefix, envNCalls) {
@@ -298,11 +318,11 @@ CombineTaskResults <- function(..., filePrefix, envNCalls) {
         if(is.data.table(dt)) {
           dt
         } else {
-          cat("ERROR in foreach task: no data.table returned: \n", toString(dt), "\n")
+          cat("ERROR in foreach task: no data.table returned: \n", toString(dt),
+              "\n")
           NULL
         }
       }))
-  save(data, file = paste0(filePrefix, envNCalls$ncalls, ".RData"))
   data
 }
 
@@ -362,7 +382,7 @@ InitTableFits <- function(
                            logLik = double(),
                            df = integer(),
                            nobs = integer(),
-                           aic = double(),
+                           score = double(),
                            duplicated = logical())
     modelTypesInTableFits <- modelTypes
   }
@@ -390,13 +410,13 @@ UpdateTableFits <- function(tableFits, newFits) {
 #' @param tableFits a data.table
 #' @param modelTypesNew NULL or a character vector containing all model-types in
 #'  fitMappings$arguments$modelTypes and, eventually, additional model-types.
-#' @param setAttributes logical indicating if an X and tree attribute should be set to
-#'   each model-object. This is used for later evaluation of the log-likelihood of the
-#'   AIC coefficient for the model on the given tree and data. Using a global tree for
-#'   that is a bad idea, because the model may be fit for a subtree, i.e. clade.
-#'   Default FALSE.
-#' @return a copy of tableFits with added column "model" and, if necessary, updated
-#'  integer model-type indices in the "fitVector" column.
+#' @param setAttributes logical indicating if an X and tree attribute should be
+#' set to each model-object. This is used for later evaluation of the
+#' log-likelihood of the score for the model on the given tree and
+#' data. Using a global tree for that is a bad idea, because the model may be
+#' fit for a subtree, i.e. clade. Default FALSE.
+#' @return a copy of tableFits with added column "model" and, if necessary,
+#' updated integer model-type indices in the "fitVector" column.
 #' @importFrom PCMBase MixedGaussian PCMTreeEvalNestedEDxOnTree
 #'
 #' @export
@@ -465,10 +485,10 @@ RetrieveFittedModelsFromFitVectors <- function(
 }
 
 #' @export
-RetrieveBestFitAIC <- function(fitMappings, rank = 1) {
+RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   tableFits <- RetrieveFittedModelsFromFitVectors(
     fitMappings,
-    fitMappings$tableFits[treeEDExpression=="tree"][order(aic)][rank],
+    fitMappings$tableFits[treeEDExpression=="tree"][order(score)][rank],
     setAttributes = TRUE)
 
 
@@ -596,7 +616,7 @@ PlotSearchHistory <- function(
         geom_text(aes(label=allowedModelTypesSelected), size=sizeColorAllowedModelTypes, vjust=vjustColorAllowedModelTypes) +
         geom_text(aes(label=allowedModelTypesCandidate), color = "black", size=sizeBlackAllowedModelTypes, vjust=vjustBlackAllowedModelTypes) +
         geom_text(aes(label=rankInQueue), color="black", size=sizeRankInQueue) +
-        ggtitle(paste0("(",i,") AIC=", round(fitTablei$aic[[1]]), ", logLik=", round(fitTablei$logLik[[1]]), ", p=", fitTablei$df[[1]]))
+        ggtitle(paste0("(",i,") score=", round(fitTablei$score[[1]]), ", logLik=", round(fitTablei$logLik[[1]]), ", p=", fitTablei$df[[1]]))
 
       ploti
     } else {

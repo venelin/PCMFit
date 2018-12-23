@@ -31,6 +31,11 @@ PCMFitModelMappings <- function(
 
   maxCladePartitionLevel = 8, maxNumNodesPerCladePartition = 1, minCladeSizes = 25,
 
+  listCladePartitions = NULL,
+  listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
+
+  scoreFun = AIC,
+
   listPCMOptions = PCMOptions(),
 
   argsMixedGaussian = NULL,
@@ -44,6 +49,7 @@ PCMFitModelMappings <- function(
   numJitterRootRegimeFit = 100, sdJitterRootRegimeFit = 0.5,
   numJitterAllRegimeFits = 100, sdJitterAllRegimeFits = 0.5,
 
+  saveTempWorkerResults = TRUE,
   printFitVectorsToConsole = FALSE,
   setAttributes = TRUE,
 
@@ -55,7 +61,9 @@ PCMFitModelMappings <- function(
   verboseAdaptArgsConfigOptimAndMCMC = FALSE
 ) {
 
-  # copy all arguments into a list
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
   arguments <- as.list(environment())
 
   PCMTreeSetLabels(tree)
@@ -83,30 +91,68 @@ PCMFitModelMappings <- function(
     tableAncestors <- PCMTreeTableAncestors(tree, preorder = preorderTree)
 
     # 1. (fitsToClades) Perform a fit of each model-type to each clade
+    if(is.null(arguments$listCladePartitions)) {
+      cladeRoots <- c(PCMTreeNumTips(tree) + 1,
+                      unlist(PCMTreeListCladePartitions(
+                        tree = tree,
+                        nNodes = 1,
+                        minCladeSize = MIN_CLADE_SIZE,
+                        tableAncestors = tableAncestors)))
+    } else {
+      cladeRoots = unique(c(PCMTreeNumTips(tree) + 1,
+                            unlist(listCladePartitions)))
+    }
+
+    if(!is.list(arguments$listAllowedModelTypesIndices)) {
+      # arguments$listAllowedModelTypesIndices is NULL or a character string
+      listAllowedModelTypesIndices <-
+        replicate(length(cladeRoots), seq_along(modelTypes), simplify = FALSE)
+      names(listAllowedModelTypesIndices) <- as.character(cladeRoots)
+    }
+
+    if(verbose) {
+      cat("Step 1: Performing fits on", length(cladeRoots), " clades; ",
+          sum(sapply(listAllowedModelTypesIndices[as.character(cladeRoots)],
+                     length)), " model mappings altogether...\n")
+    }
+
     argumentsFitsToClades <- arguments[intersect(
-      names(arguments), names(as.list(args(PCMFitModelMappingsToClades))))]
+      names(arguments), names(as.list(args(PCMFitModelMappingsToCladePartitions))))]
 
     argumentsFitsToClades$X <- X
     argumentsFitsToClades$tree <- tree
     argumentsFitsToClades$modelTypes <- modelTypes
     argumentsFitsToClades$SE <- SE
+    argumentsFitsToClades$listCladePartitions <- as.list(cladeRoots)
+    argumentsFitsToClades$listAllowedModelTypesIndices <-
+      listAllowedModelTypesIndices
+    argumentsFitsToClades$fitClades <- TRUE
     argumentsFitsToClades$fitMappingsPrev <- NULL
     argumentsFitsToClades$tableFitsPrev <- tableFits
     argumentsFitsToClades$modelTypesInTableFitsPrev <- modelTypesInTableFitsPrev
-    argumentsFitsToClades$minCladeSize <- MIN_CLADE_SIZE
     argumentsFitsToClades$argsConfigOptimAndMCMC <- argsConfigOptimAndMCMC1
     argumentsFitsToClades$preorderTree <- preorderTree
     argumentsFitsToClades$tableAncestors <- tableAncestors
+    argumentsFitsToClades$prefixFiles <- paste0(prefixFiles, "_clades_")
 
-    fitsToClades <- do.call(PCMFitModelMappingsToClades, argumentsFitsToClades)
+    fitsToClades <- do.call(
+      PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
 
-    # update tableFits with the entries in fitsToClades which were not already there.
+    # update tableFits with the entries in fitsToClades which were not already
+    # there.
     tableFits <- UpdateTableFits(tableFits, fitsToClades)
 
     SaveCurrentResults(list(tableFits = tableFits), filePrefix = prefixFiles)
 
     # 2. Perform fits to clade-partitions with different model mappings
     # we need these variables throughout this step
+    if(!is.list(arguments$listAllowedModelTypesIndices)) {
+      # by default listAllowedModelTypesIndices is a character vector listing
+      # all possible values. Here, we retain only the first value for the
+      # subsequent call to PCMFitRecursiveCladePartition.
+      arguments$listAllowedModelTypesIndices <-
+        arguments$listAllowedModelTypesIndices[1]
+    }
     argumentsStep2 <- arguments[intersect(
       names(arguments), names(as.list(args(PCMFitRecursiveCladePartition))))]
 

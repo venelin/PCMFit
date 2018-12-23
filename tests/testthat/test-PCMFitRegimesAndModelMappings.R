@@ -41,30 +41,9 @@ options(PCMBase.Lmr.mode = 11)
 
 tableFits <- NULL
 
-#load("FitMappings_local_201812171_.RData")
-#tableFits <- fitMappings$tableFits[, duplicated:=FALSE]
-
-# fitsToClades <- PCMFitModelMappingsToClades(
-#   values, tree.a, modelTypes = modelTypes,
-#   generatePCMModelsFun = generatePCMModels,
-#   metaIFun = PCMInfoCpp, positiveValueGuard = 1000,
-#
-#   tableFits = tableFits,
-#
-#   prefixFiles = prefixFiles,
-#
-#   minCladeSize = 30,
-#
-#   argsMixedGaussian = argsMixedGaussian,
-#   argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-#   argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-#   argsConfigOptimAndMCMC = list(nCallsOptim = 2, genInitNumEvals = 1000, genInitVerbose = FALSE),
-#
-#   printFitVectorsToConsole = TRUE,
-#   doParallel = TRUE,
-#   verbose = TRUE)
-#
-# tableFits <- fitsToClades
+load("FitMappings_local_201812171_.RData")
+tableFits <- fitMappings$tableFits[, duplicated:=FALSE]
+setnames(tableFits, "aic", "score")
 
 fitMappings <- PCMFitModelMappings(
   values, tree.a, modelTypes = modelTypes,
@@ -75,7 +54,11 @@ fitMappings <- PCMFitModelMappings(
 
   prefixFiles = prefixFiles,
 
-  maxCladePartitionLevel = 10, maxNumNodesPerCladePartition = 1, minCladeSizes = 30,
+  maxCladePartitionLevel = 1, maxNumNodesPerCladePartition = Inf, minCladeSizes = 20,
+
+  #listCladePartitions = list(c(101, 108, 105, 115)),
+  #listAllowedModelTypesIndices = "all",
+  listAllowedModelTypesIndices = "best-clade-2",
 
   argsMixedGaussian = argsMixedGaussian,
   argsPCMParamLowerLimit = argsPCMParamLowerLimit,
@@ -85,7 +68,8 @@ fitMappings <- PCMFitModelMappings(
 
   numJitterAllRegimeFits = 1000, numJitterRootRegimeFit = 1000,
 
-  printFitVectorsToConsole = TRUE,
+  saveTempWorkerResults = TRUE,
+  printFitVectorsToConsole = FALSE,
   doParallel = TRUE,
   verbose = TRUE)
 

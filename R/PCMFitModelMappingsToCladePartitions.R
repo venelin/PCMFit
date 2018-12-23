@@ -5,6 +5,10 @@ PCMFitModelMappingsToCladePartitions <- function(
   listCladePartitions = NULL,
   listAllowedModelTypesIndices = NULL,
 
+  scoreFun = AIC,
+
+  fitClades = FALSE,
+
   generatePCMModelsFun = NULL,
   metaIFun = PCMInfo, positiveValueGuard = Inf,
 
@@ -32,6 +36,8 @@ PCMFitModelMappingsToCladePartitions <- function(
 
   preorderTree = NULL,
   tableAncestors = NULL,
+
+  saveTempWorkerResults = TRUE,
 
   printFitVectorsToConsole = FALSE,
 
@@ -61,20 +67,23 @@ PCMFitModelMappingsToCladePartitions <- function(
     tableAncestors <- PCMTreeTableAncestors(tree, preorder = preorderTree)
   }
 
-  if(verbose) {
-    cat("Fitting on ", length(listCladePartitions),
-        " partitions of tree into clades using the model-fits on the clades as starting points...\n")
-  }
-
   `%op%` <- if(doParallel) `%dopar%` else `%do%`
 
-  envCombineTaskResults2 <- new.env()
-  envCombineTaskResults2$ncalls <- 0
+  envCombineTaskResults <- new.env()
+  envCombineTaskResults$ncalls <- 0
 
-  fitsToTree <-
+  EDExpressions <- if(fitClades) {
+    nodeLabelsTree <- PCMTreeGetLabels(tree)
+    cladeRoots <- sapply(listCladePartitions, function(.) .[1])
+    paste0("E(", treeEDExpression, ",", nodeLabelsTree[cladeRoots], ")")
+  } else {
+    rep(treeEDExpression, length(listCladePartitions))
+  }
+
+  fits <-
     foreach(
       cladePartition = listCladePartitions,
-      iPartition = 1:length(listCladePartitions),
+      EDExpression = EDExpressions,
       .combine = function(...) rbindlist(list(...)),
       .multicombine = TRUE,
       .inorder = FALSE,
@@ -82,31 +91,38 @@ PCMFitModelMappingsToCladePartitions <- function(
 
     foreach(
       modelMapping = PCMIteratorMapping2(
-        mapping = unlist(sapply(listAllowedModelTypesIndices[cladePartition], function(.) .[1])),
+        mapping = unlist(
+          sapply(
+            listAllowedModelTypesIndices[as.character(cladePartition)],
+            function(.) .[1])),
         modelTypes = seq_len(length(modelTypes)),
-        allowedModelTypesIndices = lapply(listAllowedModelTypesIndices[cladePartition], sort)),
+        allowedModelTypesIndices = lapply(
+          listAllowedModelTypesIndices[as.character(cladePartition)],
+          sort)),
 
       .combine=function(...) {
         CombineTaskResults(
           ...,
           filePrefix = prefixFiles,
-          envNCalls = envCombineTaskResults2)
+          envNCalls = envCombineTaskResults)
       },
-      .multicombine=TRUE,
+      .multicombine = TRUE,
       .inorder = FALSE,
       .errorhandling = "pass",
       .packages = (.packages()) ) %op% {
         try({
-          # recreate tableAncestors under a different name, to avoid exporting a potentially big
-          # tableAncestors
+          # recreate tableAncestors under a different name, to avoid exporting a
+          # potentially big tableAncestors
           if(!exists("tableAncestorsTree", .GlobalEnv)) {
             if(verbose) {
               cat("Creating tableAncestorsTree in .GlobalEnv during tree-fits\n")
             }
-            assign("tableAncestorsTree", PCMTreeTableAncestors(tree, preorderTree), .GlobalEnv)
+            assign("tableAncestorsTree",
+                   PCMTreeTableAncestors(tree, preorderTree), .GlobalEnv)
           }
 
-          if(!exists("generatedPCMModels", .GlobalEnv) && !is.null(generatePCMModelsFun)) {
+          if(!exists("generatedPCMModels", .GlobalEnv) &&
+             !is.null(generatePCMModelsFun)) {
             if(verbose) {
               cat("Calling generatePCMModelsFun()...\n")
             }
@@ -124,10 +140,24 @@ PCMFitModelMappingsToCladePartitions <- function(
           # executed by a worker process from a cluster.
           options(listPCMOptions)
 
-          PCMTreeSetRegimes(tree, nodes = as.integer(cladePartition))
+          if(fitClades) {
+            k <- nrow(X)
+            XSE <- rbind(X, SE)
+            treeSplit <- PCMTreeSplitAtNode(
+              tree, as.integer(cladePartition[1]), tableAncestorsTree, XSE)
+            treeForFit <- treeSplit$clade
+            XForFit <- treeSplit$Xclade[1:k, , drop = FALSE]
+            SEForFit <- treeSplit$Xclade[(k+1):(2*k), , drop = FALSE]
+            PCMTreeSetDefaultRegime(treeForFit, 1)
+          } else {
+            treeForFit <- tree
+            PCMTreeSetRegimes(treeForFit, nodes = as.integer(cladePartition))
+            XForFit <- X
+            SEForFit <- SE
+          }
 
           hashCodes <- HashCodes(
-            tree = tree,
+            tree = treeForFit,
             modelTypes = modelTypes,
             startingNodesRegimesLabels = cladePartition,
             modelMapping = modelMapping)
@@ -136,63 +166,90 @@ PCMFitModelMappingsToCladePartitions <- function(
           if(nrow(fit) == 1 && skipFitWhenFoundInTableFits) {
             dt.row <- fit
             if(verbose) {
-              cat("Found a fit in tableFits on clade-partition: (",
-                  toString(cladePartition),
-                  "); mapping: (", toString(modelMapping), ")\n")
+              cat(
+                "Found a fit in tableFits on '",
+                EDExpression, "', partition: (", toString(cladePartition),
+                  "), mapping: (", toString(modelMapping), ")\n", sep = "")
             }
             dt.row[, duplicated:=TRUE]
           } else {
             if(verbose) {
-              cat("Performing ML fit on clade-partition: (",
-                  toString(cladePartition),
-                  "); mapping: (", toString(modelMapping), ")\n")
+              cat(
+                "Performing ML fit on '",
+                EDExpression, "', partition: (", toString(cladePartition),
+                "), mapping: (", toString(modelMapping), ")\n", sep = "")
             }
 
-            model <- ComposeMixedGaussianFromFits(
-              tree = tree,
-              startingNodesRegimes = as.integer(cladePartition),
-              modelTypes = modelTypes,
-              k = nrow(X),
-              R = length(cladePartition),
-              mapping = modelMapping,
-              argsMixedGaussian = argsMixedGaussian,
-              tableFits = tableFits,
-              modelTypesInTableFits = modelTypesInTableFits,
-              tableAncestors = tableAncestorsTree,
-              verbose = verboseComposeMixedGaussianFromFits)
+            if(fitClades) {
+              # create an MixedGaussian model
+              modelForFit <- do.call(MixedGaussian,
+                                     c(list(k = nrow(XForFit),
+                                            modelTypes = modelTypes,
+                                            mapping = modelMapping),
+                                       argsMixedGaussian))
+              fit <- PCMFit(
+                X = XForFit, tree = treeForFit, model = modelForFit,
+                SE = SEForFit,
 
-            fit <- PCMFit(
-              X = X, tree = tree, model = model, SE = SE,
-              metaI = metaIFun, positiveValueGuard = positiveValueGuard,
-              lik = lik, prior = prior, input.data = input.data,
-              config = config,
-              argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-              argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-              argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
-              argsConfigOptimAndMCMC = AdaptArgsConfigOptimAndMCMC(
-                model,
+                metaI = metaIFun, positiveValueGuard = positiveValueGuard,
+
+                lik = lik, prior = prior, input.data = input.data,
+                config = config,
                 argsPCMParamLowerLimit = argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsPCMParamUpperLimit,
                 argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
                 argsConfigOptimAndMCMC = argsConfigOptimAndMCMC,
-                numJitterRootRegimeFit = numJitterRootRegimeFit,
-                sdJitterRootRegimeFit = sdJitterRootRegimeFit,
-                numJitterAllRegimeFits = numJitterAllRegimeFits,
-                sdJitterAllRegimeFits = sdJitterAllRegimeFits,
-                verbose = verboseAdaptArgsConfigOptimAndMCMC),
-              verbose = verbosePCMFit)
+                verbose = verbosePCMFit)
+
+            } else {
+              modelForFit <- ComposeMixedGaussianFromFits(
+                tree = treeForFit,
+                startingNodesRegimes = as.integer(cladePartition),
+                modelTypes = modelTypes,
+                k = nrow(XForFit),
+                R = length(cladePartition),
+                mapping = modelMapping,
+                argsMixedGaussian = argsMixedGaussian,
+                tableFits = tableFits,
+                modelTypesInTableFits = modelTypesInTableFits,
+                tableAncestors = tableAncestorsTree,
+                verbose = verboseComposeMixedGaussianFromFits)
+
+              fit <- PCMFit(
+                X = XForFit, tree = treeForFit, model = modelForFit,
+                SE = SEForFit,
+
+                metaI = metaIFun, positiveValueGuard = positiveValueGuard,
+                lik = lik, prior = prior, input.data = input.data,
+                config = config,
+                argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+                argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+                argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
+                argsConfigOptimAndMCMC = AdaptArgsConfigOptimAndMCMC(
+                  modelForFit,
+                  argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+                  argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+                  argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
+                  argsConfigOptimAndMCMC = argsConfigOptimAndMCMC,
+                  numJitterRootRegimeFit = numJitterRootRegimeFit,
+                  sdJitterRootRegimeFit = sdJitterRootRegimeFit,
+                  numJitterAllRegimeFits = numJitterAllRegimeFits,
+                  sdJitterAllRegimeFits = sdJitterAllRegimeFits,
+                  verbose = verboseAdaptArgsConfigOptimAndMCMC),
+                verbose = verbosePCMFit)
+            }
 
             ll <- unname(logLik(fit))
-            v_aic = unname(AIC(fit))
+            v_score = unname(scoreFun(fit))
             vec <- c(
               coef(fit),
               logLik = ll,
               df = attr(ll, "df"),
               nobs = attr(ll, "nobs"),
-              aic = v_aic)
+              score = v_score)
 
             dt.row <- data.table(
-              treeEDExpression = treeEDExpression,
+              treeEDExpression = EDExpression,
               hashCodeTree = hashCodes$hashCodeTree,
               hashCodeStartingNodesRegimesLabels =
                 hashCodes$hashCodeStartingNodesRegimesLabels,
@@ -203,7 +260,7 @@ PCMFitModelMappingsToCladePartitions <- function(
               logLik = ll,
               df = attr(ll, "df"),
               nobs = attr(ll, "nobs"),
-              aic = v_aic,
+              score = v_score,
               duplicated = FALSE)
           }
 
@@ -220,11 +277,14 @@ PCMFitModelMappingsToCladePartitions <- function(
                 "\n", sep="")
           }
 
+          if(saveTempWorkerResults) {
+            SaveTempWorkerResults(dt.row, prefixFiles)
+          }
           dt.row
         }, silent=FALSE)
 
       } # end of nested foreach body
 
   CleanTemporaryFitFiles(filePrefix = prefixFiles)
-  fitsToTree
+  fits
 }

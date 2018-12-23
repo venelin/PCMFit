@@ -17,7 +17,9 @@
 
 
 #' Fitting a PCM model to a given tree and data
+#' @details This is a generic method.
 #' @inheritParams PCMBase::PCMLik
+#' @param ... other arguments used by methods.
 #' @return an object of class PCMFit
 #' @export
 PCMFit <- function(X, tree, model,

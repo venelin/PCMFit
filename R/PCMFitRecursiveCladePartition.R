@@ -6,8 +6,12 @@ PCMFitRecursiveCladePartition <- function(
   listCladePartitions = NULL,
   listAllowedModelTypesIndices = NULL,
 
+  scoreFun = AIC,
+
   generatePCMModelsFun = NULL,
-  metaIFun = PCMInfo, positiveValueGuard = Inf,
+  metaIFun = PCMInfo,
+
+  positiveValueGuard = Inf,
 
   lik = NULL, prior = NULL, input.data = NULL, config = NULL,
 
@@ -36,6 +40,7 @@ PCMFitRecursiveCladePartition <- function(
   preorderTree = NULL,
   tableAncestors = NULL,
 
+  saveTempWorkerResults = TRUE,
   printFitVectorsToConsole = FALSE,
 
   doParallel = FALSE,
@@ -46,6 +51,9 @@ PCMFitRecursiveCladePartition <- function(
   verboseAdaptArgsConfigOptimAndMCMC = FALSE
 ) {
 
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
   arguments <- as.list(environment())
 
   tableFits <- InitTableFits(modelTypes,
@@ -73,21 +81,29 @@ PCMFitRecursiveCladePartition <- function(
              function(s) match(treeRootInt, s, nomatch = 0L)) == 1,
     hashCodeTree[1]]
 
+  if(verbose) {
+    cat("Step 2: Perform a recursive clade partition search of an optimal mixed model...\n")
+  }
+
   # 2.1 identify the best clade-partition and mapping currently in tableFits.
   # This should be the best fit of one of the model types to the whole tree.
   queuePartitionRoots <- tableFits[list(hashCodeEntireTree)][
     sapply(startingNodesRegimesLabels, length) == 1L, {
-      iMinAIC <- which.min(aic)
+      iMinScore <- which.min(score)
       list(
         level = 1L,
         node = treeRootInt,
         partitionParentNode = treeRootInt,
-        hashCodeBestPartitionInitial = hashCodeStartingNodesRegimesLabels[iMinAIC],
-        hashCodeBestMappingInitial = hashCodeMapping[iMinAIC],
-        hashCodeBestPartitionLevel = hashCodeStartingNodesRegimesLabels[iMinAIC],
-        hashCodeBestMappingLevel = hashCodeMapping[iMinAIC]
+        hashCodeBestPartitionInitial = hashCodeStartingNodesRegimesLabels[iMinScore],
+        hashCodeBestMappingInitial = hashCodeMapping[iMinScore],
+        hashCodeBestPartitionLevel = hashCodeStartingNodesRegimesLabels[iMinScore],
+        hashCodeBestMappingLevel = hashCodeMapping[iMinScore]
       )
     }]
+
+  if(verbose) {
+    cat("Step 2.1: Initiated queue of partition root nodes with the root of the original tree...\n")
+  }
 
   # index of the head row in queuePartitionRoots
   headQPR <- 1L
@@ -118,12 +134,12 @@ PCMFitRecursiveCladePartition <- function(
                                hashCodeBestMappingLevel)],
       mapping[[1]]]
 
-    bestAIC <- tableFits[
+    bestScore <- tableFits[
       queuePartitionRoots[headQPR,
                           list(hashCodeEntireTree,
                                hashCodeBestPartitionLevel,
                                hashCodeBestMappingLevel)],
-      aic[[1]]]
+      score[[1]]]
 
     # prepare an entry in the mainLoopHistory for this iteration
     mainLoopHistoryEntry <- list(
@@ -135,13 +151,13 @@ PCMFitRecursiveCladePartition <- function(
       headQPR_Partition = bestPartition,
       headQPR_MappingIdx = match(bestMapping, modelTypes),
       headQPR_Mapping = bestMapping,
-      headQPR_AIC = bestAIC)
+      headQPR_Score = bestScore)
 
     if(verbose) {
-      cat("Step 2.2: headQPR=", headQPR, ": bestPartition/mapping/AIC: ",
+      cat("Step 2.2: headQPR=", headQPR, ": bestPartition/mapping/score: ",
           toString(bestPartition), " / ",
           toString(match(bestMapping, modelTypes)),
-          "(", toString(bestMapping), ") / ", bestAIC, " ; \n")
+          "(", toString(bestMapping), ") / ", bestScore, " ; \n")
       cat("  Remaining queue:\n")
 
       print(cbind(
@@ -184,123 +200,178 @@ PCMFitRecursiveCladePartition <- function(
     # labels of all root nodes of clades in subtree starting from its root
     cladeRootsSubtree <- partitionRootLabel
 
-    # 2.4. listCladePartitionsSubtree: Create a list of all possible
-    # clade-partitions of subtree into clades not smaller than
-    # minCladeSizes[partitionRootLevel].
-    listCladePartitionsSubtree <- list()
-    numPartNodes <- 1
-    minCladeSizeLevel <-
-      if(maxNumNodesPerCladePartition == 1) {
-        # we only take one cutting node at each clade-partitioning step, so
-        # no limit on the clad-size above MIN_CLADE_SIZE.
-        MIN_CLADE_SIZE
-      } else if(is.na(minCladeSizes[partitionRootLevel])) {
-        as.integer(max(MIN_CLADE_SIZE, PCMTreeNumTips(subtree) / 8))
-      } else {
-        as.integer(minCladeSizes[partitionRootLevel])
-      }
-    while(numPartNodes <= maxNumNodesPerCladePartition) {
-      listNew <- PCMTreeListCladePartitions(
-        tree = subtree,
-        nNodes = numPartNodes,
-        minCladeSize = minCladeSizeLevel,
-        tableAncestors = tableAncestors[labelsSubtree, labelsSubtree])
-
-      if(numPartNodes == 1) {
-        cladeRootsSubtree <- c(cladeRootsSubtree, labelsSubtree[unlist(listNew)])
+    if(is.null(listCladePartitions)) {
+      # 2.4. listCladePartitionsSubtree: Create a list of all possible
+      # clade-partitions of subtree into clades not smaller than
+      # minCladeSizes[partitionRootLevel].
+      if(verbose) {
+        cat("Step 2.4: Generating list of clade partitions for the subtree rooted at '",
+            partitionRootLabel, "':\n")
       }
 
-      if(length(listNew) == 0) {
-        break
-      } else {
-        listCladePartitionsSubtree <- c(listCladePartitionsSubtree, listNew)
-        numPartNodes <- numPartNodes + 1
+      listCladePartitionsSubtree <- list()
+      numPartNodes <- 1
+      minCladeSizeLevel <-
+        if(maxNumNodesPerCladePartition == 1) {
+          # we only take one cutting node at each clade-partitioning step, so
+          # no limit on the clad-size above MIN_CLADE_SIZE.
+          MIN_CLADE_SIZE
+        } else if(is.na(minCladeSizes[partitionRootLevel])) {
+          as.integer(max(MIN_CLADE_SIZE, PCMTreeNumTips(subtree) / 8))
+        } else {
+          as.integer(minCladeSizes[partitionRootLevel])
+        }
+      while(numPartNodes <= maxNumNodesPerCladePartition) {
+        listNew <- PCMTreeListCladePartitions(
+          tree = subtree,
+          nNodes = numPartNodes,
+          minCladeSize = minCladeSizeLevel,
+          tableAncestors = tableAncestors[labelsSubtree, labelsSubtree])
+
+        if(numPartNodes == 1) {
+          cladeRootsSubtree <- c(cladeRootsSubtree, labelsSubtree[unlist(listNew)])
+        }
+
+        if(length(listNew) == 0) {
+          break
+        } else {
+          listCladePartitionsSubtree <- c(listCladePartitionsSubtree, listNew)
+          numPartNodes <- numPartNodes + 1
+        }
       }
+
+      # 2.5 listCladePartitions: Unions of the nodes in bestPartition with the
+      # nodes in each clade-partition of subtree; convert integer node-indices
+      # in subtree to their corresponding character node-labels
+      listCladePartitions <- lapply(
+        listCladePartitionsSubtree,
+        function(partitionSubtree) {
+
+          partNodes <- union(bestPartition, labelsSubtree[partitionSubtree])
+          PCMTreeSetRegimes(tree, as.integer(partNodes))
+          partNodes2 <- PCMTreeGetStartingNodesRegimes(tree, preorder = preorderTree)
+
+          dtTipsPerRegime <- data.table(
+            regime = tree$edge.regime,
+            edge2 = tree$edge[,2])[edge2 <= PCMTreeNumTips(tree),
+                                   list(N=.N), keyby=regime]
+          dtTipsPerRegime[, node:=nodeLabelsTree[partNodes2[regime]]]
+
+          if(length(partNodes) > length(partNodes2) ||
+             length(partNodes2) > nrow(dtTipsPerRegime) ||
+             minCladeSizeLevel > dtTipsPerRegime[node%in%c(
+               partitionRootLabel, labelsSubtree[partitionSubtree]), min(N)]) {
+            NULL
+          } else {
+            nodeLabelsTree[partNodes2]
+          }
+        })
+
+      listCladePartitions <- listCladePartitions[!sapply(listCladePartitions, is.null)]
+    } else {
+      # at this point the elements in listCladePartititions have to be integers
+      cladeRootsSubtree <- labelsSubtree[as.integer(unlist(listCladePartitions))]
+      # now we convert them to characters
+      listCladePartitions <- lapply(listCladePartitions, as.character)
     }
 
-    # 2.5 listCladePartitions: Unions of the nodes in bestPartition with the
-    # nodes in each clade-partition of subtree; convert integer node-indices
-    # in subtree to their corresponding character node-labels
-    listCladePartitions <- lapply(
-      listCladePartitionsSubtree,
-      function(partitionSubtree) {
-
-        partNodes <- union(bestPartition, labelsSubtree[partitionSubtree])
-        PCMTreeSetRegimes(tree, as.integer(partNodes))
-        partNodes2 <- PCMTreeGetStartingNodesRegimes(tree, preorder = preorderTree)
-
-        dtTipsPerRegime <- data.table(
-          regime = tree$edge.regime,
-          edge2 = tree$edge[,2])[edge2 <= PCMTreeNumTips(tree),
-                                 list(N=.N), keyby=regime]
-        dtTipsPerRegime[, node:=nodeLabelsTree[partNodes2[regime]]]
-
-        if(length(partNodes) > length(partNodes2) ||
-           length(partNodes2) > nrow(dtTipsPerRegime) ||
-           minCladeSizeLevel > dtTipsPerRegime[node%in%c(
-             partitionRootLabel, labelsSubtree[partitionSubtree]), min(N)]) {
-          NULL
-        } else {
-          nodeLabelsTree[partNodes2]
-        }
-      })
-
-    listCladePartitions <- listCladePartitions[!sapply(listCladePartitions, is.null)]
+    if(verbose) {
+      cat("Step 2.5: List of clade partitions of the tree:\n")
+      cat(do.call(
+        paste,
+            c(lapply(listCladePartitions, function(p) {
+              toString(p)
+            }),
+            list(sep="\n"))))
+      cat("\n")
+    }
     mainLoopHistoryEntry[["listCladePartitions"]] <- listCladePartitions
+
 
     # 2.6. Prepare "seeds" for the modelMappingIterators for each clade-partition
     if(verbose) {
       cat("Step 2.6: Preparing allowed-model-indices for the modelMappingIterators for each clade-partition\n")
     }
     PCMTreeSetRegimes(tree, as.integer(bestPartition))
-    listAllowedModelTypesIndices <- list()
-    for(label in union(bestPartition, cladeRootsSubtree)) {
 
-      if(label == partitionRootLabel) {
-        # we test all possible model mappings to the partition-root-table
-        listAllowedModelTypesIndices[[label]] <- 1:length(modelTypes)
-      } else {
+    if(is.list(arguments$listAllowedModelTypesIndices)) {
 
-        # for all other nodes in the clade-partition, we cut to the best
-        # model for the clade originating at the node and the model from the
-        # bestMapping over the entire tree corresponding to that node.
-        bestCladeRootMapping <- tableFits[
-          sapply(startingNodesRegimesLabels, function(s) match(label, s, nomatch = 0L)) == 1,
-          match(mapping[[which.min(aic)]][1], modelTypes)]
+      listAllowedModelTypesIndices <-
+        arguments$listAllowedModelTypesIndices[union(
+          bestPartition, cladeRootsSubtree)]
 
-        iLabel <- as.integer(label)
+    } else if(is.null(arguments$listAllowedModelTypesIndices) ||
+              arguments$listAllowedModelTypesIndices == "all") {
 
-        # we need the if(), because PCMTreeGetRegimeForNode returns an empty
-        # vector for the root-node
-        iRegime <- if(iLabel == treeRootInt) {
-          1
+      nodes <- union(bestPartition, cladeRootsSubtree)
+      listAllowedModelTypesIndices <-
+        replicate(length(nodes), seq_along(modelTypes), simplify = FALSE)
+      names(listAllowedModelTypesIndices) <- as.character(nodes)
+
+    } else if(arguments$listAllowedModelTypesIndices %in%
+              c("best-clade", "best-clade-2")) {
+
+      listAllowedModelTypesIndices <- list()
+
+      for(label in union(bestPartition, cladeRootsSubtree)) {
+
+        if(label == partitionRootLabel) {
+          # we test all possible model mappings to the partition-root-table
+          listAllowedModelTypesIndices[[label]] <- 1:length(modelTypes)
         } else {
-          PCMTreeGetRegimeForNode(tree, iLabel)
+
+          # for all other nodes in the clade-partition, we cut to the best
+          # model for the clade originating at the node and the model from the
+          # bestMapping over the entire tree corresponding to that node.
+          bestCladeRootMapping <- tableFits[
+            sapply(startingNodesRegimesLabels,
+                   function(s) match(label, s, nomatch = 0L)) == 1,
+            match(mapping[[which.min(score)]][1], modelTypes)]
+
+
+          if(arguments$listAllowedModelTypesIndices == "best-clade-2") {
+
+            iLabel <- as.integer(label)
+            # we need the if(), because PCMTreeGetRegimeForNode returns an empty
+            # vector for the root-node
+            iRegime <- if(iLabel == treeRootInt) {
+              1
+            } else {
+              PCMTreeGetRegimeForNode(tree, iLabel)
+            }
+            bestCladePartitionMapping <- match(bestMapping[iRegime], modelTypes)
+
+          } else {
+            bestCladePartitionMapping <- bestCladeRootMapping
+          }
+
+          listAllowedModelTypesIndices[[label]] <-
+            unique(c(bestCladePartitionMapping, bestCladeRootMapping))
+
+          # if a previously inferred tableFits was supplied, it might contain
+          # clade-fits for model-types other than
+          # the supplied modelTypes in this fit. These result in NA entries in
+          # allowedModelTypes-vectors. We remove them here:
+          listAllowedModelTypesIndices[[label]] <-
+            listAllowedModelTypesIndices[[label]][
+              !is.na(listAllowedModelTypesIndices[[label]])]
         }
-        bestCladePartitionMapping <- match(bestMapping[iRegime], modelTypes)
-
-        listAllowedModelTypesIndices[[label]] <-
-          unique(c(bestCladePartitionMapping, bestCladeRootMapping))
-
-        # if a previously inferred tableFits was supplied, it might contain
-        # clade-fits for model-types other than
-        # the supplied modelTypes in this fit. These result in NA entries in
-        # allowedModelTypes-vectors. We remove them here:
-        listAllowedModelTypesIndices[[label]] <-
-          listAllowedModelTypesIndices[[label]][
-            !is.na(listAllowedModelTypesIndices[[label]])]
       }
+    }
+    if(verbose) {
+      cat("listAllowedModelTypesIndices:\n",
+          do.call(
+            paste,
+            c(lapply(seq_along(listAllowedModelTypesIndices), function(i) {
+              paste0("`", names(listAllowedModelTypesIndices)[i], "`: ",
+                     toString(listAllowedModelTypesIndices[[i]]))
+            }),
+            list(sep="\n"))))
+      cat("\n")
     }
 
     mainLoopHistoryEntry[[
       "listAllowedModelTypesIndices"]] <- listAllowedModelTypesIndices
-
-    if(verbose) {
-      cat("listAllowedModelTypesIndices: ",
-          do.call(paste0,
-                  c(as.list(capture.output(print(listAllowedModelTypesIndices))),
-                    list(sep="; "))))
-    }
 
     # 2.7 Nested foreach over the clade-partitions and the allowed model-type
     # mappings
@@ -346,26 +417,26 @@ PCMFitRecursiveCladePartition <- function(
     # fitsToTree
 
     if( length(listCladePartitions) > 0 ) {
-      if(fitsToTree[, min(aic)] < bestAIC &&
+      if(fitsToTree[, min(score)] < bestScore &&
          partitionRootLevel < maxCladePartitionLevel ) {
-        # a partitioning with a better AIC was found
+        # a partitioning with a better score was found
 
         # put new partitioning nodes and the partition root-node in the queue
         # with an augmented level
         queuePartitionRootsNew <- fitsToTree[, {
-          iMinAIC <- which.min(aic)
+          iMinScore <- which.min(score)
           list(
             level = partitionRootLevel + 1L,
             node = as.integer(c(partitionRootLabel,
-                                setdiff(startingNodesRegimesLabels[[iMinAIC]],
+                                setdiff(startingNodesRegimesLabels[[iMinScore]],
                                         bestPartition))),
             partitionParentNode = as.integer(partitionRootLabel),
             hashCodeBestPartitionInitial =
-              hashCodeStartingNodesRegimesLabels[iMinAIC],
+              hashCodeStartingNodesRegimesLabels[iMinScore],
 
-            hashCodeBestMappingInitial = hashCodeMapping[iMinAIC],
-            hashCodeBestPartitionLevel = hashCodeStartingNodesRegimesLabels[iMinAIC],
-            hashCodeBestMappingLevel = hashCodeMapping[iMinAIC]
+            hashCodeBestMappingInitial = hashCodeMapping[iMinScore],
+            hashCodeBestPartitionLevel = hashCodeStartingNodesRegimesLabels[iMinScore],
+            hashCodeBestMappingLevel = hashCodeMapping[iMinScore]
           )
         }]
 
