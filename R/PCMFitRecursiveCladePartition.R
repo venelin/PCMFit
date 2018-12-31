@@ -332,12 +332,12 @@ PCMFitRecursiveCladePartition <- function(
           if(arguments$listAllowedModelTypesIndices == "best-clade-2") {
 
             iLabel <- as.integer(label)
-            # we need the if(), because PCMTreeGetRegimeForNode returns an empty
-            # vector for the root-node
+            # we need the if(), because PCMTreeGetRegimeForNode returns NA for
+            # the root-node
             iRegime <- if(iLabel == treeRootInt) {
-              1
+              1L
             } else {
-              PCMTreeGetRegimeForNode(tree, iLabel)
+              PCMTreeGetRegimesForNodes(tree, iLabel)
             }
             bestCladePartitionMapping <- match(bestMapping[iRegime], modelTypes)
 
