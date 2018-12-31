@@ -4,7 +4,6 @@ library(PCMBase)
 
 library(abind)
 library(data.table)
-library(ggtree)
 
 source("GeneratePCMModels.R")
 set.seed(2)
@@ -33,7 +32,7 @@ PCMTreeSetLabels(tree.a)
 
 tree.a$edge.jump <- rep(0, nrow(tree.a$edge))
 
-PCMTreePlot(tree.a) + geom_nodelab()
+#PCMTreePlot(tree.a) + geom_nodelab()
 
 
 model1 <- do.call(
