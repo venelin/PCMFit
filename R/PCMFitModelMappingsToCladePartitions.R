@@ -12,41 +12,29 @@ PCMFitModelMappingsToCladePartitions <- function(
   generatePCMModelsFun = NULL,
   metaIFun = PCMInfo, positiveValueGuard = Inf,
 
-  lik = NULL, prior = NULL, input.data = NULL, config = NULL,
-
   fitMappingsPrev = NULL,
   tableFitsPrev = fitMappingsPrev$tableFits,
   modelTypesInTableFitsPrev = NULL,
 
   skipFitWhenFoundInTableFits = TRUE,
 
-  prefixFiles = "fits_",
+  argsMixedGaussian = NULL,
+
+  argsConfigOptim = NULL,
+
 
   listPCMOptions = PCMOptions(),
-
-  argsMixedGaussian = NULL,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  argsPCMParamLoadOrStore = NULL,
-
-  argsConfigOptimAndMCMC = NULL,
-
-  numJitterRootRegimeFit = 100, sdJitterRootRegimeFit = 0.5,
-  numJitterAllRegimeFits = 100, sdJitterAllRegimeFits = 0.5,
+  doParallel = FALSE,
 
   preorderTree = NULL,
   tableAncestors = NULL,
 
+  prefixFiles = "fits_",
   saveTempWorkerResults = TRUE,
-
   printFitVectorsToConsole = FALSE,
 
-  doParallel = FALSE,
-
   verbose = TRUE,
-  verbosePCMFit = FALSE,
-  verboseComposeMixedGaussianFromFits = FALSE,
-  verboseAdaptArgsConfigOptimAndMCMC = FALSE
+  debug = FALSE
 ) {
 
   treeEDExpression = "tree"
@@ -187,19 +175,35 @@ PCMFitModelMappingsToCladePartitions <- function(
                                             modelTypes = modelTypes,
                                             mapping = modelMapping),
                                        argsMixedGaussian))
+
+              matParInitRunif <- PCMParamRandomVecParams(
+                o = model,
+                k = PCMNumTraits(model),
+                R = PCMNumRegimes(model),
+                n = argsConfigOptim$numRunifInitVecParams,
+                argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit)
+              matParInitGuess <- guessInitVecParams(
+                o = model,
+                k = PCMNumTraits(model),
+                R = PCMNumRegimes(model),
+                n = argsConfigOptim$numGuessInitVecParams,
+                argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
+                X = X, tree = tree, SE = SE,
+                varyTheta = argsConfigOptim$varyThetaInGuessInitVecParams)
+
+              matParInit <- rbind(matParInitRunif,
+                                  matParInitGuess)
+
               fit <- PCMFit(
                 X = XForFit, tree = treeForFit, model = modelForFit,
                 SE = SEForFit,
-
                 metaI = metaIFun, positiveValueGuard = positiveValueGuard,
-
-                lik = lik, prior = prior, input.data = input.data,
-                config = config,
-                argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-                argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-                argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
-                argsConfigOptimAndMCMC = argsConfigOptimAndMCMC,
-                verbose = verbosePCMFit)
+                matParInit = matParInit,
+                numCallsOptim = argsConfigOptim$numCallsOptim,
+                control = argsConfigOptim$control,
+                verbose = debug)
 
             } else {
               modelForFit <- ComposeMixedGaussianFromFits(
@@ -213,30 +217,48 @@ PCMFitModelMappingsToCladePartitions <- function(
                 tableFits = tableFits,
                 modelTypesInTableFits = modelTypesInTableFits,
                 tableAncestors = tableAncestorsTree,
-                verbose = verboseComposeMixedGaussianFromFits)
+                verbose = debug)
+
+              matParInitRunif <- PCMParamRandomVecParams(
+                o = model,
+                k = PCMNumTraits(model),
+                R = PCMNumRegimes(model),
+                n = argsConfigOptim$numRunifInitVecParams,
+                argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit)
+              matParInitGuess <- guessInitVecParams(
+                o = model,
+                k = PCMNumTraits(model),
+                R = PCMNumRegimes(model),
+                n = argsConfigOptim$numGuessInitVecParams,
+                argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
+                X = X, tree = tree, SE = SE,
+                varyTheta = argsConfigOptim$varyThetaInGuessInitVecParams)
+              matParInitJitter <-
+                jitterModelParams(
+                  modelForFit,
+                  argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                  argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
+                  numJitterRootRegimeFit = argsConfigOptim$numJitterRootRegimeFit,
+                  sdJitterRootRegimeFit = argsConfigOptim$sdJitterRootRegimeFit,
+                  numJitterAllRegimeFits = argsConfigOptim$numJitterAllRegimeFits,
+                  sdJitterAllRegimeFits = argsConfigOptim$sdJitterAllRegimeFits,
+                  verbose = debug)
+
+              matParInit <- rbind(matParInitRunif,
+                                  matParInitGuess,
+                                  matParInitJitter)
 
               fit <- PCMFit(
                 X = XForFit, tree = treeForFit, model = modelForFit,
                 SE = SEForFit,
-
                 metaI = metaIFun, positiveValueGuard = positiveValueGuard,
-                lik = lik, prior = prior, input.data = input.data,
-                config = config,
-                argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-                argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-                argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
-                argsConfigOptimAndMCMC = AdaptArgsConfigOptimAndMCMC(
-                  modelForFit,
-                  argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-                  argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-                  argsPCMParamLoadOrStore = argsPCMParamLoadOrStore,
-                  argsConfigOptimAndMCMC = argsConfigOptimAndMCMC,
-                  numJitterRootRegimeFit = numJitterRootRegimeFit,
-                  sdJitterRootRegimeFit = sdJitterRootRegimeFit,
-                  numJitterAllRegimeFits = numJitterAllRegimeFits,
-                  sdJitterAllRegimeFits = sdJitterAllRegimeFits,
-                  verbose = verboseAdaptArgsConfigOptimAndMCMC),
-                verbose = verbosePCMFit)
+                matParInit = matParInit,
+                numCallsOptim = argsConfigOptim$numCallsOptim,
+                control = argsConfigOptim$control,
+                verbose = debug
+              )
             }
 
             ll <- unname(logLik(fit))

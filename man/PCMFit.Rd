@@ -5,7 +5,12 @@
 \title{Fitting a PCM model to a given tree and data}
 \usage{
 PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), ...)
+  PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE),
+  positiveValueGuard = Inf, argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL, matParInit = NULL,
+  numRunifInitVecParams = 1000, numGuessInitVecParams = 100,
+  varyThetaInGuessInitVecParams = FALSE, numCallsOptim = 10,
+  control = NULL, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -25,6 +30,11 @@ X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 Choleski factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
+containing meta-data such as N, M and k.}
+
+\item{verbose}{logical indicating if some debug-messages should printed.}
 
 \item{...}{other arguments used by methods.}
 }

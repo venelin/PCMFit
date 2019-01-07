@@ -13,8 +13,6 @@ PCMFitRecursiveCladePartition <- function(
 
   positiveValueGuard = Inf,
 
-  lik = NULL, prior = NULL, input.data = NULL, config = NULL,
-
   fitMappingsPrev = NULL,
   tableFitsPrev = fitMappingsPrev$tableFits,
   modelTypesInTableFitsPrev = NULL,
@@ -25,17 +23,12 @@ PCMFitRecursiveCladePartition <- function(
 
   maxCladePartitionLevel = 8, maxNumNodesPerCladePartition = 1, minCladeSizes = 25,
 
-  listPCMOptions = PCMOptions(),
-
   argsMixedGaussian = NULL,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  argsPCMParamLoadOrStore = NULL,
 
-  argsConfigOptimAndMCMC = NULL,
+  argsConfigOptim = NULL,
 
-  numJitterRootRegimeFit = 100, sdJitterRootRegimeFit = 0.5,
-  numJitterAllRegimeFits = 100, sdJitterAllRegimeFits = 0.5,
+  listPCMOptions = PCMOptions(),
+  doParallel = FALSE,
 
   preorderTree = NULL,
   tableAncestors = NULL,
@@ -43,12 +36,8 @@ PCMFitRecursiveCladePartition <- function(
   saveTempWorkerResults = TRUE,
   printFitVectorsToConsole = FALSE,
 
-  doParallel = FALSE,
-
   verbose = TRUE,
-  verbosePCMFit = FALSE,
-  verboseComposeMixedGaussianFromFits = FALSE,
-  verboseAdaptArgsConfigOptimAndMCMC = FALSE
+  debug = FALSE
 ) {
 
   # Copy all arguments into a list

@@ -12,14 +12,12 @@
 #' @return an S3 object of class PCMFitModelMappings.
 #'
 #' @export
-PCMFitModelMappings <- function(
+PCMFitMixed <- function(
   X, tree, modelTypes,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
 
   generatePCMModelsFun = NULL,
   metaIFun = PCMInfo, positiveValueGuard = Inf,
-
-  lik = NULL, prior = NULL, input.data = NULL, config = NULL,
 
   fitMappingsPrev = NULL,
   tableFitsPrev = fitMappingsPrev$tableFits,
@@ -36,29 +34,21 @@ PCMFitModelMappings <- function(
 
   scoreFun = AIC,
 
+  argsMixedGaussian = NULL,
+
+  argsConfigOptim1 = defaultArgsConfigOptim(numCallsOptim = 10),
+  argsConfigOptim2 = defaultArgsConfigOptim(numCallsOptim = 4),
+
   listPCMOptions = PCMOptions(),
 
-  argsMixedGaussian = NULL,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  argsPCMParamLoadOrStore = NULL,
-
-  argsConfigOptimAndMCMC1 = NULL,
-  argsConfigOptimAndMCMC2 = NULL,
-
-  numJitterRootRegimeFit = 100, sdJitterRootRegimeFit = 0.5,
-  numJitterAllRegimeFits = 100, sdJitterAllRegimeFits = 0.5,
+  doParallel = FALSE,
 
   saveTempWorkerResults = TRUE,
   printFitVectorsToConsole = FALSE,
   setAttributes = TRUE,
 
-  doParallel = FALSE,
-
   verbose = TRUE,
-  verbosePCMFit = FALSE,
-  verboseComposeMixedGaussianFromFits = FALSE,
-  verboseAdaptArgsConfigOptimAndMCMC = FALSE
+  debug = FALSE
 ) {
 
   # Copy all arguments into a list
@@ -116,8 +106,11 @@ PCMFitModelMappings <- function(
                      length)), " model mappings altogether...\n")
     }
 
-    argumentsFitsToClades <- arguments[intersect(
-      names(arguments), names(as.list(args(PCMFitModelMappingsToCladePartitions))))]
+    argumentsFitsToClades <-
+      arguments[
+        intersect(
+          names(arguments),
+          names(as.list(args(PCMFitModelMappingsToCladePartitions))))]
 
     argumentsFitsToClades$X <- X
     argumentsFitsToClades$tree <- tree
@@ -130,7 +123,7 @@ PCMFitModelMappings <- function(
     argumentsFitsToClades$fitMappingsPrev <- NULL
     argumentsFitsToClades$tableFitsPrev <- tableFits
     argumentsFitsToClades$modelTypesInTableFitsPrev <- modelTypesInTableFitsPrev
-    argumentsFitsToClades$argsConfigOptimAndMCMC <- argsConfigOptimAndMCMC1
+    argumentsFitsToClades$argsConfigOptim <- argsConfigOptim1
     argumentsFitsToClades$preorderTree <- preorderTree
     argumentsFitsToClades$tableAncestors <- tableAncestors
     argumentsFitsToClades$prefixFiles <- paste0(prefixFiles, "_clades_")
@@ -163,7 +156,7 @@ PCMFitModelMappings <- function(
     argumentsStep2$fitMappingsPrev <- NULL
     argumentsStep2$tableFitsPrev <- tableFits
     argumentsStep2$modelTypesInTableFitsPrev <- modelTypesInTableFitsPrev
-    argumentsStep2$argsConfigOptimAndMCMC <- argsConfigOptimAndMCMC2
+    argumentsStep2$argsConfigOptim <- argsConfigOptim2
     argumentsStep2$preorderTree <- preorderTree
     argumentsStep2$tableAncestors <- tableAncestors
 

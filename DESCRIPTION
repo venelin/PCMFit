@@ -1,15 +1,30 @@
 Package: PCMFit
 Type: Package
-Title: Fitting and model selection of phylogenetic comparative models
-Version: 0.4.0
+Title: Maximum likelihood fit and selection of phylogenetic comparative models
+Version: 0.5.0
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
-Maintainer: The package maintainer <vmitov@gmail.com>
-Description: This package performs phylogenetic comparative model (PCM) selection on 
-    a phylogenetic tree with phenotypic data at its tips. The phylogenetic comparative
-    model is selected from a set of mixed Gaussian phylogenetic models (MGPMs), 
-    such as combinations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) 
-    processes running on different lineages of the tree. 
+Maintainer: Venelin Mitov <vmitov@gmail.com>
+Description: Fast maximum likelihood fit and model selection of phylogenetic 
+    comparative models (PCMs) to a phylogenetic tree and multivariate trait
+    data at its tips. Supports Gaussian and mixed Gaussian phylogenetic models 
+    (MGPM) over all types of trees (including non-ultrametric trees and 
+    polytomies). Supports non-existing traits or missing measurements for some 
+    of the traits on some of the species. Supports specifying or inferring 
+    measurement error for the trait values associated with each tip of the tree. 
+    The Gaussian phylogenetic models include various parametrizations of 
+    Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching 
+    processes. The mixed Gaussian models represent models with shifts in the 
+    model parameters as well as the type of model at points of the tree. Each 
+    shift-point is described as a couple of shift-nodes and associated type of
+    model (e.g. OU or BM) driving the trait evolution from the beginning of the 
+    branch leading to the shift-node toward the shift-node and its descendants 
+    until reaching a tip or another shift-point. The function PCMFit is used to 
+    fit a given PCM or a MGPM for a given tree with specified shift-points. The
+    function PCMFitMixed is used to fit an ensemble of possible MGPMs over a 
+    tree for which the shift-points are unknown. This function can perform model
+    selection of the best MGPM for a given tree and data according to an 
+    information loss criterios such as the Akaike information criterion (AIC). 
 Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true
@@ -18,7 +33,6 @@ Depends:
 Imports:
     ape,
     PCMBase,
-    OptimMCMC,
     foreach,
     iterators,
     digest,
@@ -26,6 +40,7 @@ Imports:
 Suggests:
     PCMBaseCpp,
     testthat,
-    knitr
+    knitr,
+    rmarkdown
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr

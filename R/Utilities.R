@@ -5,12 +5,13 @@ PCMLoadMixedGaussianFromFitVector <- function(
   remapModelTypeIndicesInFitVector = seq_along(modelTypes), ...) {
   # the last entries in fitVector are in the following order from left to right:
   # numNumericParams, logLik, df, nobs, score;
-  # the first elements from 1 to numNumericParams are the actual numeric parameters;
-  # the entries that follow are between the numeric parameters and numNumericParams.
-  # These must be a pair number 2R, where R is the number of regimes in the tree.
-  # The first R of these are the starting nodes for the R regimes (starting from the root-node,
-  # which is always the starting node for the first regime); The second R are the indices that
-  # map modelTypes to the regimes on the tree.
+  # the first elements from 1 to numNumericParams are the actual numeric
+  # parameters; the entries that follow are between the numeric parameters and
+  # numNumericParams. These must be a pair number 2R, where R is the number of
+  # regimes in the tree. The first R of these are the starting nodes for the R
+  # regimes (starting from the root-node, which is always the starting node for
+  # the first regime); The second R are the indices that map modelTypes to the
+  # regimes on the tree.
   last <- length(fitVector)
   v_score <- fitVector[last]
   nobs <- fitVector[last - 1]
@@ -18,10 +19,12 @@ PCMLoadMixedGaussianFromFitVector <- function(
   ll <- fitVector[last - 3]
   numNumericParams <- fitVector[last - 4]
 
-  mappingModelsToRegimes <- matrix(as.integer(fitVector[(numNumericParams+1):(last-5)]), nrow = 2, byrow = TRUE)
+  mappingModelsToRegimes <- matrix(
+    as.integer(fitVector[(numNumericParams+1):(last-5)]), nrow = 2, byrow = TRUE)
 
-  model <- MixedGaussian(k = k, modelTypes = modelTypes,
-                         mapping = remapModelTypeIndicesInFitVector[mappingModelsToRegimes[2, ]], ...)
+  model <- MixedGaussian(
+    k = k, modelTypes = modelTypes,
+    mapping = remapModelTypeIndicesInFitVector[mappingModelsToRegimes[2, ]], ...)
 
   PCMParamLoadOrStore(model, fitVector, offset = 0, load = TRUE)
 
@@ -44,14 +47,15 @@ MatchModelMapping <- function(modelMapping, modelTypes) {
     if( any(is.na(m)) ) {
       stop("ERR:04111:PCMFit:PCMFit.R:MatchModelMapping:: some of the models in modelMapping could not be matched against model-types in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
     }
-  } else if(is.integer(modelMapping)) {
+  } else if( is.integer(modelMapping) ) {
     m <- match(modelMapping, 1:length(modelTypes))
     if( any(is.na(m)) ) {
       stop("ERR:04112:PCMFit:PCMFit.R:MatchModelMapping:: some of the integer models in modelMapping could not be matched against model-indices in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
     }
   } else {
-    stop("ERR:04113:PCMFit:PCMFit.R:MatchModelMapping:: modelMapping should be character or integer (",
-         toString(modelMapping), ")")
+    stop(
+      "ERR:04113:PCMFit:PCMFit.R:MatchModelMapping:: modelMapping should be character or integer (",
+      toString(modelMapping), ")")
   }
   unname(modelTypes[m])
 }
@@ -94,7 +98,9 @@ ComposeMixedGaussianFromFits <- function(
     mr <- modelTypes[mapping[r]]
     tree_nr <- PCMTreeExtractClade(tree, nr, tableAncestors = tableAncestors)
     PCMTreeSetDefaultRegime(tree_nr, 1)
-    fit <- LookupFit(tree = tree_nr, modelTypes = modelTypes, modelMapping = mr, tableFits = tableFits)
+    fit <- LookupFit(
+      tree = tree_nr, modelTypes = modelTypes, modelMapping = mr,
+      tableFits = tableFits)
 
     if(nrow(fit) == 0) {
       stop("ERR:04120:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: no entry in tableFits for the given tree and modelMapping.")
@@ -151,133 +157,6 @@ ComposeMixedGaussianFromFits <- function(
     }
   }
   model
-}
-
-#' @importFrom PCMBase PCMParamGetShortVector PCMParamLoadOrStore
-#' @importFrom stats rnorm
-#' @export
-AdaptArgsConfigOptimAndMCMC <- function(
-  model,
-
-  argsPCMParamLowerLimit,
-  argsPCMParamUpperLimit,
-
-  argsPCMParamLoadOrStore,
-  argsConfigOptimAndMCMC,
-  numJitterRootRegimeFit, sdJitterRootRegimeFit,
-  numJitterAllRegimeFits, sdJitterAllRegimeFits,
-  verbose = FALSE
-) {
-
-  matParamsFromTableFits <-
-    matrix(PCMParamGetShortVector(model), 1, PCMParamCount(model), byrow = TRUE)
-  matParamsJitterRootCladeFit <- matParamsJitterAllCladeFits <- NULL
-
-  # if there is more than one clade in the tree and numJitterRootRegimeFit > 0
-  if( !is.null(model[["2"]]) && numJitterRootRegimeFit > 0 ) {
-    vecParamIndex <- 1:ncol(matParamsFromTableFits)
-    modelIndexParams <- model
-    PCMParamLoadOrStore(modelIndexParams, vecParamIndex, offset = 0, load = TRUE)
-    vecParamIndexRootClade <- as.integer(PCMParamGetShortVector(modelIndexParams[["1"]]))
-    matParamsJitterRootCladeFit <-
-      matrix(matParamsFromTableFits[1,], 2*numJitterRootRegimeFit, ncol(matParamsFromTableFits), byrow=TRUE)
-    for(j in vecParamIndexRootClade) {
-      matParamsJitterRootCladeFit[, j] <- rnorm(2 * numJitterRootRegimeFit,
-                                                mean = matParamsFromTableFits[1, j],
-                                                sd = sdJitterRootRegimeFit)
-    }
-  }
-
-  if( numJitterAllRegimeFits > 0 ) {
-    matParamsJitterAllCladeFits <-
-      matrix(matParamsFromTableFits[1,], 2*numJitterAllRegimeFits, ncol(matParamsFromTableFits), byrow=TRUE)
-    for(j in 1:ncol(matParamsFromTableFits)) {
-      matParamsJitterAllCladeFits[, j] <- rnorm(2*numJitterAllRegimeFits,
-                                                mean = matParamsFromTableFits[1, j],
-                                                sd = sdJitterAllRegimeFits)
-    }
-  }
-
-  if(!is.null(matParamsJitterRootCladeFit) || !is.null(matParamsJitterAllCladeFits)) {
-    # need to remove the parameters that go out of the lower-upper bound
-    lowerModel <- do.call(PCMParamLowerLimit, c(list(model), argsPCMParamLowerLimit))
-    lowerVecParams <- PCMParamGetShortVector(lowerModel)
-
-    upperModel <- do.call(PCMParamUpperLimit, c(list(model), argsPCMParamUpperLimit))
-    upperVecParams <- PCMParamGetShortVector(upperModel)
-
-    if( !is.null(matParamsJitterRootCladeFit) ) {
-      matParamsJitterRootCladeFit <-
-        do.call(rbind,
-                lapply(1:nrow(matParamsJitterRootCladeFit), function(i) {
-                  if(isTRUE(all(matParamsJitterRootCladeFit[i,] >= lowerVecParams)) &&
-                     isTRUE(all(matParamsJitterRootCladeFit[i,] <= upperVecParams))
-                  ) {
-                    matParamsJitterRootCladeFit[i,]
-                  } else {
-                    NULL
-                  }
-                }))
-      if(!is.null(matParamsJitterRootCladeFit) &&
-         nrow(matParamsJitterRootCladeFit) > numJitterRootRegimeFit) {
-        matParamsJitterRootCladeFit <- matParamsJitterRootCladeFit[1:numJitterRootRegimeFit, ]
-      }
-      matParamsFromTableFits <- rbind(matParamsFromTableFits,
-                                      matParamsJitterRootCladeFit)
-    }
-
-    if( !is.null(matParamsJitterAllCladeFits) ) {
-      matParamsJitterAllCladeFits <-
-        do.call(rbind,
-                lapply(1:nrow(matParamsJitterAllCladeFits), function(i) {
-                  if(isTRUE(all(matParamsJitterAllCladeFits[i,] >= lowerVecParams)) &&
-                     isTRUE(all(matParamsJitterAllCladeFits[i,] <= upperVecParams))
-                  ) {
-                    matParamsJitterAllCladeFits[i,]
-                  } else {
-                    NULL
-                  }
-                }))
-      if(!is.null(matParamsJitterAllCladeFits) &&
-         nrow(matParamsJitterAllCladeFits) > numJitterAllRegimeFits) {
-
-        matParamsJitterAllCladeFits <-
-          matParamsJitterAllCladeFits[1:numJitterAllRegimeFits, ]
-      }
-      matParamsFromTableFits <- rbind(matParamsFromTableFits,
-                                      matParamsJitterAllCladeFits)
-    }
-  }
-
-
-  if(is.null(argsConfigOptimAndMCMC)) {
-    argsConfigOptimAndMCMC <- list()
-  }
-
-  if( !is.null(argsConfigOptimAndMCMC[["listParInitOptim"]]) ) {
-    if(verbose) {
-      cat("Prepending the ", nrow(matParamsFromTableFits), " parameter vectors to argsConfigOptimAndMCMC[['listParInitOptim']] \n ")
-      #print(matParamsFromTableFits)
-    }
-    argsConfigOptimAndMCMC[["listParInitOptim"]] <-
-      c(lapply(1:nrow(matParamsFromTableFits), function(i) matParamsFromTableFits[i, ]),
-        argsConfigOptimAndMCMC[["listParInitOptim"]])
-  } else {
-    if(verbose) {
-      cat("Setting ", nrow(matParamsFromTableFits), " param vectors into listParInitOptim \n ")
-      #print(matParamsFromTableFits)
-    }
-    argsConfigOptimAndMCMC[["listParInitOptim"]] <-
-      lapply(1:nrow(matParamsFromTableFits), function(i) matParamsFromTableFits[i, ])
-  }
-
-  if( !is.null(argsConfigOptimAndMCMC[["genInitNumEvals"]]) ) {
-    argsConfigOptimAndMCMC[["genInitNumEvals"]] <- argsConfigOptimAndMCMC[["genInitNumEvals"]] + nrow(matParamsFromTableFits)
-  } else {
-    argsConfigOptimAndMCMC[["genInitNumEvals"]] <- nrow(matParamsFromTableFits)
-  }
-
-  argsConfigOptimAndMCMC
 }
 
 SaveCurrentResults <- function(listResults, filePrefix) {
@@ -449,7 +328,10 @@ RetrieveFittedModelsFromFitVectors <- function(
         PCMParamLoadOrStore(modelNew, PCMParamGetShortVector(model), offset = 0, load = TRUE)
         model <- modelNew
       } else {
-        stop(paste0("ERR:04141:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (", toString(fitMappings$arguments$modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
+        stop(
+          paste0(
+            "ERR:04141:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (",
+            toString(fitMappings$arguments$modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
       }
     }
     if(setAttributes) {
@@ -650,317 +532,4 @@ PlotTreeRegimesAndMapping <- function(tree, regimeNodes, mappingIdx = NULL) {
   pl
 }
 
-
-#' @export
-guessInitVecParams <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL) {
-  UseMethod("guessInitVecParams", o)
-}
-
-#' @export
-guessInitVecParams.PCM <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL) {
-
-  res <- PCMParamRandomVecParams(
-    o = o, k = k, R = R, n = n,
-    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-    argsPCMParamUpperLimit = argsPCMParamUpperLimit)
-
-  if( !is.null(X) && "X0" %in% names(o) && !is.Fixed(o$X0) ) {
-    lowerModel <- do.call(
-      PCMParamLowerLimit, c(list(o, k = k, R = R), argsPCMParamLowerLimit))
-    lowerVecParams <- PCMParamGetShortVector(lowerModel, k = k, R = R)
-
-    upperModel <- do.call(
-      PCMParamUpperLimit, c(list(o, k = k, R = R), argsPCMParamUpperLimit))
-    upperVecParams <- PCMParamGetShortVector(upperModel, k = k, R = R)
-
-    vec.o <- PCMParamGetShortVector(o)
-    vec.along.o <- seq_along(vec.o)
-
-    o.along.o <- o
-
-    PCMParamLoadOrStore(
-      o.along.o, vec.along.o, offset = 0,
-      k = PCMNumTraits(o), R = PCMNumRegimes(o), load = TRUE)
-
-    if(is.null(tree)) {
-      # no tree supplied, so use the population grand mean to set X0 in the
-      # random parameter vectors
-      grandMean <- rowMeans(X, na.rm = TRUE)
-      grandMeanMask <- grandMean + 8108.20
-      o.along.o$X0[] <- grandMeanMask
-      v.along.o <- PCMParamGetShortVector(o.along.o)
-      idxX0 <- match(grandMeanMask, v.along.o)
-      idxX0 <- idxX0[!is.na(idxX0)]
-      v.along.o[idxX0] <- v.along.o[idxX0] - 8108.20
-
-      if(all(isTRUE(lowerVecParams[idxX0] <= v.along.o[idxX0])) &&
-         all(isTRUE(v.along.o[idxX0] <= upperVecParams[idxX0]))) {
-
-        res[, idxX0] <- matrix(
-          v.along.o[idxX0], nrow = n, ncol = length(idxX0), byrow = TRUE)
-      }
-    } else {
-      # a tree has been supplied, so calculate a weighted mean and assign it to
-      # X0 in the random parameter vectors
-      if(is.null(tableAnc)) {
-        tableAnc <- PCMTreeTableAncestors(tree)
-      }
-      rootDists <- PCMTreeNodeTimes(tree)
-
-      N <- PCMTreeNumTips(tree)
-
-      daughtersRoot <- PCMTreeGetDaughters(tree, N + 1L)
-
-      weightsDaughtersRoot <- 1 / rootDists[daughtersRoot]
-      weightsDaughtersRoot <- weightsDaughtersRoot / sum(weightsDaughtersRoot)
-
-      tipsFromDaughtersRoot <- lapply(daughtersRoot, function(j) {
-        which(tableAnc[seq_len(PCMTreeNumTips(tree)), j] > 0)
-      })
-
-      regimesDaughtersRoot <- PCMTreeGetRegimesForNodes(tree, daughtersRoot)
-
-      names(regimesDaughtersRoot) <- names(tipsFromDaughtersRoot) <-
-        as.character(daughtersRoot)
-
-      tipsFromDaughtersRootInSameRegime <-
-        lapply(as.character(daughtersRoot), function(j) {
-          intersect(tipsFromDaughtersRoot[[j]],
-                    PCMTreeGetTipsInRegime(tree, regimesDaughtersRoot[[j]]))
-        })
-
-      names(tipsFromDaughtersRootInSameRegime) <- as.character(daughtersRoot)
-
-      meansSubtreesDaughtersRoot <- matrix(
-        sapply(daughtersRoot, function(j) {
-          if(j <= N) {
-            # j is a tip so use its value as is
-            X[, j]
-          } else {
-            # j is an internal node. Calculate a weighted mean of the values
-            # for the tips descending from j and having the same regime as j.
-            # The weight of tip is is proportional to
-            # 1/(rootDists[i] - rootDists[j]), that is, tips closer to j have
-            # higher weight in calculating the mean.
-
-            tips <- tipsFromDaughtersRootInSameRegime[[as.character(j)]]
-            weightsTips <- 1 / (rootDists[tips] - rootDists[j])
-            weightsTips <- weightsTips / sum(weightsTips)
-
-            colSums(weightsTips * t(X[, tips]), na.rm = TRUE)
-          }
-        }),
-        nrow = nrow(X),
-        ncol = length(daughtersRoot))
-
-      weightedMean <- colSums(
-        weightsDaughtersRoot * t(meansSubtreesDaughtersRoot),
-        na.rm = TRUE)
-
-      weightedMeanMask <- weightedMean + 8108.20
-
-      o.along.o$X0[] <- weightedMeanMask
-      v.along.o <- PCMParamGetShortVector(o.along.o)
-      idxX0 <- match(weightedMeanMask, v.along.o)
-      idxX0 <- idxX0[!is.na(idxX0)]
-      v.along.o[idxX0] <- v.along.o[idxX0] - 8108.20
-
-      if(all(isTRUE(lowerVecParams[idxX0] <= v.along.o[idxX0])) &&
-         all(isTRUE(v.along.o[idxX0] <= upperVecParams[idxX0]))) {
-
-        res[, idxX0] <- matrix(
-          v.along.o[idxX0], nrow = n, ncol = length(idxX0), byrow = TRUE)
-      }
-    }
-  }
-  res
-}
-
-
-#' @export
-guessInitVecParams.OU <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL) {
-
-  res <- NextMethod()
-
-  listArgsRes <- as.list(environment())
-  do.call(guessInitVecParamsOUInternal, listArgsRes)
-}
-
-#' @export
-guessInitVecParams.DOU <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL) {
-
-  res <- NextMethod()
-
-  listArgsRes <- as.list(environment())
-  do.call(guessInitVecParamsOUInternal, listArgsRes)
-}
-
-guessInitVecParamsOUInternal <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL,
-  res) {
-
-  if(!is.null(X) && !is.null(tree)) {
-
-    lowerModel <- do.call(
-      PCMParamLowerLimit, c(list(o, k = k, R = R), argsPCMParamLowerLimit))
-    lowerVecParams <- PCMParamGetShortVector(lowerModel, k = k, R = R)
-
-    upperModel <- do.call(
-      PCMParamUpperLimit, c(list(o, k = k, R = R), argsPCMParamUpperLimit))
-    upperVecParams <- PCMParamGetShortVector(upperModel, k = k, R = R)
-
-    vec.o <- PCMParamGetShortVector(o)
-    vec.along.o <- seq_along(vec.o)
-
-    o.along.o <- o
-
-    PCMParamLoadOrStore(
-      o.along.o, vec.along.o, offset = 0,
-      k = PCMNumTraits(o), R = PCMNumRegimes(o), load = TRUE)
-
-    regimes <- as.character(PCMRegimes(o))
-
-    rootDists <- PCMTreeNodeTimes(tree)
-
-    idxsThetas <- c()
-
-    for(r in seq_len(PCMNumRegimes(o))) {
-      reg <- regimes[r]
-
-      tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
-      weightsTipsInRegime <- rootDists[tipsInRegime]
-      weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
-
-      meanTipsInRegime <- colSums(
-        weightsTipsInRegime * t(X[, tipsInRegime]), na.rm = TRUE)
-
-      maskNum <- 8108.20 + rnorm(1)
-
-      meanTipsInRegimeMask <- meanTipsInRegime + maskNum
-
-      o.along.o$Theta[, reg] <- meanTipsInRegimeMask
-
-      v.along.o <- PCMParamGetShortVector(o.along.o)
-      idxTheta <- match(meanTipsInRegimeMask, v.along.o)
-      idxTheta <- idxTheta[!is.na(idxTheta)]
-
-      v.along.o[idxTheta] <- v.along.o[idxTheta] - maskNum
-
-      if(all(isTRUE(lowerVecParams[idxTheta] <= v.along.o[idxTheta])) &&
-         all(isTRUE(v.along.o[idxTheta] <= upperVecParams[idxTheta]))) {
-        idxsThetas <- c(idxsThetas, idxTheta)
-      }
-    }
-
-    res[, idxsThetas] <- matrix(
-      v.along.o[idxsThetas], nrow = n, ncol = length(idxsThetas), byrow = TRUE)
-  }
-  res
-}
-
-#' @export
-guessInitVecParams.MixedGaussian <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL) {
-
-  res <- NextMethod()
-
-  if(!is.null(X) && !is.null(tree)) {
-
-    lowerModel <- do.call(
-      PCMParamLowerLimit, c(list(o, k = k, R = R), argsPCMParamLowerLimit))
-    lowerVecParams <- PCMParamGetShortVector(lowerModel, k = k, R = R)
-
-    upperModel <- do.call(
-      PCMParamUpperLimit, c(list(o, k = k, R = R), argsPCMParamUpperLimit))
-    upperVecParams <- PCMParamGetShortVector(upperModel, k = k, R = R)
-
-    vec.o <- PCMParamGetShortVector(o)
-    vec.along.o <- seq_along(vec.o)
-
-    o.along.o <- o
-
-    PCMParamLoadOrStore(
-      o.along.o, vec.along.o, offset = 0,
-      k = PCMNumTraits(o), R = PCMNumRegimes(o), load = TRUE)
-
-    regimes <- as.character(PCMRegimes(o))
-
-    rootDists <- PCMTreeNodeTimes(tree)
-
-    idxsThetas <- c()
-
-    for(r in seq_len(PCMNumRegimes(o))) {
-      reg <- regimes[r]
-      if(inherits(o[[reg]], "OU") || inherits(o[[reg]], "DOU")) {
-        tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
-
-        weightsTipsInRegime <- rootDists[tipsInRegime]
-        weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
-
-        meanTipsInRegime <- colSums(
-          weightsTipsInRegime * t(X[, tipsInRegime]), na.rm = TRUE)
-
-        maskNum <- 8108.20 + rnorm(1)
-
-        meanTipsInRegimeMask <- meanTipsInRegime + maskNum
-
-        o.along.o[[reg]]$Theta[] <- meanTipsInRegimeMask
-        v.along.o <- PCMParamGetShortVector(o.along.o)
-        idxTheta <- match(meanTipsInRegimeMask, v.along.o)
-        idxTheta <- idxTheta[!is.na(idxTheta)]
-
-        v.along.o[idxTheta] <- v.along.o[idxTheta] - maskNum
-
-        if(all(isTRUE(lowerVecParams[idxTheta] <= v.along.o[idxTheta])) &&
-           all(isTRUE(v.along.o[idxTheta] <= upperVecParams[idxTheta]))) {
-          idxsThetas <- c(idxsThetas, idxTheta)
-        }
-      }
-    }
-
-    res[, idxsThetas] <- matrix(
-      v.along.o[idxsThetas], nrow = n, ncol = length(idxsThetas), byrow = TRUE)
-  }
-  res
-}
 
