@@ -2,7 +2,7 @@ PCMFitModelMappingsToCladePartitions <- function(
   X, tree, modelTypes,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
 
-  listCladePartitions = NULL,
+  listPartitions = NULL,
   listAllowedModelTypesIndices = NULL,
 
   scoreFun = AIC,
@@ -62,15 +62,15 @@ PCMFitModelMappingsToCladePartitions <- function(
 
   EDExpressions <- if(fitClades) {
     nodeLabelsTree <- PCMTreeGetLabels(tree)
-    cladeRoots <- sapply(listCladePartitions, function(.) .[1])
+    cladeRoots <- sapply(listPartitions, function(.) .[1])
     paste0("E(", treeEDExpression, ",", nodeLabelsTree[cladeRoots], ")")
   } else {
-    rep(treeEDExpression, length(listCladePartitions))
+    rep(treeEDExpression, length(listPartitions))
   }
 
   fits <-
     foreach(
-      cladePartition = listCladePartitions,
+      cladePartition = listPartitions,
       EDExpression = EDExpressions,
       .combine = function(...) rbindlist(list(...)),
       .multicombine = TRUE,
@@ -177,16 +177,16 @@ PCMFitModelMappingsToCladePartitions <- function(
                                        argsMixedGaussian))
 
               matParInitRunif <- PCMParamRandomVecParams(
-                o = model,
-                k = PCMNumTraits(model),
-                R = PCMNumRegimes(model),
+                o = modelForFit,
+                k = PCMNumTraits(modelForFit),
+                R = PCMNumRegimes(modelForFit),
                 n = argsConfigOptim$numRunifInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit)
               matParInitGuess <- guessInitVecParams(
-                o = model,
-                k = PCMNumTraits(model),
-                R = PCMNumRegimes(model),
+                o = modelForFit,
+                k = PCMNumTraits(modelForFit),
+                R = PCMNumRegimes(modelForFit),
                 n = argsConfigOptim$numGuessInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
@@ -220,16 +220,16 @@ PCMFitModelMappingsToCladePartitions <- function(
                 verbose = debug)
 
               matParInitRunif <- PCMParamRandomVecParams(
-                o = model,
-                k = PCMNumTraits(model),
-                R = PCMNumRegimes(model),
+                o = modelForFit,
+                k = PCMNumTraits(modelForFit),
+                R = PCMNumRegimes(modelForFit),
                 n = argsConfigOptim$numRunifInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit)
               matParInitGuess <- guessInitVecParams(
-                o = model,
-                k = PCMNumTraits(model),
-                R = PCMNumRegimes(model),
+                o = modelForFit,
+                k = PCMNumTraits(modelForFit),
+                R = PCMNumRegimes(modelForFit),
                 n = argsConfigOptim$numGuessInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,

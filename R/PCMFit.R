@@ -36,6 +36,10 @@ PCMFit <- function(
   control = NULL,
   verbose = FALSE) {
 
+  if(is.function(metaI)) {
+    metaI <- metaI(X = X, tree = tree, model = model, SE = SE)
+  }
+
   lik <- PCMCreateLikelihood(
     X = X, tree = tree, model = model, SE = SE, metaI = metaI,
     positiveValueGuard = positiveValueGuard)
@@ -128,7 +132,7 @@ logLik.PCMFit <- function(object, ...) {
     value <- object$logLikOptim
   }
 
-  attr(value, "df") <- PCMParamCount(object$modelInit,
+  attr(value, "df") <- PCMParamCount(object$model,
                                      countRegimeChanges = TRUE,
                                      countModelTypes = TRUE)
   attr(value, "nobs") <- PCMTreeNumTips(object$tree)
@@ -143,7 +147,7 @@ coef.PCMFit <- function(object, ...) {
     stop("object must inherit from class PCMFit.")
   }
 
-  model <- object$modelInit
+  model <- object$model
 
   if(!is.null(object$modelOptim)) {
     model <- object$modelOptim

@@ -3,11 +3,11 @@
 #'
 #' @description This function performs multiple model fits of mixed regime models
 #' (MixedGaussian) mapping different model-types (e.g. BM and OU) to different
-#' regimes in a tree and testing different regime assignments to the branches in
-#' the tree.
+#' regimes (colors) in a tree and testing different regime assignments to the
+#' branches in the tree.
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
+#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
@@ -23,13 +23,11 @@ PCMFitMixed <- function(
   tableFitsPrev = fitMappingsPrev$tableFits,
   modelTypesInTableFitsPrev = NULL,
 
-  skipFitWhenFoundInTableFits = TRUE,
+  listPartitions = NULL,
+  minCladeSizes = 20L,
 
-  prefixFiles = "fits_",
+  maxCladePartitionLevel = 8L, maxNumNodesPerCladePartition = 1L,
 
-  maxCladePartitionLevel = 8, maxNumNodesPerCladePartition = 1, minCladeSizes = 25,
-
-  listCladePartitions = NULL,
   listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
 
   scoreFun = AIC,
@@ -41,7 +39,11 @@ PCMFitMixed <- function(
 
   listPCMOptions = PCMOptions(),
 
+  skipFitWhenFoundInTableFits = TRUE,
+
   doParallel = FALSE,
+
+  prefixFiles = "fits_",
 
   saveTempWorkerResults = TRUE,
   printFitVectorsToConsole = FALSE,
@@ -50,6 +52,10 @@ PCMFitMixed <- function(
   verbose = TRUE,
   debug = FALSE
 ) {
+
+  if(is.list(listPartitions) || listPartitions == "all") {
+    maxCladePartitionLevel = 1L
+  }
 
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
@@ -81,7 +87,7 @@ PCMFitMixed <- function(
     tableAncestors <- PCMTreeTableAncestors(tree, preorder = preorderTree)
 
     # 1. (fitsToClades) Perform a fit of each model-type to each clade
-    if(is.null(arguments$listCladePartitions)) {
+    if(is.null(arguments$listPartitions) || arguments$listPartitions == "all") {
       cladeRoots <- c(PCMTreeNumTips(tree) + 1,
                       unlist(PCMTreeListCladePartitions(
                         tree = tree,
@@ -90,7 +96,7 @@ PCMFitMixed <- function(
                         tableAncestors = tableAncestors)))
     } else {
       cladeRoots = unique(c(PCMTreeNumTips(tree) + 1,
-                            unlist(listCladePartitions)))
+                            unlist(listPartitions)))
     }
 
     if(!is.list(arguments$listAllowedModelTypesIndices)) {
@@ -116,7 +122,7 @@ PCMFitMixed <- function(
     argumentsFitsToClades$tree <- tree
     argumentsFitsToClades$modelTypes <- modelTypes
     argumentsFitsToClades$SE <- SE
-    argumentsFitsToClades$listCladePartitions <- as.list(cladeRoots)
+    argumentsFitsToClades$listPartitions <- as.list(cladeRoots)
     argumentsFitsToClades$listAllowedModelTypesIndices <-
       listAllowedModelTypesIndices
     argumentsFitsToClades$fitClades <- TRUE
@@ -174,7 +180,8 @@ PCMFitMixed <- function(
     X = X,
     SE = SE,
     hashCodeTree = resultStep2$hashCodeEntireTree,
-    tableFits = resultStep2$tableFits,
+    #tableFits = resultStep2$tableFits,
+    tableFits = rbindlist(list(fitsToClades, resultStep2$fitsToTree)),
     queuePartitionRoots = resultStep2$queuePartitionRoots,
     mainLoopHistory = resultStep2$mainLoopHistory,
     arguments = arguments

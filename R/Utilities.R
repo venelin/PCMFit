@@ -453,8 +453,8 @@ PlotSearchHistory <- function(
 
     PCMTreeSetRegimes(tree, historyEntry$headQPR_Partition)
 
-    if(length(historyEntry$listCladePartitions) > 0) {
-      dtCladePartition <- data.table(node=unique(unlist(historyEntry$listCladePartitions)))
+    if(length(historyEntry$listPartitions) > 0) {
+      dtCladePartition <- data.table(node=unique(unlist(historyEntry$listPartitions)))
       #print(dtCladePartition[, node])
       setkey(dtCladePartition, node)
 

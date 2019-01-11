@@ -5,9 +5,9 @@ library(PCMBase)
 library(abind)
 library(data.table)
 
-source("GeneratePCMModels.R")
-set.seed(2)
+PCMFit::GeneratePCMModelTypes()
 
+set.seed(2)
 
 
 # number of regimes
@@ -39,19 +39,10 @@ model1 <- do.call(
   MixedGaussian,
   c(list(
     k = 2,
-    modelTypes = simulatedModels,
+    modelTypes = PCMFit::MGPMDefaultModelTypes(),
     mapping = c(a=1, b=4, c=5)),
-    argsMixedGaussian_SimulatedModels))
+    PCMFit::Args_MixedGaussian_MGPMDefaultModelTypes()))
 
-
-
-model2 <- do.call(
-  MixedGaussian,
-  c(list(
-    k = 2,
-    modelTypes = inferredModel_SurfaceOU,
-    mapping = c(a=1, b=1, c=1)),
-    argsMixedGaussian_SurfaceOU))
 
 
 vecModelRandom <- round(PCMParamRandomVecParams(model1), 1)

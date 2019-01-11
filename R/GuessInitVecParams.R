@@ -101,7 +101,7 @@ guessInitVecParams.PCM <- function(
             weightsTips <- 1 / (rootDists[tips] - rootDists[j])
             weightsTips <- weightsTips / sum(weightsTips)
 
-            colSums(weightsTips * t(X[, tips]), na.rm = TRUE)
+            colSums(weightsTips * t(X[, tips, drop=FALSE]), na.rm = TRUE)
           }
         }),
         nrow = nrow(X),
@@ -201,10 +201,10 @@ guessInitVecParamsOUInternal <- function(
       weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
 
       meanTipsInRegime <- colSums(
-        weightsTipsInRegime * t(X[, tipsInRegime]),
+        weightsTipsInRegime * t(X[, tipsInRegime, drop=FALSE]),
         na.rm = TRUE)
       varTipsInRegime <- colSums(
-        weightsTipsInRegime * t(X[, tipsInRegime] - meanTipsInRegime)^2,
+        weightsTipsInRegime * t(X[, tipsInRegime, drop=FALSE] - meanTipsInRegime)^2,
         na.rm = TRUE)
 
       maskNum <- 8108.20 + rnorm(1)
@@ -302,9 +302,9 @@ guessInitVecParams.MixedGaussian <- function(
         weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
 
         meanTipsInRegime <- colSums(
-          weightsTipsInRegime * t(X[, tipsInRegime]), na.rm = TRUE)
+          weightsTipsInRegime * t(X[, tipsInRegime, drop = FALSE]), na.rm = TRUE)
         varTipsInRegime <- colSums(
-          weightsTipsInRegime * t(X[, tipsInRegime] - meanTipsInRegime)^2,
+          weightsTipsInRegime * t(X[, tipsInRegime, drop = FALSE] - meanTipsInRegime)^2,
           na.rm = TRUE)
 
         maskNum <- 8108.20 + rnorm(1)

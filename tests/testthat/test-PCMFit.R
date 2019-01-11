@@ -1,28 +1,55 @@
-source("GenerateTestTreeAndData.R")
+library(testthat)
+
+context("PCMFit")
 
 library(PCMFit)
-if(require(PCMBaseCpp)) {
-  metaInfo1 <- PCMInfoCpp(values, tree.a, model1)
-  metaInfo2 <- PCMInfoCpp(values, tree.a, model2)
-} else {
-  metaInfo1 <- PCMInfo(values, tree.a, model1)
-  metaInfo2 <- PCMInfo(values, tree.a, model2)
-}
+library(PCMBase)
+library(PCMBaseCpp)
 
-fit1 <- PCMFit(values, tree.a, model1, metaI = metaInfo1,
-                 argsConfigOptimAndMCMC = list(genInitNumEvals = 500000, nCallsOptim = 500, genInitVerbose = TRUE),
-                 verbose = TRUE)
+load("testobjects.RData")
+
+options(PCMBase.Value.NA = -1e20)
+
+PCMLik(X = traits.a.1, tree = tree.a, model = model.a.1)
+
+fit.a.1 <- PCMFit(
+  X = traits.a.1,
+  tree = tree.a,
+  model = model.a.1,
+  metaI = PCMInfoCpp,
+  verbose = TRUE)
+
+fit.a.1.fromTrue <- PCMFit(
+  X = traits.a.1,
+  tree = tree.a,
+  model = model.a.1,
+  metaI = PCMInfoCpp,
+  matParInit = matrix(PCMParamGetShortVector(model.a.1,
+                                             k = PCMNumTraits(model.a.1),
+                                             R = PCMNumRegimes(model.a.1)), 1),
+  verbose = TRUE)
 
 
-fit2 <- PCMFit(values, tree.a, model2, metaI = metaInfo2,
-               argsConfigOptimAndMCMC = list(genInitNumEvals = 100000, nCallsOptim = 100, genInitVerbose = TRUE),
-               verbose = TRUE)
 
 
-test_that("ML value is better than original",
-          expect_true(logLik(fit1) < 0 && logLik(fit1) > likOrig))
+PCMLik(X = traits.a.123, tree = tree.a, model = model.a.123)
+
+fit.a.123 <- PCMFit(
+  X = traits.a.123,
+  tree = tree.a,
+  model = model.a.123,
+  metaI = PCMInfoCpp,
+  verbose = TRUE)
+
+fit.a.123.fromTrue <- PCMFit(
+  X = traits.a.123,
+  tree = tree.a,
+  model = model.a.123,
+  metaI = PCMInfoCpp,
+  matParInit = matrix(PCMParamGetShortVector(model.a.123,
+                                             k = PCMNumTraits(model.a.123),
+                                             R = PCMNumRegimes(model.a.123)), 1),
+  verbose = TRUE)
 
 
-test_that("fit1 outperforms fit2",
-          expect_true(AIC(fit2) > AIC(fit1)))
-
+logLik(fit.a.1)

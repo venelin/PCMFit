@@ -111,7 +111,7 @@ DefaultModelTypes <- function() {
 }
 
 #' @export
-DefaultModelTypesForMGPM <- function() {
+MGPMDefaultModelTypes <- function() {
   c(
     # BM; independent traits
     A = "BM__Omitted_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x",
@@ -128,7 +128,7 @@ DefaultModelTypesForMGPM <- function() {
   )
 }
 #' @export
-ArgsMGPM_DefaultModelTypes <- function() {
+Args_MixedGaussian_MGPMDefaultModelTypes <- function() {
   list(
     Sigmae_x = structure(
       0.0, class = c("MatrixParameter", "_Omitted"),
@@ -138,14 +138,14 @@ ArgsMGPM_DefaultModelTypes <- function() {
 
 
 #' @export
-ScalarOUTypeForMGPM <- function() {
+MGPMScalarOUType <- function() {
   c(
     "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"
   )
 }
 
 #' @export
-ArgsMGPM_ScalarOU <- function() {
+Args_MixedGaussian_MGPMScalarOUType <- function() {
   list(
     H = structure(
       0.0,
@@ -157,25 +157,26 @@ ArgsMGPM_ScalarOU <- function() {
 }
 
 #' @export
-SurfaceOUTypeForMGPM <- c(
-  "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"
-)
-#' @export
-ArgsMPGM_SurfaceOU <- list(
-  H = structure(
-    0.0,
-    class = c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
-    description = "adaptation rate matrix"),
-  Sigma_x = structure(
-    0.0,
-    class = c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
-    description = "unit-time variance parameter of the OU-process"),
-  Sigmae_x = structure(
-    0.0, class = c("MatrixParameter", "_Omitted"),
-    description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
-)
+MGPMSurfaceOUType <- function() {
+  c(
+    "OU__Omitted_X0__Schur_ScalarDiagonal_WithNonNegativeDiagonal_Transformable_Global_H__Theta__Diagonal_WithNonNegativeDiagonal_Global_Sigma_x__Omitted_Sigmae_x"
+  )
+}
 
-#
-# modelTypesMixedGaussian1 <- c(PCMModels("^BM__.*Omitted_Sigmae_x"), PCMModels("^OU__.*Schur.*Transformable_H.*Omitted_Sigmae_x"))
-# modelTypesMixedGaussian2 <- c(PCMModels("^BM__.*Omitted_Sigmae_x"), PCMModels("^OU__.*Schur.*Global_H.*Omitted_Sigmae_x"))
-# modelTypesMixedGaussian3 <- c(PCMModels("^OU__.*Schur.*ScalarDiagonal.*Global_H.*Omitted_Sigmae_x"))
+#' @export
+Args_MixedGaussian_MPGMSurfaceOUType <- function() {
+  list(
+    H = structure(
+      0.0,
+      class = c("MatrixParameter", "_Schur", "_ScalarDiagonal", "_WithNonNegativeDiagonal", "_Transformable", "_Global"),
+      description = "adaptation rate matrix"),
+    Sigma_x = structure(
+      0.0,
+      class = c("MatrixParameter", "_Diagonal", "_WithNonNegativeDiagonal", "_Global"),
+      description = "unit-time variance parameter of the OU-process"),
+    Sigmae_x = structure(
+      0.0, class = c("MatrixParameter", "_Omitted"),
+      description = "upper triangular Choleski factor of the non-phylogenetic variance-covariance")
+  )
+}
+
