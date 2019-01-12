@@ -331,15 +331,19 @@ RetrieveFittedModelsFromFitVectors <- function(
         stop(
           paste0(
             "ERR:04141:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (",
-            toString(fitMappings$arguments$modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
+            toString(fitMappings$arguments$modelTypes),
+            ") should be a subset of modelTypesNew (",
+            toString(modelTypesNew), ")."))
       }
     }
     if(setAttributes) {
       tree <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], fitMappings$tree)
       PCMTreeSetRegimes(tree, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(tree)))
       X <- fitMappings$X[, tree$tip.label]
+      SE <- fitMappings$SE[, tree$tip.label]
       attr(model, "tree") <- tree
       attr(model, "X") <- X
+      attr(model, "SE") <- SE
     }
     if(numRows == 1) {
       list(model)

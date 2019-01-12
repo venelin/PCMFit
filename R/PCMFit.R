@@ -31,7 +31,7 @@ PCMFit <- function(
   argsPCMParamUpperLimit = NULL,
   matParInit = NULL,
   numRunifInitVecParams = 1000,
-  numGuessInitVecParams = 100, varyThetaInGuessInitVecParams = FALSE,
+  numGuessInitVecParams = 100,
   numCallsOptim = 10,
   control = NULL,
   verbose = FALSE) {
@@ -59,16 +59,27 @@ PCMFit <- function(
       argsPCMParamLowerLimit = argsPCMParamLowerLimit,
       argsPCMParamUpperLimit = argsPCMParamUpperLimit
     )
-    matParInitGuess <- guessInitVecParams(
+    matParInitGuess <- GuessInitVecParams(
       o = model,
       k = PCMNumTraits(model),
       R = PCMNumRegimes(model),
       n = numGuessInitVecParams,
       argsPCMParamLowerLimit = argsPCMParamLowerLimit,
       argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-      X = X, tree = tree, SE = SE, varyTheta = varyThetaInGuessInitVecParams)
+      X = X, tree = tree, SE = SE, varyTheta = FALSE)
+    matParInitGuessVaryTheta <- GuessInitVecParams(
+      o = model,
+      k = PCMNumTraits(model),
+      R = PCMNumRegimes(model),
+      n = numGuessInitVecParams,
+      argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+      argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+      X = X, tree = tree, SE = SE, varyTheta = TRUE)
 
-    matParInit <- rbind(matParInitRunif, matParInitGuess)
+    matParInit <- rbind(
+      matParInitRunif,
+      matParInitGuess,
+      matParInitGuessVaryTheta)
   }
 
   if(nrow(matParInit) > numCallsOptim) {

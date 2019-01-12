@@ -1,20 +1,20 @@
 library(data.table)
 library(PCMFit)
-prefixFiles <- "local_20190111_"
+prefixFiles <- "local_20190112_5_"
 
-if(!exists("cluster") || is.null(cluster)) {
-  if(require(doMPI)) {
-    # using MPI cluster as distributed node cluster (possibly running on a cluster)
-    # Get the number of cores. Assume this is run in a batch job.
-    p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
-    cluster <- startMPIcluster(count = p-1, verbose = TRUE)
-    doMPI::registerDoMPI(cluster)
-  } else {
-    cluster <- parallel::makeCluster(parallel::detectCores(logical = TRUE),
-                                     outfile = paste0("log_", prefixFiles, ".txt"))
-    doParallel::registerDoParallel(cluster)
-  }
-}
+# if(!exists("cluster") || is.null(cluster)) {
+#   if(require(doMPI)) {
+#     # using MPI cluster as distributed node cluster (possibly running on a cluster)
+#     # Get the number of cores. Assume this is run in a batch job.
+#     p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
+#     cluster <- startMPIcluster(count = p-1, verbose = TRUE)
+#     doMPI::registerDoMPI(cluster)
+#   } else {
+#     cluster <- parallel::makeCluster(parallel::detectCores(logical = TRUE),
+#                                      outfile = paste0("log_", prefixFiles, ".txt"))
+#     doParallel::registerDoParallel(cluster)
+#   }
+# }
 
 source("GenerateTestTreeAndData.R")
 
@@ -25,28 +25,19 @@ if(length(args) > 0) {
   num_mpi_nodes <- 2
 }
 
-generatePCMModels <- function() {
-  PCMFit::GeneratePCMModelTypes()
-}
-
-modelTypes <- PCMFit::MGPMDefaultModelTypes()
-argsMixedGaussian <- PCMFit::Args_MixedGaussian_MGPMDefaultModelTypes()
-argsPCMParamLowerLimit <- list()
-argsPCMParamUpperLimit <- list()
-
 options(PCMBase.Value.NA = -1e20)
 options(PCMBase.Lmr.mode = 11)
 
 
 tableFits <- NULL
 
-load("FitMappings_local_201901106_.RData")
+load("FitMappings_local_20190112_.RData")
 tableFits <- fitMappings$tableFits[, duplicated:=FALSE]
 #setnames(tableFits, "aic", "score")
 
 fitMappings <- PCMFitMixed(
-  values, tree.a, modelTypes = modelTypes,
-  generatePCMModelsFun = generatePCMModels,
+  values, tree.a,
+
   metaIFun = PCMInfoCpp, positiveValueGuard = 1000,
 
   tableFits = tableFits,
@@ -60,25 +51,18 @@ fitMappings <- PCMFitMixed(
   #maxCladePartitionLevel = 100, maxNumNodesPerCladePartition = 1,
 
 
-  #listAllowedModelTypesIndices = "all",
-  listAllowedModelTypesIndices = "best-clade",
+  listAllowedModelTypesIndices = "all",
+  #listAllowedModelTypesIndices = "best-clade-2",
 
-  argsMixedGaussian = argsMixedGaussian,
 
-  argsConfigOptim1 = defaultArgsConfigOptim(
-    numCallsOptim = 2,
-    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
-  argsConfigOptim2 = defaultArgsConfigOptim(
-    numCallsOptim = 2,
-    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
+  argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 2),
+  argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 2),
 
-  doParallel = TRUE,
+  doParallel = FALSE,
 
   prefixFiles = prefixFiles,
   saveTempWorkerResults = TRUE,
-  printFitVectorsToConsole = TRUE,
+  printFitVectorsToConsole = FALSE,
   verbose = TRUE,
   debug = FALSE)
 
@@ -90,3 +74,5 @@ if(exists("cluster") && !is.null(cluster)) {
   cluster <- NULL
 }
 
+bestFit <- RetrieveBestFitScore(fitMappings)
+AIC(bestFit$inferredModel)

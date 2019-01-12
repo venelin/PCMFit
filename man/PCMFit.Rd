@@ -9,8 +9,7 @@ PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   positiveValueGuard = Inf, argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL, matParInit = NULL,
   numRunifInitVecParams = 1000, numGuessInitVecParams = 100,
-  varyThetaInGuessInitVecParams = FALSE, numCallsOptim = 10,
-  control = NULL, verbose = FALSE)
+  numCallsOptim = 10, control = NULL, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each

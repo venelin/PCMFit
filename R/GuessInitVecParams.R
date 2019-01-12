@@ -1,5 +1,5 @@
 #' @export
-guessInitVecParams <- function(
+GuessInitVecParams <- function(
   o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
@@ -9,11 +9,11 @@ guessInitVecParams <- function(
   tableAnc = NULL,
   returnWithinBoundsOnly = TRUE,
   ...) {
-  UseMethod("guessInitVecParams", o)
+  UseMethod("GuessInitVecParams", o)
 }
 
 #' @export
-guessInitVecParams.PCM <- function(
+GuessInitVecParams.PCM <- function(
   o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
@@ -131,7 +131,7 @@ guessInitVecParams.PCM <- function(
 
 
 #' @export
-guessInitVecParams.OU <- function(
+GuessInitVecParams.OU <- function(
   o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
@@ -145,11 +145,11 @@ guessInitVecParams.OU <- function(
   res <- NextMethod()
 
   listArgsRes <- c(as.list(environment()), list(...))
-  do.call(guessInitVecParamsOUInternal, listArgsRes)
+  do.call(GuessInitVecParamsOUInternal, listArgsRes)
 }
 
 #' @export
-guessInitVecParams.DOU <- function(
+GuessInitVecParams.DOU <- function(
   o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
@@ -163,10 +163,10 @@ guessInitVecParams.DOU <- function(
   res <- NextMethod()
 
   listArgsRes <- c(as.list(environment()), list(...))
-  do.call(guessInitVecParamsOUInternal, listArgsRes)
+  do.call(GuessInitVecParamsOUInternal, listArgsRes)
 }
 
-guessInitVecParamsOUInternal <- function(
+GuessInitVecParamsOUInternal <- function(
   o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
@@ -259,7 +259,7 @@ guessInitVecParamsOUInternal <- function(
 }
 
 #' @export
-guessInitVecParams.MixedGaussian <- function(
+GuessInitVecParams.MixedGaussian <- function(
   o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,

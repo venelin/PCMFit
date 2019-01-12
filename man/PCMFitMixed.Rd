@@ -5,19 +5,22 @@
 \title{Fit regime-assignments to (sub-)trees in a tree with different assigned model
 types to each regime.}
 \usage{
-PCMFitMixed(X, tree, modelTypes, SE = matrix(0, nrow(X),
-  PCMTreeNumTips(tree)), generatePCMModelsFun = NULL,
-  metaIFun = PCMInfo, positiveValueGuard = Inf,
-  fitMappingsPrev = NULL, tableFitsPrev = fitMappingsPrev$tableFits,
-  modelTypesInTableFitsPrev = NULL, skipFitWhenFoundInTableFits = TRUE,
-  prefixFiles = "fits_", maxCladePartitionLevel = 8,
-  maxNumNodesPerCladePartition = 1, minCladeSizes = 25,
-  listCladePartitions = NULL,
+PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
+  argsMixedGaussian = Args_MixedGaussian_MGPMDefaultModelTypes(),
+  SE = matrix(0, nrow(X), PCMTreeNumTips(tree)),
+  generatePCMModelsFun = GeneratePCMModelTypes, metaIFun = PCMInfo,
+  positiveValueGuard = Inf, fitMappingsPrev = NULL,
+  tableFitsPrev = fitMappingsPrev$tableFits,
+  modelTypesInTableFitsPrev = NULL, listPartitions = NULL,
+  minCladeSizes = 20L, maxCladePartitionLevel = if
+  (is.null(listPartitions)) 8L else 1L,
+  maxNumNodesPerCladePartition = 1L,
   listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
-  scoreFun = AIC, argsMixedGaussian = NULL,
-  argsConfigOptim1 = defaultArgsConfigOptim(numCallsOptim = 10),
-  argsConfigOptim2 = defaultArgsConfigOptim(numCallsOptim = 4),
-  listPCMOptions = PCMOptions(), doParallel = FALSE,
+  scoreFun = AIC,
+  argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 10),
+  argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 4),
+  listPCMOptions = PCMOptions(), skipFitWhenFoundInTableFits = TRUE,
+  doParallel = FALSE, prefixFiles = "fits_",
   saveTempWorkerResults = TRUE, printFitVectorsToConsole = FALSE,
   setAttributes = TRUE, verbose = TRUE, debug = FALSE)
 }
@@ -27,6 +30,6 @@ an S3 object of class PCMFitModelMappings.
 \description{
 This function performs multiple model fits of mixed regime models
 (MixedGaussian) mapping different model-types (e.g. BM and OU) to different
-regimes in a tree and testing different regime assignments to the branches in
-the tree.
+regimes (colors) in a tree and testing different regime assignments to the
+branches in the tree.
 }

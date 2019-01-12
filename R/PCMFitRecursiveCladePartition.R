@@ -145,10 +145,10 @@ PCMFitRecursiveCladePartition <- function(
       headQPR_Score = bestScore)
 
     if(verbose) {
-      cat("Step 2.2: headQPR=", headQPR, ": bestPartition/mapping/score: ",
-          toString(bestPartition), " / ",
-          toString(match(bestMapping, modelTypes)),
-          "(", toString(bestMapping), ") / ", bestScore, " ; \n")
+      cat("Step 2.2: headQPR=", headQPR, ": bestPartition / mapping / score: (",
+          toString(bestPartition), ") / (",
+          toString(names(modelTypes)[match(bestMapping, modelTypes)]),
+          ") / ", bestScore, " ; \n")
       cat("  Remaining queue:\n")
 
       print(cbind(
@@ -303,7 +303,7 @@ PCMFitRecursiveCladePartition <- function(
 
     # 2.6. Prepare "seeds" for the modelMappingIterators for each partition
     if(verbose) {
-      cat("Step 2.6: Preparing allowed model-type indices for the modelMappingIterators for each clade-partition\n")
+      cat("Step 2.6: Preparing allowed model-types for each clade-partition\n")
     }
     PCMTreeSetRegimes(tree, as.integer(bestPartition))
 
@@ -377,12 +377,12 @@ PCMFitRecursiveCladePartition <- function(
       }
     }
     if(verbose) {
-      cat("listAllowedModelTypesIndices:\n",
+      cat("listAllowedModelTypes:\n",
           do.call(
             paste,
             c(lapply(seq_along(listAllowedModelTypesIndices), function(i) {
               paste0("`", names(listAllowedModelTypesIndices)[i], "`: ",
-                     toString(listAllowedModelTypesIndices[[i]]))
+                     toString(names(modelTypes)[listAllowedModelTypesIndices[[i]]]))
             }),
             list(sep="\n"))))
       cat("\n")

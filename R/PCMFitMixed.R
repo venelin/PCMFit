@@ -13,10 +13,15 @@
 #'
 #' @export
 PCMFitMixed <- function(
-  X, tree, modelTypes,
+  X, tree,
+
+  modelTypes = MGPMDefaultModelTypes(),
+  argsMixedGaussian = Args_MixedGaussian_MGPMDefaultModelTypes(),
+
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
 
-  generatePCMModelsFun = NULL,
+  generatePCMModelsFun = GeneratePCMModelTypes,
+
   metaIFun = PCMInfo, positiveValueGuard = Inf,
 
   fitMappingsPrev = NULL,
@@ -26,16 +31,15 @@ PCMFitMixed <- function(
   listPartitions = NULL,
   minCladeSizes = 20L,
 
-  maxCladePartitionLevel = 8L, maxNumNodesPerCladePartition = 1L,
+  maxCladePartitionLevel = if(is.null(listPartitions)) 8L else 1L,
+  maxNumNodesPerCladePartition = 1L,
 
   listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
 
   scoreFun = AIC,
 
-  argsMixedGaussian = NULL,
-
-  argsConfigOptim1 = defaultArgsConfigOptim(numCallsOptim = 10),
-  argsConfigOptim2 = defaultArgsConfigOptim(numCallsOptim = 4),
+  argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 10),
+  argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 4),
 
   listPCMOptions = PCMOptions(),
 
@@ -53,7 +57,7 @@ PCMFitMixed <- function(
   debug = FALSE
 ) {
 
-  if(is.list(listPartitions) || listPartitions == "all") {
+  if( !is.null(listPartitions) ) {
     maxCladePartitionLevel = 1L
   }
 
@@ -141,7 +145,7 @@ PCMFitMixed <- function(
     # there.
     tableFits <- UpdateTableFits(tableFits, fitsToClades)
 
-    SaveCurrentResults(list(tableFits = tableFits), filePrefix = prefixFiles)
+    SaveCurrentResults(list(tableFits = fitsToClades), filePrefix = prefixFiles)
 
     # 2. Perform fits to clade-partitions with different model mappings
     # we need these variables throughout this step

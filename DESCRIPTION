@@ -1,7 +1,7 @@
 Package: PCMFit
 Type: Package
 Title: Maximum likelihood fit and selection of phylogenetic comparative models
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
 Maintainer: Venelin Mitov <vmitov@gmail.com>
