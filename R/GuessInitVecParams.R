@@ -124,7 +124,6 @@ GuessInitVecParams.PCM <- function(
         v.along.o[idxX0], nrow = n, ncol = length(idxX0), byrow = TRUE)
     }
 
-
   }
   res
 }
@@ -247,11 +246,12 @@ GuessInitVecParamsOUInternal <- function(
       upperModel <- do.call(PCMParamUpperLimit, c(list(o), argsPCMParamUpperLimit))
       upperVecParams <- PCMParamGetShortVector(upperModel)
 
-      withinBounds <- sapply(1:nrow(res), function(i) {
-        isTRUE(all(res[i,] >= lowerVecParams)) &&
-          isTRUE(all(res[i,] <= upperVecParams))
-      })
-      res <- res[withinBounds, , drop = FALSE]
+      withinBounds <- as.logical(
+        sapply(seq_len(nrow(res)), function(i) {
+          isTRUE(all(res[i,] >= lowerVecParams)) &&
+            isTRUE(all(res[i,] <= upperVecParams))
+        }))
+        res <- res[withinBounds, , drop = FALSE]
     }
   }
 

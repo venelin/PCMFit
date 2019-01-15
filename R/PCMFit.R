@@ -16,9 +16,7 @@
 # along with PCMFit.  If not, see <http://www.gnu.org/licenses/>.
 
 #' Fitting a PCM model to a given tree and data
-#' @details This is a generic method.
 #' @inheritParams PCMBase::PCMLik
-#' @param ... other arguments used by methods.
 #' @return an object of class PCMFit
 #' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMParamRandomVecParams PCMOptions
 #' @export
@@ -30,9 +28,9 @@ PCMFit <- function(
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
   matParInit = NULL,
-  numRunifInitVecParams = 1000,
-  numGuessInitVecParams = 100,
-  numCallsOptim = 10,
+  numRunifInitVecParams = if( is.null(matParInit) ) 1000L else 0L,
+  numGuessInitVecParams = if( is.null(matParInit) ) 100L else 0L,
+  numCallsOptim = 10L,
   control = NULL,
   verbose = FALSE) {
 
@@ -50,37 +48,37 @@ PCMFit <- function(
   upperModel <- do.call(PCMParamUpperLimit, c(list(model), argsPCMParamUpperLimit))
   upperVecParams <- PCMParamGetShortVector(upperModel)
 
-  if(is.null(matParInit)) {
-    matParInitRunif <- PCMParamRandomVecParams(
-      o = model,
-      k = PCMNumTraits(model),
-      R = PCMNumRegimes(model),
-      n = numRunifInitVecParams,
-      argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-      argsPCMParamUpperLimit = argsPCMParamUpperLimit
-    )
-    matParInitGuess <- GuessInitVecParams(
-      o = model,
-      k = PCMNumTraits(model),
-      R = PCMNumRegimes(model),
-      n = numGuessInitVecParams,
-      argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-      argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-      X = X, tree = tree, SE = SE, varyTheta = FALSE)
-    matParInitGuessVaryTheta <- GuessInitVecParams(
-      o = model,
-      k = PCMNumTraits(model),
-      R = PCMNumRegimes(model),
-      n = numGuessInitVecParams,
-      argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-      argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-      X = X, tree = tree, SE = SE, varyTheta = TRUE)
 
-    matParInit <- rbind(
-      matParInitRunif,
-      matParInitGuess,
-      matParInitGuessVaryTheta)
-  }
+  matParInitRunif <- PCMParamRandomVecParams(
+    o = model,
+    k = PCMNumTraits(model),
+    R = PCMNumRegimes(model),
+    n = numRunifInitVecParams,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit
+  )
+  matParInitGuess <- GuessInitVecParams(
+    o = model,
+    k = PCMNumTraits(model),
+    R = PCMNumRegimes(model),
+    n = numGuessInitVecParams,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+    X = X, tree = tree, SE = SE, varyTheta = FALSE)
+  matParInitGuessVaryTheta <- GuessInitVecParams(
+    o = model,
+    k = PCMNumTraits(model),
+    R = PCMNumRegimes(model),
+    n = numGuessInitVecParams,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+    X = X, tree = tree, SE = SE, varyTheta = TRUE)
+
+  matParInit <- rbind(
+    matParInit,
+    matParInitRunif,
+    matParInitGuess,
+    matParInitGuessVaryTheta)
 
   if(nrow(matParInit) > numCallsOptim) {
     if(verbose) {

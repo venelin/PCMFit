@@ -8,8 +8,9 @@ PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE),
   positiveValueGuard = Inf, argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL, matParInit = NULL,
-  numRunifInitVecParams = 1000, numGuessInitVecParams = 100,
-  numCallsOptim = 10, control = NULL, verbose = FALSE)
+  numRunifInitVecParams = if (is.null(matParInit)) 1000L else 0L,
+  numGuessInitVecParams = if (is.null(matParInit)) 100L else 0L,
+  numCallsOptim = 10L, control = NULL, verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -34,15 +35,10 @@ Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 containing meta-data such as N, M and k.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
-
-\item{...}{other arguments used by methods.}
 }
 \value{
 an object of class PCMFit
 }
 \description{
 Fitting a PCM model to a given tree and data
-}
-\details{
-This is a generic method.
 }
