@@ -5,7 +5,7 @@ library(PCMBase)
 library(abind)
 library(data.table)
 
-PCMFit::GeneratePCMModelTypes()
+PCMGenerateModelTypes()
 
 set.seed(2)
 
@@ -39,9 +39,9 @@ model1 <- do.call(
   MixedGaussian,
   c(list(
     k = 2,
-    modelTypes = PCMFit::MGPMDefaultModelTypes(),
+    modelTypes = MGPMDefaultModelTypes(),
     mapping = c(a=1, b=4, c=5)),
-    PCMFit::Args_MixedGaussian_MGPMDefaultModelTypes()))
+    Args_MixedGaussian_MGPMDefaultModelTypes()))
 
 
 

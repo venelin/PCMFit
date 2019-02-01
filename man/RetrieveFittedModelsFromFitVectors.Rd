@@ -5,7 +5,10 @@
 \title{Retrieve the ML fits from the fitVectors column in a table of fits.}
 \usage{
 RetrieveFittedModelsFromFitVectors(fitMappings,
-  tableFits = fitMappings$tableFits, modelTypesNew = NULL,
+  tableFits = fitMappings$tableFits,
+  modelTypes = fitMappings$arguments$modelTypes, modelTypesNew = NULL,
+  argsMixedGaussian = fitMappings$arguments$argsMixedGaussian,
+  X = fitMappings$X, tree = fitMappings$tree, SE = fitMappings$SE,
   setAttributes = FALSE)
 }
 \arguments{

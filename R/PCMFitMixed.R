@@ -7,7 +7,7 @@
 #' branches in the tree.
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels
+#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
@@ -20,9 +20,11 @@ PCMFitMixed <- function(
 
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
 
-  generatePCMModelsFun = GeneratePCMModelTypes,
+  generatePCMModelsFun = PCMGenerateModelTypes,
 
   metaIFun = PCMInfo, positiveValueGuard = Inf,
+
+  scoreFun = AIC,
 
   fitMappingsPrev = NULL,
   tableFitsPrev = fitMappingsPrev$tableFits,
@@ -36,10 +38,12 @@ PCMFitMixed <- function(
 
   listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
 
-  scoreFun = AIC,
-
   argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 10),
   argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 4),
+  argsConfigOptim3 = DefaultArgsConfigOptim(numCallsOptim = 10),
+
+  maxNumRoundRobins = 0,
+  maxNumPartitionsInRoundRobins = 2,
 
   listPCMOptions = PCMOptions(),
 
@@ -51,7 +55,6 @@ PCMFitMixed <- function(
 
   saveTempWorkerResults = TRUE,
   printFitVectorsToConsole = FALSE,
-  setAttributes = TRUE,
 
   verbose = TRUE,
   debug = FALSE
@@ -103,15 +106,14 @@ PCMFitMixed <- function(
                             unlist(listPartitions)))
     }
 
-    if(!is.list(arguments$listAllowedModelTypesIndices)) {
-      # arguments$listAllowedModelTypesIndices is NULL or a character string
-      listAllowedModelTypesIndices <-
-        replicate(length(cladeRoots), seq_along(modelTypes), simplify = FALSE)
-      names(listAllowedModelTypesIndices) <- as.character(cladeRoots)
-    }
+    # prepare a list of allowed model type index vectors for the Fits To Clades
+    listAllowedModelTypesIndicesFTC <-
+      replicate(length(cladeRoots), seq_along(modelTypes), simplify = FALSE)
+    names(listAllowedModelTypesIndicesFTC) <- as.character(cladeRoots)
 
     if(verbose) {
-      cat("Step 1: Performing fits on", length(cladeRoots), " clades; ",
+      cat("Step 1 (", Sys.time() ,"): Performing fits on", length(cladeRoots),
+          " clades; ",
           sum(sapply(listAllowedModelTypesIndices[as.character(cladeRoots)],
                      length)), " model mappings altogether...\n")
     }
@@ -128,7 +130,7 @@ PCMFitMixed <- function(
     argumentsFitsToClades$SE <- SE
     argumentsFitsToClades$listPartitions <- as.list(cladeRoots)
     argumentsFitsToClades$listAllowedModelTypesIndices <-
-      listAllowedModelTypesIndices
+      listAllowedModelTypesIndicesFTC
     argumentsFitsToClades$fitClades <- TRUE
     argumentsFitsToClades$fitMappingsPrev <- NULL
     argumentsFitsToClades$tableFitsPrev <- tableFits
@@ -141,8 +143,7 @@ PCMFitMixed <- function(
     fitsToClades <- do.call(
       PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
 
-    # update tableFits with the entries in fitsToClades which were not already
-    # there.
+    # update tableFits with the entries in fitsToClades
     tableFits <- UpdateTableFits(tableFits, fitsToClades)
 
     SaveCurrentResults(list(tableFits = fitsToClades), filePrefix = prefixFiles)
@@ -172,24 +173,185 @@ PCMFitMixed <- function(
 
     resultStep2 <- do.call(PCMFitRecursiveCladePartition, argumentsStep2)
 
+    fitsToTree <- resultStep2$fitsToTree
+
+    # update tableFits with the entries in fitsToTree
+    tableFits <- UpdateTableFits(tableFits, fitsToTree)
+
+    SaveCurrentResults(list(tableFits = tableFits), filePrefix = prefixFiles)
+
+    # A table with the best fit for each of the top
+    # maxNumPartitionsInRoundRobins partitions in resultStep2$fitsToTree
+    tableFitsRRInit <- resultStep2$fitsToTree[
+      list(hashCodeTree = resultStep2$hashCodeEntireTree),
+      .SD[which.min(score)],
+      keyby = hashCodeStartingNodesRegimesLabels][order(score)][
+        seq_len(min(maxNumPartitionsInRoundRobins, .N))]
+
+    tableFitsRR <- NULL
+
+    # Step 3. Round robin : This is an optional step controlled by the argument
+    # maxNumRoundRobins, which is 0 by default.
+    if(maxNumRoundRobins > 0) {
+
+      tableFitsRR <- copy(tableFitsRRInit)
+
+      partitionLengths <- tableFitsRR[
+        , sapply(startingNodesRegimesLabels, length)]
+
+      canImprove <- rep(TRUE, nrow(tableFitsRR))
+
+      if(verbose) {
+        cat("Step 3 (", Sys.time() ,"): Performing up to", maxNumRoundRobins,
+            "round robin iterations; initial selected partitions/mappings:\n")
+        print(tableFitsRR[, list(
+          startingNodesRegimesLabels,
+          mapping = lapply(mapping, function(m) {
+            names(modelTypes)[match(m, modelTypes)]
+          }),
+          logLik, df, nobs, score,
+          canImprove = canImprove)])
+      }
+
+      iRR <- 1L
+      while(iRR < maxNumRoundRobins) {
+        currentScore <- tableFitsRR[, score]
+        for( pos in seq_len(max(partitionLengths)) ) {
+
+          # logical vector indicating the partitions in `partitions` not shorter
+          # than this pos
+          haveThisPos <- (pos <= partitionLengths)
+
+          tableFitsRRForPos <- RetrieveFittedModelsFromFitVectors(
+            fitMappings = NULL,
+            tableFits = tableFitsRR[canImprove & haveThisPos],
+            modelTypes = modelTypes,
+            modelTypesNew = NULL,
+            argsMixedGaussian = argsMixedGaussian,
+            X = X,
+            tree = tree,
+            SE = SE,
+            setAttributes = FALSE
+            )
+
+          partitions <- tableFitsRRForPos$startingNodesRegimesLabels
+          mappings <- tableFitsRRForPos$mapping
+
+          listHintModels <- tableFitsRRForPos$fittedModel
+
+          listNamesInHintModels <- lapply(listHintModels, function(hm) {
+              # all member names except "pos"
+              ipos <- match(as.character(pos), names(hm))
+              names(hm)[-ipos]
+            })
+
+          # create listAllowedModelTypesIndices for each partition in partitions
+          listAllowedModelTypesIndices <- lapply(
+            seq_along(partitions),
+
+            function(iPartition) {
+              m <- lapply(mappings[[iPartition]], match, modelTypes)
+              m[[pos]] <- seq_along(modelTypes)
+              names(m) <- as.character(
+                partitions[[iPartition]])
+              m
+            })
+
+          # Call PCMFitModelMappingsToPartitions
+          argumentsRR <-
+            arguments[
+              intersect(
+                names(arguments),
+                names(as.list(args(PCMFitModelMappingsToCladePartitions))))]
+
+          argumentsRR$X <- X
+          argumentsRR$tree <- tree
+          argumentsRR$modelTypes <- modelTypes
+          argumentsRR$SE <- SE
+          argumentsRR$listPartitions <- partitions
+          argumentsRR$listAllowedModelTypesIndices <-
+            listAllowedModelTypesIndices
+          argumentsRR$fitClades <- FALSE
+          argumentsRR$fitMappingsPrev <- NULL
+          argumentsRR$tableFitsPrev <- fitsToClades
+          argumentsRR$modelTypesInTableFitsPrev <- modelTypes
+          argumentsRR$argsConfigOptim <- argsConfigOptim3
+          argumentsRR$preorderTree <- preorderTree
+          argumentsRR$tableAncestors <- tableAncestors
+          argumentsRR$prefixFiles <- paste0(prefixFiles, "_rr_")
+          argumentsRR$listHintModels <- listHintModels
+          argumentsRR$listNamesInHintModels <- listNamesInHintModels
+
+          newFitsForThisPos <- do.call(
+            PCMFitModelMappingsToCladePartitions, argumentsRR)
+
+          # update fitsToTree
+          fitsToTree <- UpdateTableFits(fitsToTree, newFitsForThisPos)
+
+          # update tableFits with the entries in fitsToTree
+          tableFits <- UpdateTableFits(tableFits, fitsToTree)
+
+          SaveCurrentResults(list(tableFits = tableFits), filePrefix = prefixFiles)
+
+          # update tableFitsRR with the new best fits
+          tableFitsRR <- rbindlist(
+            list(tableFitsRR, newFitsForThisPos),
+            use.names = TRUE)
+          tableFitsRR <- tableFitsRR[
+            ,
+            .SD[which.min(score)],
+            keyby = hashCodeStartingNodesRegimesLabels]
+        }
+
+        canImprove <- tableFitsRR[, score < currentScore]
+        if(verbose) {
+          cat("Step 3, iteration ", iRR, " (", Sys.time(),
+              ") partitions/mappings at the end of the iteration:\n")
+          print(tableFitsRR[, list(
+            startingNodesRegimesLabels,
+            mapping = lapply(mapping, function(m) {
+              names(modelTypes)[match(m, modelTypes)]
+            }),
+            logLik, df, nobs, score,
+            canImprove = canImprove)])
+        }
+
+        if(sum(canImprove) == 0) {
+          if(verbose) {
+            cat("Exiting round robin loop, because no scores improved during the last iteration...")
+          }
+          break
+        }
+      }
+    }
   } else {
-    stop("ERR:04131:PCMFit:PCMFitModelMappings.R:PCMFitModelMappings:: the tree is has fewer tips than than the min clade-size in minCladeSizes (",
+    stop("ERR:04131:PCMFit:PCMFitMixed:PCMFitMixed:: the tree is has fewer tips than than the min clade-size in minCladeSizes (",
          MIN_CLADE_SIZE,
          "). Try with smaller minCladeSizes.")
   }
 
-  res <- list(
+  arguments$tableFitsPrev <- arguments$fitMappingsPrev <- paste0(
+    "To save space and avoid redundancy, tableFitsPrev and fitMappingsPrev\n",
+    "are not stored in arguments. Most fits in tableFitsPrev are found\n",
+    "in the member tableFits in the PCMFitModelMappings object. However some\n",
+    "of these fits might have been replaced by equivalent model fits with a\n",
+    "higher score encountered during this call to PCMFitMixed search.")
+
+  resFitMappings <- list(
+    arguments = arguments,
     options = PCMOptions(),
     tree = tree,
     X = X,
     SE = SE,
     hashCodeTree = resultStep2$hashCodeEntireTree,
-    #tableFits = resultStep2$tableFits,
-    tableFits = rbindlist(list(fitsToClades, resultStep2$fitsToTree)),
+    tableFits = tableFits,
+    tableFitsThisSearchOnly = rbindlist(list(fitsToTree, fitsToClades), use.names = TRUE),
     queuePartitionRoots = resultStep2$queuePartitionRoots,
     mainLoopHistory = resultStep2$mainLoopHistory,
-    arguments = arguments
+    tableFitsRRInit = tableFitsRRInit,
+    tableFitsRR = tableFitsRR
   )
-  class(res) <- "PCMFitModelMappings"
-  res
+  class(resFitMappings) <- "PCMFitModelMappings"
+
+  resFitMappings
 }

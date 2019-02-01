@@ -8,21 +8,22 @@ types to each regime.}
 PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
   argsMixedGaussian = Args_MixedGaussian_MGPMDefaultModelTypes(),
   SE = matrix(0, nrow(X), PCMTreeNumTips(tree)),
-  generatePCMModelsFun = GeneratePCMModelTypes, metaIFun = PCMInfo,
-  positiveValueGuard = Inf, fitMappingsPrev = NULL,
+  generatePCMModelsFun = PCMGenerateModelTypes, metaIFun = PCMInfo,
+  positiveValueGuard = Inf, scoreFun = AIC, fitMappingsPrev = NULL,
   tableFitsPrev = fitMappingsPrev$tableFits,
   modelTypesInTableFitsPrev = NULL, listPartitions = NULL,
   minCladeSizes = 20L, maxCladePartitionLevel = if
   (is.null(listPartitions)) 8L else 1L,
   maxNumNodesPerCladePartition = 1L,
   listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
-  scoreFun = AIC,
   argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 10),
   argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 4),
+  argsConfigOptim3 = DefaultArgsConfigOptim(numCallsOptim = 10),
+  maxNumRoundRobins = 0, maxNumPartitionsInRoundRobins = 2,
   listPCMOptions = PCMOptions(), skipFitWhenFoundInTableFits = TRUE,
   doParallel = FALSE, prefixFiles = "fits_",
   saveTempWorkerResults = TRUE, printFitVectorsToConsole = FALSE,
-  setAttributes = TRUE, verbose = TRUE, debug = FALSE)
+  verbose = TRUE, debug = FALSE)
 }
 \value{
 an S3 object of class PCMFitModelMappings.

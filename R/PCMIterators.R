@@ -91,14 +91,14 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
 
   mappingInd <- match(mapping, modelTypes)
   #cat("mappingInd: ", toString(mappingInd), "\n")
-  mappingInd2 <- sapply(1:R, function(pos) {
+  mappingInd2 <- sapply(seq_len(R), function(pos) {
     if(!is.null(allowedModelTypesIndices[[pos]])) {
       #cat("pos = ", pos, "; allowedModelTypesIndicies[[pos]] = ", toString(allowedModelTypesIndices[[pos]]), "\n")
       #cat("pos = ", pos, "; mappingInd[pos] = ", mappingInd[pos], "\n")
       match(mappingInd[pos], allowedModelTypesIndices[[pos]])
     } else {
       # allowedModelTypesIndices[[pos]] == NULL means that all model types are allowed at this position
-      match(mappingInd[pos], 1:numModels)
+      match(mappingInd[pos], seq_len(numModels))
     }
   })
 
@@ -110,7 +110,7 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
   }
 
 
-  numsAllowedModelTypes <- sapply(1:R, function(pos) {
+  numsAllowedModelTypes <- sapply(seq_len(R), function(pos) {
     if(is.null(allowedModelTypesIndices[[pos]])) {
       numModels
     } else {
@@ -131,7 +131,7 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
 
 
   #cat("mappingInd2=", toString(mappingInd2), "\n")
-  res <- sapply(1:R, function(pos) {
+  res <- sapply(seq_len(R), function(pos) {
     if(is.null(allowedModelTypesIndices[[pos]])) {
       modelTypes[mappingInd2[pos]]
     } else {

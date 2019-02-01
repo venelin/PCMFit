@@ -1,22 +1,22 @@
 library(data.table)
 library(PCMFit)
-prefixFiles <- "local_20190112_5_"
+prefixFiles <- "local_20190131_1_"
 
-# if(!exists("cluster") || is.null(cluster)) {
-#   if(require(doMPI)) {
-#     # using MPI cluster as distributed node cluster (possibly running on a cluster)
-#     # Get the number of cores. Assume this is run in a batch job.
-#     p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
-#     cluster <- startMPIcluster(count = p-1, verbose = TRUE)
-#     doMPI::registerDoMPI(cluster)
-#   } else {
-#     cluster <- parallel::makeCluster(parallel::detectCores(logical = TRUE),
-#                                      outfile = paste0("log_", prefixFiles, ".txt"))
-#     doParallel::registerDoParallel(cluster)
-#   }
-# }
+if(!exists("cluster") || is.null(cluster)) {
+  if(require(doMPI)) {
+    # using MPI cluster as distributed node cluster (possibly running on a cluster)
+    # Get the number of cores. Assume this is run in a batch job.
+    p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
+    cluster <- startMPIcluster(count = p-1, verbose = TRUE)
+    doMPI::registerDoMPI(cluster)
+  } else {
+    cluster <- parallel::makeCluster(parallel::detectCores(logical = TRUE),
+                                     outfile = paste0("log_", prefixFiles, ".txt"))
+    doParallel::registerDoParallel(cluster)
+  }
+}
 
-source("GenerateTestTreeAndData.R")
+source("../GenerateTestTreeAndData.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 if(length(args) > 0) {
@@ -31,7 +31,7 @@ options(PCMBase.Lmr.mode = 11)
 
 tableFits <- NULL
 
-load("FitMappings_local_20190112_.RData")
+load("../FitMappings_local_20190112_5_.RData")
 tableFits <- fitMappings$tableFits[, duplicated:=FALSE]
 #setnames(tableFits, "aic", "score")
 
@@ -43,22 +43,25 @@ fitMappings <- PCMFitMixed(
   tableFits = tableFits,
 
   #listPartitions = list(c(101, 108, 105, 115)),
-  listPartitions = "all",
+  #listPartitions = "all",
 
   minCladeSizes = 20,
 
-  maxCladePartitionLevel = 1, maxNumNodesPerCladePartition = Inf,
-  #maxCladePartitionLevel = 100, maxNumNodesPerCladePartition = 1,
+  #maxCladePartitionLevel = 1, maxNumNodesPerCladePartition = Inf,
+  maxCladePartitionLevel = 100, maxNumNodesPerCladePartition = 1,
 
 
-  listAllowedModelTypesIndices = "all",
-  #listAllowedModelTypesIndices = "best-clade-2",
+  #listAllowedModelTypesIndices = "all",
+  listAllowedModelTypesIndices = "best-clade-2",
 
 
   argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 2),
   argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 2),
+  argsConfigOptim3 = DefaultArgsConfigOptim(numCallsOptim = 2),
 
-  doParallel = FALSE,
+  maxNumRoundRobins = 2,
+
+  doParallel = TRUE,
 
   prefixFiles = prefixFiles,
   saveTempWorkerResults = TRUE,

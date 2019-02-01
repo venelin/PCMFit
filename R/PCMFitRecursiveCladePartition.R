@@ -73,7 +73,7 @@ PCMFitRecursiveCladePartition <- function(
     hashCodeTree[1]]
 
   if(verbose) {
-    cat("Step 2: Perform a recursive clade partition search of an optimal mixed model...\n")
+    cat("Step 2 (", Sys.time() ,"): Perform a recursive clade partition search of an optimal mixed model...\n")
   }
 
   # 2.1 identify the best clade-partition and mapping currently in tableFits.
@@ -93,7 +93,7 @@ PCMFitRecursiveCladePartition <- function(
     }]
 
   if(verbose) {
-    cat("Step 2.1: Initiated queue of partition root nodes with the root of the original tree...\n")
+    cat("Step 2.1 (", Sys.time() ,"): Initiated queue of partition root nodes with the root of the original tree...\n")
   }
 
   # index of the head row in queuePartitionRoots
@@ -132,6 +132,13 @@ PCMFitRecursiveCladePartition <- function(
                                hashCodeBestMappingLevel)],
       score[[1]]]
 
+    bestLogLik <- tableFits[
+      queuePartitionRoots[headQPR,
+                          list(hashCodeEntireTree,
+                               hashCodeBestPartitionLevel,
+                               hashCodeBestMappingLevel)],
+      logLik[[1]]]
+
     # prepare an entry in the mainLoopHistory for this iteration
     mainLoopHistoryEntry <- list(
       headQPR = headQPR,
@@ -145,10 +152,11 @@ PCMFitRecursiveCladePartition <- function(
       headQPR_Score = bestScore)
 
     if(verbose) {
-      cat("Step 2.2: headQPR=", headQPR, ": bestPartition / mapping / score: (",
+      cat("Step 2.2 (", Sys.time() ,"): headQPR=", headQPR, ": bestPartition / mapping / logLik / score: (",
           toString(bestPartition), ") / (",
           toString(names(modelTypes)[match(bestMapping, modelTypes)]),
-          ") / ", bestScore, " ; \n")
+          ") / ", bestLogLik,
+          " / ", bestScore, " ; \n")
       cat("  Remaining queue:\n")
 
       print(cbind(
@@ -186,7 +194,7 @@ PCMFitRecursiveCladePartition <- function(
     labelsSubtree <- PCMTreeGetLabels(subtree)
 
     if(verbose) {
-      cat("Step 2.3: numTips in subtree = ", PCMTreeNumTips(subtree), "\n")
+      cat("Step 2.3 (", Sys.time() ,"): numTips in subtree = ", PCMTreeNumTips(subtree), "\n")
     }
 
     minCladeSizeLevel <-
@@ -208,7 +216,7 @@ PCMFitRecursiveCladePartition <- function(
       # clade-partitions of subtree into clades not smaller than
       # minCladeSizes[partitionRootLevel].
       if(verbose) {
-        cat("Step 2.4: Generating list of clade partitions for the subtree rooted at '",
+        cat("Step 2.4 (", Sys.time() ,"): Generating list of clade partitions for the subtree rooted at '",
             partitionRootLabel, "':\n")
       }
 
@@ -289,7 +297,7 @@ PCMFitRecursiveCladePartition <- function(
     listPartitions <- lapply(listPartitions, as.character)
 
     if(verbose) {
-      cat("Step 2.5: List of partitions of the tree:\n")
+      cat("Step 2.5 (", Sys.time() ,"): List of partitions of the tree:\n")
       cat(do.call(
         paste,
             c(lapply(listPartitions, function(p) {
@@ -303,7 +311,7 @@ PCMFitRecursiveCladePartition <- function(
 
     # 2.6. Prepare "seeds" for the modelMappingIterators for each partition
     if(verbose) {
-      cat("Step 2.6: Preparing allowed model-types for each clade-partition\n")
+      cat("Step 2.6 (", Sys.time() ,"): Preparing allowed model-types for each clade-partition\n")
     }
     PCMTreeSetRegimes(tree, as.integer(bestPartition))
 
@@ -330,7 +338,7 @@ PCMFitRecursiveCladePartition <- function(
 
         if(label == partitionRootLabel) {
           # we test all possible model mappings to the partition-root-table
-          listAllowedModelTypesIndices[[label]] <- 1:length(modelTypes)
+          listAllowedModelTypesIndices[[label]] <- seq_len(length(modelTypes))
         } else {
 
           # for all other nodes in the clade-partition, we cut to the best
@@ -422,7 +430,7 @@ PCMFitRecursiveCladePartition <- function(
     # update tableFits
     tableFits <- UpdateTableFits(tableFits, fitsToTreeNew)
 
-    fitsToTree <- rbindlist(list(fitsToTree, fitsToTreeNew))
+    fitsToTree <- UpdateTableFits(fitsToTree, fitsToTreeNew)
 
     # add new entry to the main loop history
     mainLoopHistory[[length(mainLoopHistory) + 1]] <- mainLoopHistoryEntry

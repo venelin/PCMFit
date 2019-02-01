@@ -26,7 +26,8 @@ fit.a.1.fromTrue <- PCMFit(
   metaI = PCMInfoCpp,
   matParInit = matrix(PCMParamGetShortVector(model.a.1,
                                              k = PCMNumTraits(model.a.1),
-                                             R = PCMNumRegimes(model.a.1)), 1),
+                                             R = PCMNumRegimes(model.a.1)),
+                      nrow = 1L),
   verbose = TRUE)
 
 

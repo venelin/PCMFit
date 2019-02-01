@@ -97,6 +97,12 @@ PCMFit <- function(
   }
 
   res <- as.list(environment())
+  # These objects tend to be very big. the lik function and the metaI object
+  # can be recreated.
+  res$lik <- res$metaI <- res$matParInit <-
+    res$matParInitRunif <- res$matParInitGuess <-
+    res$matParInitGuessVaryTheta <- NULL
+
   res$PCMOptions <- PCMOptions()
 
   res <- c(
@@ -251,19 +257,25 @@ runOptim <- function(
       memoiseMax(lik, par = par, memoMaxLoglik, verbose)
     }
 
-    for(iOptimTry in 1:nrow(matParInit)) {
-      parInitML <- matParInit[iOptimTry, ]
+    listCallsOptim <- list()
 
-      if(!(isTRUE(all(parInitML >= parLower) &&
-                  all(parInitML <= parUpper)))) {
-        # this should in principle never happen, because parInitML is not user-specified.
+    for(iOptimTry in 1:nrow(matParInit)) {
+
+      listCallsOptim[[iOptimTry]] <- list()
+
+      listCallsOptim[[iOptimTry]]$parStart <- parInit <- matParInit[iOptimTry, ]
+      listCallsOptim[[iOptimTry]]$valueStart <- fnForOptim(parInit)
+
+      if(!(isTRUE(all(parInit >= parLower) &&
+                  all(parInit <= parUpper)))) {
+        # this should in principle never happen, because parInit is not user-specified.
         #
         warning(
           paste("Skipping optim try #", iOptimTry, ":",
-                "All parameters in parInitML should be between \n parLower=c(",
+                "All parameters in parInit should be between \n parLower=c(",
                 toString(parLower), ") # and \n parUpper=c(",
-                toString(parUpper), ") #, but were \n parInitML = c(",
-                toString(parInitML), ")"))
+                toString(parUpper), ") #, but were \n parInit = c(",
+                toString(parInit), ")"))
         next
       }
 
@@ -276,18 +288,30 @@ runOptim <- function(
       # ensure that optim does maximization.
       control$fnscale <- -1
 
-      if(length(parInitML) > 0) {
-        if(verbose) {
-          cat("Call to optim no.", iOptimTry,
-              ": starting from ",
-              toString(round(parInitML, 6)), "\n",
-              "parLower = c(", toString(round(parLower, 6)), ")\n",
-              "parUpper = c(", toString(round(parUpper, 6)), ")\n")
+      if(length(parInit) > 0) {
+        res.optim.call <-
+          optim(fn = fnForOptim,
+                par = parInit, lower = parLower, upper = parUpper,
+                method = 'L-BFGS-B', control = control)
 
+        listCallsOptim[[iOptimTry]]$parEnd <- res.optim.call$par
+        listCallsOptim[[iOptimTry]]$valueEnd <- res.optim.call$value
+        listCallsOptim[[iOptimTry]]$counts <- res.optim.call$counts
+        listCallsOptim[[iOptimTry]]$convergence <- res.optim.call$convergence
+
+        if(verbose) {
+          cat("\nCall to optim no.", iOptimTry,
+              ": starting from ",
+              toString(round(parInit, 4)), ": ",
+              round(listCallsOptim[[iOptimTry]]$valueStart, 4), "\n",
+              "parLower = c(", toString(round(parLower, 4)), ")\n",
+              "parUpper = c(", toString(round(parUpper, 4)), ")\n",
+              "value: ", round(res.optim.call$value, 4), "\n",
+              "par: ", toString(round(res.optim.call$par, 4)), "\n",
+              "convergence: ", res.optim.call$convergence, "\n",
+              "counts: ", toString(res.optim.call$counts), "\n",
+              "message: ", toString(res.optim.call$message), "\n")
         }
-        optim(fn = fnForOptim,
-              par = parInitML, lower = parLower, upper = parUpper,
-              method = 'L-BFGS-B', control = control)
       } else {
         stop("optim: parameter vector has zero length.")
       }
@@ -297,7 +321,8 @@ runOptim <- function(
     maxValue <- get("val", pos = memoMaxLoglik)
     callCount <- get("count", pos = memoMaxLoglik)
 
-    res.optim <- list(par = maxPar, value = maxValue, count = callCount)
+    res.optim <- list(par = maxPar, value = maxValue, count = callCount,
+                      listCallsOptim = listCallsOptim)
 
     res$Optim <- res.optim
 

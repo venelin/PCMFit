@@ -48,7 +48,7 @@ MatchModelMapping <- function(modelMapping, modelTypes) {
       stop("ERR:04111:PCMFit:PCMFit.R:MatchModelMapping:: some of the models in modelMapping could not be matched against model-types in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
     }
   } else if( is.integer(modelMapping) ) {
-    m <- match(modelMapping, 1:length(modelTypes))
+    m <- match(modelMapping, seq_along(modelTypes))
     if( any(is.na(m)) ) {
       stop("ERR:04112:PCMFit:PCMFit.R:MatchModelMapping:: some of the integer models in modelMapping could not be matched against model-indices in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
     }
@@ -229,11 +229,6 @@ InitTableFits <- function(
 
   tableFits <- tableFitsPrev
 
-  if(is.null(modelTypesInTableFitsPrev)) {
-    # assume that tableFitsPrev has the same modelTypes unless the user specifies otherwise
-    modelTypesInTableFits <- modelTypes
-  }
-
   if(!is.null(fitMappingsPrev)) {
     tableFits <- tableFitsPrev <- fitMappingsPrev$tableFits
     if(!identical(modelTypes, fitMappingsPrev$arguments$modelTypes)) {
@@ -243,8 +238,6 @@ InitTableFits <- function(
       tableFits <- RetrieveFittedModelsFromFitVectors(
         fitMappings = fitMappingsPrev, tableFits = tableFitsPrev,
         modelTypesNew = modelTypes)
-
-      modelTypesInTableFits <- modelTypes
     }
   }
 
@@ -252,10 +245,10 @@ InitTableFits <- function(
     if(verbose) {
       cat("Initiating tableFits...\n")
     }
-    tableFits = data.table(treeEDExpression = character(),
-                           hashCodeTree = character(),
+    tableFits = data.table(hashCodeTree = character(),
                            hashCodeStartingNodesRegimesLabels = character(),
                            hashCodeMapping = character(),
+                           treeEDExpression = character(),
                            startingNodesRegimesLabels = list(),
                            mapping = list(),
                            fitVector = list(),
@@ -264,26 +257,33 @@ InitTableFits <- function(
                            nobs = integer(),
                            score = double(),
                            duplicated = logical())
-    modelTypesInTableFits <- modelTypes
   }
+
   setkey(tableFits, hashCodeTree,hashCodeStartingNodesRegimesLabels,hashCodeMapping )
-  attr(tableFits, "modelTypes") <- modelTypesInTableFits
+  attr(tableFits, "modelTypes") <- modelTypes
   tableFits
 }
 
+#' @importFrom data.table is.data.table
 UpdateTableFits <- function(tableFits, newFits) {
-  if(nrow(tableFits)>0) {
-    tableFits <- rbindlist(list(tableFits, newFits))
-  } else {
+  if(!is.data.table(newFits) && !is.data.table(tableFits)) {
+    stop("Both newFits and tableFits are not data.table objects!")
+  } else if(!is.data.table(newFits)) {
+    # swap the two arguments
+    newFits2 <- tableFits
     tableFits <- newFits
+    newFits <- newFits2
   }
-  tableFits <- tableFits[duplicated == FALSE]
-  setkey(tableFits,
-         hashCodeTree,hashCodeStartingNodesRegimesLabels,hashCodeMapping)
-  tableFits
+  if(is.null(tableFits) || !is.data.table(tableFits) || nrow(tableFits) == 0) {
+    tableFits <- newFits
+  } else {
+    #nrow(tableFits) > 0
+    tableFits <- rbindlist(list(newFits, tableFits), use.names = TRUE)
+  }
+
+  tableFits[, .SD[which.min(score)], keyby = list(
+      hashCodeTree, hashCodeStartingNodesRegimesLabels, hashCodeMapping)]
 }
-
-
 
 #' Retrieve the ML fits from the fitVectors column in a table of fits.
 #' @param fitMappings an object of S3 class PCMFitModelMappings.
@@ -301,46 +301,60 @@ UpdateTableFits <- function(tableFits, newFits) {
 #'
 #' @export
 RetrieveFittedModelsFromFitVectors <- function(
-  fitMappings, tableFits = fitMappings$tableFits,
+  fitMappings,
+
+  tableFits = fitMappings$tableFits,
+  modelTypes = fitMappings$arguments$modelTypes,
   modelTypesNew = NULL,
+  argsMixedGaussian = fitMappings$arguments$argsMixedGaussian,
+
+  X = fitMappings$X,
+  tree = fitMappings$tree,
+  SE = fitMappings$SE,
+
   setAttributes = FALSE) {
+
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
+  arguments <- as.list(environment())
 
   tableFits2 <- copy(tableFits)
   tableFits2[, fittedModel:=lapply(1:.N, function(i, numRows) {
     model <- do.call(
       PCMLoadMixedGaussianFromFitVector,
       c(list(fitVector = fitVector[[i]],
-             modelTypes = fitMappings$arguments$modelTypes,
-             k = nrow(fitMappings$X)),
-        fitMappings$arguments$argsMixedGaussian)
+             modelTypes = modelTypes,
+             k = nrow(X)),
+        argsMixedGaussian)
     )
     if(!is.null(modelTypesNew)) {
       # update the modelTypes and mapping attribute of the model appropriately
-      if(is.character(modelTypesNew) && all(fitMappings$arguments$modelTypes %in% modelTypesNew) ) {
+      if(is.character(modelTypesNew) && all(modelTypes %in% modelTypesNew) ) {
         # note that the constructor MixedGaussian accepts character vector as well as integer vector for mapping.
         mappingNew <- attr(model, "modelTypes")[attr(model, "mapping")]
         modelNew <- do.call(
           MixedGaussian,
-          c(list(k = nrow(fitMappings$X),
+          c(list(k = nrow(X),
                  modelTypes = modelTypesNew,
                  mapping = mappingNew),
-            fitMappings$arguments$argsMixedGaussian))
+            argsMixedGaussian))
         PCMParamLoadOrStore(modelNew, PCMParamGetShortVector(model), offset = 0, load = TRUE)
         model <- modelNew
       } else {
         stop(
           paste0(
             "ERR:04141:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (",
-            toString(fitMappings$arguments$modelTypes),
+            toString(modelTypes),
             ") should be a subset of modelTypesNew (",
             toString(modelTypesNew), ")."))
       }
     }
     if(setAttributes) {
-      tree <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], fitMappings$tree)
+      tree <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], arguments$tree)
       PCMTreeSetRegimes(tree, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(tree)))
-      X <- fitMappings$X[, tree$tip.label]
-      SE <- fitMappings$SE[, tree$tip.label]
+      X <- arguments$X[, tree$tip.label]
+      SE <- arguments$SE[, tree$tip.label]
       attr(model, "tree") <- tree
       attr(model, "X") <- X
       attr(model, "SE") <- SE
@@ -354,10 +368,10 @@ RetrieveFittedModelsFromFitVectors <- function(
 
   if(!is.null(modelTypesNew)) {
     # update the fitVectors according to the new modelTypes
-    if(is.character(modelTypesNew) && all(fitMappings$arguments$modelTypes %in% modelTypesNew) ) {
+    if(is.character(modelTypesNew) && all(modelTypes %in% modelTypesNew) ) {
       # note that the constructor MixedGaussian accepts character vector as well as integer vector for mapping.
       tableFits2[, fitVector:=lapply(1:.N, function(i) {
-        treei <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], fitMappings$tree)
+        treei <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], arguments$tree)
         PCMTreeSetRegimes(treei, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(treei)))
         par <- c(PCMGetVecParamsRegimesAndModels(fittedModel[[i]], treei), numParam = PCMParamCount(fittedModel[[i]]))
         fitVec <- fitVector[[i]]
@@ -365,7 +379,7 @@ RetrieveFittedModelsFromFitVectors <- function(
         fitVec
       })]
     } else {
-      stop(paste0("ERR:04142:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (", toString(fitMappings$arguments$modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
+      stop(paste0("ERR:04142:PCMFit:Utilities.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (", toString(modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
     }
   }
   tableFits2
@@ -374,8 +388,8 @@ RetrieveFittedModelsFromFitVectors <- function(
 #' @export
 RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   tableFits <- RetrieveFittedModelsFromFitVectors(
-    fitMappings,
-    fitMappings$tableFits[treeEDExpression=="tree"][order(score)][rank],
+    fitMappings = fitMappings,
+    tableFits = fitMappings$tableFits[treeEDExpression=="tree"][order(score)][rank],
     setAttributes = TRUE)
 
 
@@ -415,7 +429,7 @@ HashCodes <- function(tree, modelTypes, startingNodesRegimesLabels, modelMapping
 #'
 #' @param tree a phylo object
 #' @param modelTypes character vector
-#' @param modelMapping an integer or character vector to by matched against modelTypes
+#' @param modelMapping an integer or character vector to be matched against modelTypes
 #' @param tableFits a data.table having at least the following columns:
 #' \itemize{
 #' \item{hashCodeTree}{an MD5 key column of type character-vector}
@@ -426,12 +440,13 @@ HashCodes <- function(tree, modelTypes, startingNodesRegimesLabels, modelMapping
 #' if no such entry is found, issues an error.
 #' @importFrom digest digest
 #' @export
-LookupFit <- function(tree, modelTypes, modelMapping, tableFits,
-                      hashCodes = HashCodes(tree = tree,
-                                            modelTypes = modelTypes,
-                                            startingNodesRegimesLabels =
-                                              PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)],
-                                            modelMapping = modelMapping )) {
+LookupFit <- function(
+  tree, modelTypes, modelMapping, tableFits,
+  hashCodes = HashCodes(tree = tree,
+                        modelTypes = modelTypes,
+                        startingNodesRegimesLabels =
+                          PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)],
+                        modelMapping = modelMapping )) {
   tableFits[hashCodes, , mult="first", nomatch=0]
 }
 

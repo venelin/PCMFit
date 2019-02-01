@@ -2,10 +2,17 @@ PCMFitModelMappingsToCladePartitions <- function(
   X, tree, modelTypes,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
 
+  scoreFun = AIC,
+
   listPartitions = NULL,
+  listHintModels = rep(list(NULL), length(listPartitions)),
+  listNamesInHintModels = rep(list(character(0)), length(listPartitions)),
+
   listAllowedModelTypesIndices = NULL,
 
-  scoreFun = AIC,
+
+
+
 
   fitClades = FALSE,
 
@@ -69,9 +76,36 @@ PCMFitModelMappingsToCladePartitions <- function(
     rep(treeEDExpression, length(listPartitions))
   }
 
+  GetAllowedModelTypesForPartition <- function(
+    listAllowedModelTypesIndices, partition, iPartition) {
+
+    if( is.null(names(listAllowedModelTypesIndices)) ) {
+      if(length(listAllowedModelTypesIndices) < iPartition) {
+        stop(
+          paste(
+            "GetAllowedModelTypesForPartition: ",
+            "length(listAllowedModelTypesIndices) = ",
+            length(listAllowedModelTypesIndices), "\n",
+            "iPartition = ", iPartition, "\n",
+            "iPartition is bigger than length(listAllowedModelTypesIndices);",
+            "listAllowedModelTypesIndices should either be a named list",
+            "with names corresponding to node-labels in the tree or",
+            " an unnamed list containing one such named list for each entry",
+            " in listPartitions."))
+      } else {
+        listAllowedModelTypesIndices[[iPartition]][as.character(partition)]
+      }
+    } else {
+      listAllowedModelTypesIndices[as.character(partition)]
+    }
+  }
+
   fits <-
     foreach(
       cladePartition = listPartitions,
+      iCladePartition = seq_along(listPartitions),
+      hintModel = listHintModels,
+      namesInHintModel = listNamesInHintModels,
       EDExpression = EDExpressions,
       .combine = function(...) rbindlist(list(...)),
       .multicombine = TRUE,
@@ -82,11 +116,17 @@ PCMFitModelMappingsToCladePartitions <- function(
       modelMapping = PCMIteratorMapping2(
         mapping = unlist(
           sapply(
-            listAllowedModelTypesIndices[as.character(cladePartition)],
+            GetAllowedModelTypesForPartition(
+              listAllowedModelTypesIndices,
+              cladePartition,
+              iCladePartition),
             function(.) .[1])),
-        modelTypes = seq_len(length(modelTypes)),
+        modelTypes = seq_along(modelTypes),
         allowedModelTypesIndices = lapply(
-          listAllowedModelTypesIndices[as.character(cladePartition)],
+          GetAllowedModelTypesForPartition(
+            listAllowedModelTypesIndices,
+            cladePartition,
+            iCladePartition),
           sort)),
 
       .combine=function(...) {
@@ -232,6 +272,10 @@ PCMFitModelMappingsToCladePartitions <- function(
                 tableAncestors = tableAncestorsTree,
                 verbose = debug)
 
+              if(!is.null(hintModel)) {
+                PCMParamSetByName(modelForFit, hintModel[namesInHintModel])
+              }
+
               matParInitRunif <- PCMParamRandomVecParams(
                 o = modelForFit,
                 k = PCMNumTraits(modelForFit),
@@ -294,11 +338,11 @@ PCMFitModelMappingsToCladePartitions <- function(
               score = v_score)
 
             dt.row <- data.table(
-              treeEDExpression = EDExpression,
               hashCodeTree = hashCodes$hashCodeTree,
               hashCodeStartingNodesRegimesLabels =
                 hashCodes$hashCodeStartingNodesRegimesLabels,
               hashCodeMapping = hashCodes$hashCodeMapping,
+              treeEDExpression = EDExpression,
               startingNodesRegimesLabels = list(cladePartition),
               mapping = list(MatchModelMapping(modelMapping, modelTypes)),
               fitVector = list(unname(vec)),

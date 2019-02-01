@@ -347,10 +347,10 @@ GuessInitVecParams.MixedGaussian <- function(
       upperModel <- do.call(PCMParamUpperLimit, c(list(o), argsPCMParamUpperLimit))
       upperVecParams <- PCMParamGetShortVector(upperModel)
 
-      withinBounds <- sapply(1:nrow(res), function(i) {
+      withinBounds <- as.logical(sapply(seq_len(nrow(res)), function(i) {
         isTRUE(all(res[i,] >= lowerVecParams)) &&
           isTRUE(all(res[i,] <= upperVecParams))
-      })
+      }))
       res <- res[withinBounds, , drop = FALSE]
     }
   }

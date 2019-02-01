@@ -4,50 +4,50 @@
 jitterModelParams <- function(
   model,
 
-  argsPCMParamLowerLimit,
-  argsPCMParamUpperLimit,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
 
-  numJitterRootRegimeFit, sdJitterRootRegimeFit,
-  numJitterAllRegimeFits, sdJitterAllRegimeFits,
+  numJitterRootRegimeFit = 1000, sdJitterRootRegimeFit = 0.5,
+  numJitterAllRegimeFits = 1000, sdJitterAllRegimeFits = 0.5,
 
   returnWithinBoundsOnly = TRUE,
   verbose = FALSE
 ) {
 
-  matParamsFromTableFits <-
+  matParams <-
     matrix(PCMParamGetShortVector(model), 1, PCMParamCount(model), byrow = TRUE)
   matParamsJitterRootCladeFit <- matParamsJitterAllCladeFits <- NULL
 
   # if there is more than one clade in the tree and numJitterRootRegimeFit > 0
   if( !is.null(model[["2"]]) && numJitterRootRegimeFit > 0 ) {
-    vecParamIndex <- 1:ncol(matParamsFromTableFits)
+    vecParamIndex <- 1:ncol(matParams)
     modelIndexParams <- model
     PCMParamLoadOrStore(modelIndexParams, vecParamIndex, offset = 0, load = TRUE)
     vecParamIndexRootClade <- as.integer(PCMParamGetShortVector(modelIndexParams[["1"]]))
     matParamsJitterRootCladeFit <-
       matrix(
-        matParamsFromTableFits[1,],
+        matParams[1,],
         2 * numJitterRootRegimeFit,
-        ncol(matParamsFromTableFits),
+        ncol(matParams),
         byrow=TRUE)
     for(j in vecParamIndexRootClade) {
       matParamsJitterRootCladeFit[, j] <-
         rnorm(
           2 * numJitterRootRegimeFit,
-          mean = matParamsFromTableFits[1, j],
+          mean = matParams[1, j],
           sd = sdJitterRootRegimeFit)
     }
   }
 
   if( numJitterAllRegimeFits > 0 ) {
     matParamsJitterAllCladeFits <-
-      matrix(matParamsFromTableFits[1, ],
+      matrix(matParams[1, ],
              2 * numJitterAllRegimeFits,
-             ncol(matParamsFromTableFits),
+             ncol(matParams),
              byrow=TRUE)
-    for(j in 1:ncol(matParamsFromTableFits)) {
+    for(j in 1:ncol(matParams)) {
       matParamsJitterAllCladeFits[, j] <- rnorm(2 * numJitterAllRegimeFits,
-                                                mean = matParamsFromTableFits[1, j],
+                                                mean = matParams[1, j],
                                                 sd = sdJitterAllRegimeFits)
     }
   }
@@ -74,7 +74,7 @@ jitterModelParams <- function(
         matParamsJitterRootCladeFit <-
           matParamsJitterRootCladeFit[1:numJitterRootRegimeFit, , drop = FALSE]
       }
-      matParamsFromTableFits <- rbind(matParamsFromTableFits,
+      matParams <- rbind(matParams,
                                       matParamsJitterRootCladeFit)
     }
 
@@ -92,10 +92,10 @@ jitterModelParams <- function(
         matParamsJitterAllCladeFits <-
           matParamsJitterAllCladeFits[1:numJitterAllRegimeFits, , drop = FALSE]
       }
-      matParamsFromTableFits <- rbind(matParamsFromTableFits,
+      matParams <- rbind(matParams,
                                       matParamsJitterAllCladeFits)
     }
   }
 
-  matParamsFromTableFits
+  matParams
 }
