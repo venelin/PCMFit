@@ -44,6 +44,7 @@ PCMFitModelMappingsToCladePartitions <- function(
   debug = FALSE
 ) {
 
+  tree <- PCMTree(tree)
   treeEDExpression = "tree"
 
   tableFits <- InitTableFits(modelTypes,
@@ -107,7 +108,19 @@ PCMFitModelMappingsToCladePartitions <- function(
       hintModel = listHintModels,
       namesInHintModel = listNamesInHintModels,
       EDExpression = EDExpressions,
-      .combine = function(...) rbindlist(list(...)),
+      .combine = function(...) {
+        listDTs <- list(...)
+        for(i in seq_along(listDTs)) {
+          if(!is.data.table(listDTs[[i]])) {
+            cat(
+              "PCMFitModelMappingsToPartitions: Error in .combine function \n",
+              "for outer foreach loop: item i=", i, " from task results of ",
+              "innter foreach loop was not a data.table, but was as follows:\n")
+            print(listDTs[[i]])
+          }
+        }
+        rbindlist(listDTs, use.names = TRUE)
+      },
       .multicombine = TRUE,
       .inorder = FALSE,
       .packages = (.packages()) ) %:%
@@ -132,7 +145,6 @@ PCMFitModelMappingsToCladePartitions <- function(
       .combine=function(...) {
         CombineTaskResults(
           ...,
-          filePrefix = prefixFiles,
           envNCalls = envCombineTaskResults)
       },
       .multicombine = TRUE,
@@ -177,12 +189,36 @@ PCMFitModelMappingsToCladePartitions <- function(
             treeForFit <- treeSplit$clade
             XForFit <- treeSplit$Xclade[1:k, , drop = FALSE]
             SEForFit <- treeSplit$Xclade[(k+1):(2*k), , drop = FALSE]
-            PCMTreeSetDefaultRegime(treeForFit, 1)
+            PCMTreeSetPartition(treeForFit)
+
+            # create an MixedGaussian model
+            modelForFit <- do.call(MixedGaussian,
+                                   c(list(k = nrow(XForFit),
+                                          modelTypes = modelTypes,
+                                          mapping = modelMapping),
+                                     argsMixedGaussian))
           } else {
             treeForFit <- tree
-            PCMTreeSetRegimes(treeForFit, nodes = as.integer(cladePartition))
+            PCMTreeSetPartition(treeForFit, nodes = as.integer(cladePartition))
             XForFit <- X
             SEForFit <- SE
+
+            modelForFit <- ComposeMixedGaussianFromFits(
+              tree = treeForFit,
+              startingNodesRegimes = as.integer(cladePartition),
+              modelTypes = modelTypes,
+              k = nrow(XForFit),
+              R = length(cladePartition),
+              mapping = modelMapping,
+              argsMixedGaussian = argsMixedGaussian,
+              tableFits = tableFits,
+              modelTypesInTableFits = modelTypesInTableFits,
+              tableAncestors = tableAncestorsTree,
+              verbose = debug)
+
+            if(!is.null(hintModel)) {
+              PCMParamSetByName(modelForFit, hintModel[namesInHintModel])
+            }
           }
 
           hashCodes <- HashCodes(
@@ -191,6 +227,8 @@ PCMFitModelMappingsToCladePartitions <- function(
             startingNodesRegimesLabels = cladePartition,
             modelMapping = modelMapping)
           fit <- LookupFit(tableFits = tableFits, hashCodes = hashCodes)
+          # fit <- LookupFit2(
+          #   tree = treeForFit, model = modelForFit, tableFits = tableFits)
 
           if(nrow(fit) == 1 && skipFitWhenFoundInTableFits) {
             dt.row <- fit
@@ -212,13 +250,6 @@ PCMFitModelMappingsToCladePartitions <- function(
             }
 
             if(fitClades) {
-              # create an MixedGaussian model
-              modelForFit <- do.call(MixedGaussian,
-                                     c(list(k = nrow(XForFit),
-                                            modelTypes = modelTypes,
-                                            mapping = modelMapping),
-                                       argsMixedGaussian))
-
               matParInitRunif <- PCMParamRandomVecParams(
                 o = modelForFit,
                 k = PCMNumTraits(modelForFit),
@@ -259,23 +290,6 @@ PCMFitModelMappingsToCladePartitions <- function(
                 verbose = debug)
 
             } else {
-              modelForFit <- ComposeMixedGaussianFromFits(
-                tree = treeForFit,
-                startingNodesRegimes = as.integer(cladePartition),
-                modelTypes = modelTypes,
-                k = nrow(XForFit),
-                R = length(cladePartition),
-                mapping = modelMapping,
-                argsMixedGaussian = argsMixedGaussian,
-                tableFits = tableFits,
-                modelTypesInTableFits = modelTypesInTableFits,
-                tableAncestors = tableAncestorsTree,
-                verbose = debug)
-
-              if(!is.null(hintModel)) {
-                PCMParamSetByName(modelForFit, hintModel[namesInHintModel])
-              }
-
               matParInitRunif <- PCMParamRandomVecParams(
                 o = modelForFit,
                 k = PCMNumTraits(modelForFit),
@@ -351,16 +365,49 @@ PCMFitModelMappingsToCladePartitions <- function(
               nobs = attr(ll, "nobs"),
               score = v_score,
               duplicated = FALSE)
+
+            # CreateFitRecord <- function(fit, scoreFun) {
+            #   ll <- unname(logLik(fit))
+            #   v_score = unname(scoreFun(fit))
+            #   vec <- c(
+            #     coef(fit),
+            #     logLik = ll,
+            #     df = attr(ll, "df"),
+            #     nobs = attr(ll, "nobs"),
+            #     score = v_score)
+            #
+            #
+            #   tree <- PCMTree(fit$tree)
+            #   partRegimes <- PCMTreeGetPartRegimes(tree)
+            #   modelMapping <-
+            #
+            #   data.table(
+            #     hashCodeTree = hashCodes$hashCodeTree,
+            #     hashCodeStartingNodesRegimesLabels =
+            #       hashCodes$hashCodeStartingNodesRegimesLabels,
+            #     hashCodeMapping = hashCodes$hashCodeMapping,
+            #     treeEDExpression = EDExpression,
+            #     startingNodesRegimesLabels = list(cladePartition),
+            #     mapping = list(MatchModelMapping(modelMapping, modelTypes)),
+            #     fitVector = list(unname(vec)),
+            #     logLik = ll,
+            #     df = attr(ll, "df"),
+            #     nobs = attr(ll, "nobs"),
+            #     score = v_score,
+            #     duplicated = FALSE)
+            # }
+            # dt.row <- CreateFitRecord(
+            #   treeEDExpression = EDExpression, fit = fit, scoreFun = scoreFun)
+            #
+            #   tree = treeForFit,
+            #   treeEDExpression = EDExpression,
+            #
+            #   partitionN
+            # )
           }
 
           if(printFitVectorsToConsole) {
             cat(dt.row$treeEDExpression[[1]],
-                ":",
-                dt.row$hashCodeTree[[1]],
-                ":",
-                dt.row$hashCodeStartingNodesRegimes[[1]],
-                ":",
-                dt.row$hashCodeMapping[[1]],
                 ":",
                 toString(unname(dt.row$fitVector[[1]])),
                 "\n", sep="")

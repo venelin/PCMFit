@@ -8,21 +8,21 @@ previously run fits.}
 LookupFit(tree, modelTypes, modelMapping, tableFits,
   hashCodes = HashCodes(tree = tree, modelTypes = modelTypes,
   startingNodesRegimesLabels =
-  PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)],
-  modelMapping = modelMapping))
+  PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)], modelMapping =
+  modelMapping))
 }
 \arguments{
 \item{tree}{a phylo object}
 
 \item{modelTypes}{character vector}
 
-\item{modelMapping}{an integer or character vector to by matched against modelTypes}
+\item{modelMapping}{an integer or character vector to be matched against modelTypes}
 
 \item{tableFits}{a data.table having at least the following columns:
 \itemize{
 \item{hashCodeTree}{an MD5 key column of type character-vector}
 \item{hashCodeStartingNodesRegimesLabels}{an MD5 key column of type character-vector representing the hash-code of
-\code{PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)]}.}
+\code{PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]}.}
 \item{hashCodeMapping}{an MD5 key column of type character-vector}}}
 }
 \value{

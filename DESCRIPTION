@@ -16,7 +16,7 @@ Description: Fast maximum likelihood fit and model selection of phylogenetic
     Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching 
     processes. The mixed Gaussian models represent models with shifts in the 
     model parameters as well as the type of model at points of the tree. Each 
-    shift-point is described as a couple of shift-nodes and associated type of
+    shift-point is described as a couple of a shift-node and associated type of
     model (e.g. OU or BM) driving the trait evolution from the beginning of the 
     branch leading to the shift-node toward the shift-node and its descendants 
     until reaching a tip or another shift-point. The function PCMFit is used to 
@@ -24,7 +24,7 @@ Description: Fast maximum likelihood fit and model selection of phylogenetic
     function PCMFitMixed is used to fit an ensemble of possible MGPMs over a 
     tree for which the shift-points are unknown. This function can perform model
     selection of the best MGPM for a given tree and data according to an 
-    information loss criterios such as the Akaike information criterion (AIC). 
+    information loss estimate such as the Akaike information criterion (AIC). 
 Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true

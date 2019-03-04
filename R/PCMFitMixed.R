@@ -7,7 +7,7 @@
 #' branches in the tree.
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTreeSetLabels PCMTreeSetDefaultRegime PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMTreeSetRegimes PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable
+#' @importFrom PCMBase PCMTree PCMTreeSetLabels PCMTreeSetPartition PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
@@ -69,9 +69,11 @@ PCMFitMixed <- function(
   # original argument value.
   arguments <- as.list(environment())
 
+  tree <- PCMTree(tree)
   PCMTreeSetLabels(tree)
-  PCMTreeSetDefaultRegime(tree, 1)
-  colnames(X) <- colnames(SE) <- as.character(1:PCMTreeNumTips(tree))
+  PCMTreeSetPartition(tree)
+
+  colnames(X) <- colnames(SE) <- as.character(seq_len(PCMTreeNumTips(tree)))
 
   tableFits <- InitTableFits(modelTypes,
                              fitMappingsPrev,
@@ -114,7 +116,7 @@ PCMFitMixed <- function(
     if(verbose) {
       cat("Step 1 (", Sys.time() ,"): Performing fits on", length(cladeRoots),
           " clades; ",
-          sum(sapply(listAllowedModelTypesIndices[as.character(cladeRoots)],
+          sum(sapply(listAllowedModelTypesIndicesFTC[as.character(cladeRoots)],
                      length)), " model mappings altogether...\n")
     }
 
@@ -185,8 +187,10 @@ PCMFitMixed <- function(
     tableFitsRRInit <- resultStep2$fitsToTree[
       list(hashCodeTree = resultStep2$hashCodeEntireTree),
       .SD[which.min(score)],
-      keyby = hashCodeStartingNodesRegimesLabels][order(score)][
-        seq_len(min(maxNumPartitionsInRoundRobins, .N))]
+      keyby = hashCodeStartingNodesRegimesLabels][
+        order(score)][
+          seq_len(min(maxNumPartitionsInRoundRobins, .N)), .SD,
+          keyby = hashCodeStartingNodesRegimesLabels]
 
     tableFitsRR <- NULL
 
@@ -196,132 +200,172 @@ PCMFitMixed <- function(
 
       tableFitsRR <- copy(tableFitsRRInit)
 
-      partitionLengths <- tableFitsRR[
-        , sapply(startingNodesRegimesLabels, length)]
-
       canImprove <- rep(TRUE, nrow(tableFitsRR))
 
       if(verbose) {
         cat("Step 3 (", Sys.time() ,"): Performing up to", maxNumRoundRobins,
             "round robin iterations; initial selected partitions/mappings:\n")
         print(tableFitsRR[, list(
+          hashCodeStartingNodesRegimesLabels,
           startingNodesRegimesLabels,
           mapping = lapply(mapping, function(m) {
             names(modelTypes)[match(m, modelTypes)]
           }),
-          logLik, df, nobs, score,
+          logLik,
+          R = sapply(startingNodesRegimesLabels, length),
+          df, score,
           canImprove = canImprove)])
       }
 
       iRR <- 1L
       while(iRR < maxNumRoundRobins) {
-        currentScore <- tableFitsRR[, score]
+        dtOldScore <- tableFitsRR[
+          , list(oldScore = score), keyby = hashCodeStartingNodesRegimesLabels]
+        partitionLengths <- tableFitsRR[
+          , sapply(startingNodesRegimesLabels, length)]
+
         for( pos in seq_len(max(partitionLengths)) ) {
 
           # logical vector indicating the partitions in `partitions` not shorter
           # than this pos
           haveThisPos <- (pos <= partitionLengths)
 
-          tableFitsRRForPos <- RetrieveFittedModelsFromFitVectors(
-            fitMappings = NULL,
-            tableFits = tableFitsRR[canImprove & haveThisPos],
-            modelTypes = modelTypes,
-            modelTypesNew = NULL,
-            argsMixedGaussian = argsMixedGaussian,
-            X = X,
-            tree = tree,
-            SE = SE,
-            setAttributes = FALSE
+          if(verbose) {
+            cat(
+              "> Step 3, iteration ", iRR, " (", Sys.time(), ")",
+              "round robin loop for node position", pos, "; ",
+              sum(canImprove & haveThisPos),
+              "of the selected top partitions/mappings have this position and",
+              "might improve their score. \n")
+          }
+
+          if(sum(canImprove & haveThisPos) > 0) {
+            tableFitsRRForPos <- RetrieveFittedModelsFromFitVectors(
+              fitMappings = NULL,
+              tableFits = tableFitsRR[canImprove & haveThisPos],
+              modelTypes = modelTypes,
+              modelTypesNew = NULL,
+              argsMixedGaussian = argsMixedGaussian,
+              X = X,
+              tree = tree,
+              SE = SE,
+              setAttributes = FALSE
             )
 
-          partitions <- tableFitsRRForPos$startingNodesRegimesLabels
-          mappings <- tableFitsRRForPos$mapping
+            partitions <- tableFitsRRForPos$startingNodesRegimesLabels
+            mappings <- tableFitsRRForPos$mapping
 
-          listHintModels <- tableFitsRRForPos$fittedModel
+            listHintModels <- tableFitsRRForPos$fittedModel
 
-          listNamesInHintModels <- lapply(listHintModels, function(hm) {
+            listNamesInHintModels <- lapply(listHintModels, function(hm) {
               # all member names except "pos"
               ipos <- match(as.character(pos), names(hm))
               names(hm)[-ipos]
             })
 
-          # create listAllowedModelTypesIndices for each partition in partitions
-          listAllowedModelTypesIndices <- lapply(
-            seq_along(partitions),
+            # create listAllowedModelTypesIndices for each partition in
+            # partitions
+            listAllowedModelTypesIndices <- lapply(
+              seq_along(partitions),
 
-            function(iPartition) {
-              m <- lapply(mappings[[iPartition]], match, modelTypes)
-              m[[pos]] <- seq_along(modelTypes)
-              names(m) <- as.character(
-                partitions[[iPartition]])
-              m
-            })
+              function(iPartition) {
+                m <- lapply(mappings[[iPartition]], match, modelTypes)
+                m[[pos]] <- seq_along(modelTypes)
+                names(m) <- as.character(
+                  partitions[[iPartition]])
+                m
+              })
 
-          # Call PCMFitModelMappingsToPartitions
-          argumentsRR <-
-            arguments[
-              intersect(
-                names(arguments),
-                names(as.list(args(PCMFitModelMappingsToCladePartitions))))]
+            # Call PCMFitModelMappingsToPartitions
+            argumentsRR <-
+              arguments[
+                intersect(
+                  names(arguments),
+                  names(as.list(args(PCMFitModelMappingsToCladePartitions))))]
 
-          argumentsRR$X <- X
-          argumentsRR$tree <- tree
-          argumentsRR$modelTypes <- modelTypes
-          argumentsRR$SE <- SE
-          argumentsRR$listPartitions <- partitions
-          argumentsRR$listAllowedModelTypesIndices <-
-            listAllowedModelTypesIndices
-          argumentsRR$fitClades <- FALSE
-          argumentsRR$fitMappingsPrev <- NULL
-          argumentsRR$tableFitsPrev <- fitsToClades
-          argumentsRR$modelTypesInTableFitsPrev <- modelTypes
-          argumentsRR$argsConfigOptim <- argsConfigOptim3
-          argumentsRR$preorderTree <- preorderTree
-          argumentsRR$tableAncestors <- tableAncestors
-          argumentsRR$prefixFiles <- paste0(prefixFiles, "_rr_")
-          argumentsRR$listHintModels <- listHintModels
-          argumentsRR$listNamesInHintModels <- listNamesInHintModels
+            argumentsRR$X <- X
+            argumentsRR$tree <- tree
+            argumentsRR$modelTypes <- modelTypes
+            argumentsRR$SE <- SE
+            argumentsRR$listPartitions <- partitions
+            argumentsRR$listAllowedModelTypesIndices <-
+              listAllowedModelTypesIndices
+            argumentsRR$fitClades <- FALSE
+            argumentsRR$fitMappingsPrev <- NULL
+            argumentsRR$tableFitsPrev <- fitsToClades
+            argumentsRR$modelTypesInTableFitsPrev <- modelTypes
+            argumentsRR$argsConfigOptim <- argsConfigOptim3
+            argumentsRR$preorderTree <- preorderTree
+            argumentsRR$tableAncestors <- tableAncestors
+            argumentsRR$prefixFiles <- paste0(prefixFiles, "_rr_")
+            argumentsRR$listHintModels <- listHintModels
+            argumentsRR$listNamesInHintModels <- listNamesInHintModels
 
-          newFitsForThisPos <- do.call(
-            PCMFitModelMappingsToCladePartitions, argumentsRR)
 
-          # update fitsToTree
-          fitsToTree <- UpdateTableFits(fitsToTree, newFitsForThisPos)
+            newFitsForThisPos <- do.call(
+              PCMFitModelMappingsToCladePartitions, argumentsRR)
 
-          # update tableFits with the entries in fitsToTree
-          tableFits <- UpdateTableFits(tableFits, fitsToTree)
+            if(!is.data.table(newFitsForThisPos)) {
+              cat("newFitsFortThisPos not a data.table, but is:\n")
+              print(newFitsForThisPos)
 
-          SaveCurrentResults(list(tableFits = tableFits), filePrefix = prefixFiles)
+              errorList <- list(argumentsRR = argumentsRR,
+                                newFitsForThisPos = newFitsForThisPos)
+              save(errorList, file="ListErrorObjects.RData")
+            }
 
-          # update tableFitsRR with the new best fits
-          tableFitsRR <- rbindlist(
-            list(tableFitsRR, newFitsForThisPos),
-            use.names = TRUE)
-          tableFitsRR <- tableFitsRR[
-            ,
-            .SD[which.min(score)],
-            keyby = hashCodeStartingNodesRegimesLabels]
+            # update fitsToTree
+            fitsToTree <- UpdateTableFits(fitsToTree, newFitsForThisPos)
+
+            # update tableFits with the entries in fitsToTree
+            tableFits <- UpdateTableFits(tableFits, fitsToTree)
+
+            SaveCurrentResults(
+              list(tableFits = tableFits), filePrefix = prefixFiles)
+
+            # update tableFitsRR with the new best fits
+            # Here we do not use UpdateTableFits, because it uses another key
+            tableFitsRR <- rbindlist(
+              list(tableFitsRR, newFitsForThisPos),
+              use.names = TRUE)
+            # Keep the best mapping for each partition:
+            tableFitsRR <- tableFitsRR[
+              ,
+              .SD[which.min(score)],
+              keyby = hashCodeStartingNodesRegimesLabels]
+          }
+
+          if(verbose) {
+            cat(
+              "> Step 3, iteration ", iRR, " (", Sys.time(), ")",
+              "round robin loop for node position", pos,
+              ", top candidate partitions/mappings at the end of this loop:\n")
+            print(tableFitsRR[, list(
+              hashCodeStartingNodesRegimesLabels,
+              startingNodesRegimesLabels,
+              mapping = lapply(mapping, function(m) {
+                names(modelTypes)[match(m, modelTypes)]
+              }),
+              logLik,
+              R = sapply(startingNodesRegimesLabels, length),
+              df, score,
+              canImprove = canImprove)])
+          }
         }
 
-        canImprove <- tableFitsRR[, score < currentScore]
-        if(verbose) {
-          cat("Step 3, iteration ", iRR, " (", Sys.time(),
-              ") partitions/mappings at the end of the iteration:\n")
-          print(tableFitsRR[, list(
-            startingNodesRegimesLabels,
-            mapping = lapply(mapping, function(m) {
-              names(modelTypes)[match(m, modelTypes)]
-            }),
-            logLik, df, nobs, score,
-            canImprove = canImprove)])
-        }
+        canImprove <- tableFitsRR[dtOldScore, score < oldScore]
 
         if(sum(canImprove) == 0) {
           if(verbose) {
-            cat("Exiting round robin loop, because no scores improved during the last iteration...")
+            cat("No scores improved during the last round robin iteration")
+            if(iRR < maxNumRoundRobins) {
+              cat("Exiting round robin before reaching", maxNumRoundRobins, "iterations.")
+            }
           }
           break
         }
+
+        iRR <- iRR + 1L
       }
     }
   } else {

@@ -80,6 +80,15 @@ PCMFit <- function(
     matParInitGuess,
     matParInitGuessVaryTheta)
 
+  if(nrow(matParInit) == 0L) {
+    stop(
+      paste(
+        "In a call to PCMFit matParInit was empty. This can happen if you",
+        "used only GuessInitVecParams to generate matParInit and all generated",
+        "parameters were out of range. Consider using PCMParamRandomVecParams",
+        "as well. "))
+  }
+
   if(nrow(matParInit) > numCallsOptim) {
     if(verbose) {
       cat("Evaluating likelihood at ", nrow(matParInit), " parameter vectors...")
@@ -259,7 +268,7 @@ runOptim <- function(
 
     listCallsOptim <- list()
 
-    for(iOptimTry in 1:nrow(matParInit)) {
+    for(iOptimTry in seq_len(nrow(matParInit))) {
 
       listCallsOptim[[iOptimTry]] <- list()
 

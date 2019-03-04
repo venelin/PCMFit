@@ -72,7 +72,7 @@ GuessInitVecParams.PCM <- function(
         which(tableAnc[seq_len(PCMTreeNumTips(tree)), j] > 0)
       })
 
-      regimesDaughtersRoot <- PCMTreeGetRegimesForNodes(tree, daughtersRoot)
+      regimesDaughtersRoot <- PCMTreeGetPartsForNodes(tree, daughtersRoot)
 
       names(regimesDaughtersRoot) <- names(tipsFromDaughtersRoot) <-
         as.character(daughtersRoot)
@@ -80,7 +80,7 @@ GuessInitVecParams.PCM <- function(
       tipsFromDaughtersRootInSameRegime <-
         lapply(as.character(daughtersRoot), function(j) {
           intersect(tipsFromDaughtersRoot[[j]],
-                    PCMTreeGetTipsInRegime(tree, regimesDaughtersRoot[[j]]))
+                    PCMTreeGetTipsInPart(tree, regimesDaughtersRoot[[j]]))
         })
 
       names(tipsFromDaughtersRootInSameRegime) <- as.character(daughtersRoot)
@@ -195,7 +195,7 @@ GuessInitVecParamsOUInternal <- function(
     for(r in seq_len(PCMNumRegimes(o))) {
       reg <- regimes[r]
 
-      tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
+      tipsInRegime <- PCMTreeGetTipsInPart(tree, reg)
       weightsTipsInRegime <- rootDists[tipsInRegime]
       weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
 
@@ -296,7 +296,7 @@ GuessInitVecParams.MixedGaussian <- function(
     for(r in seq_len(PCMNumRegimes(o))) {
       reg <- regimes[r]
       if(inherits(o[[reg]], "OU") || inherits(o[[reg]], "DOU")) {
-        tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
+        tipsInRegime <- PCMTreeGetTipsInPart(tree, reg)
 
         weightsTipsInRegime <- rootDists[tipsInRegime]
         weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)

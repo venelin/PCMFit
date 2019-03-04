@@ -23,12 +23,10 @@ N <- 100
 # colnames(Q) <- rownames(Q) <- letters[1:R]
 
 
-tree.a <- rcoal(n=N)
+tree.a <- PCMTree(rcoal(n=N))
 
-PCMTreeSetDefaultRegime(tree.a, "a")
-PCMTreeSetRegimes(tree.a, c(104, 102), regimes = c("a", "b", "c"))
 PCMTreeSetLabels(tree.a)
-
+PCMTreeSetPartRegimes(tree.a, part.regime = c(`101` = "a", `104` = "b", `102` = "c"), setPartition = TRUE)
 
 tree.a$edge.jump <- rep(0, nrow(tree.a$edge))
 

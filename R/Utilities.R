@@ -45,16 +45,16 @@ MatchModelMapping <- function(modelMapping, modelTypes) {
   if(is.character(modelMapping)) {
     m <- match(modelMapping, modelTypes)
     if( any(is.na(m)) ) {
-      stop("ERR:04111:PCMFit:PCMFit.R:MatchModelMapping:: some of the models in modelMapping could not be matched against model-types in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
+      stop("MatchModelMapping:: some of the models in modelMapping could not be matched against model-types in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
     }
   } else if( is.integer(modelMapping) ) {
     m <- match(modelMapping, seq_along(modelTypes))
     if( any(is.na(m)) ) {
-      stop("ERR:04112:PCMFit:PCMFit.R:MatchModelMapping:: some of the integer models in modelMapping could not be matched against model-indices in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
+      stop("MatchModelMapping:: some of the integer models in modelMapping could not be matched against model-indices in tableFits (", toString(modelMapping[which(is.na(m))]), ")")
     }
   } else {
     stop(
-      "ERR:04113:PCMFit:PCMFit.R:MatchModelMapping:: modelMapping should be character or integer (",
+      "MatchModelMapping:: modelMapping should be character or integer (",
       toString(modelMapping), ")")
   }
   unname(modelTypes[m])
@@ -86,24 +86,31 @@ ComposeMixedGaussianFromFits <- function(
   }
 
   # create a MixedGaussian model
-  model <- do.call(MixedGaussian, c(list(k = k, modelTypes = modelTypes, mapping = mapping), argsMixedGaussian))
+  model <- do.call(
+    MixedGaussian,
+    c(list(k = k, modelTypes = modelTypes, mapping = mapping), argsMixedGaussian))
 
   # load listParInitOptim with the parameter vector from the ML fits to all clades
   # starting at startingNodesRegimes
   spec <- attr(model, "spec", exact = TRUE)
   subModelsLoaded <- rep(FALSE, length(mapping))
 
-  for(r in 1:length(startingNodesRegimes)) {
+  for(r in seq_len(length(startingNodesRegimes))) {
     nr <- startingNodesRegimes[r]
     mr <- modelTypes[mapping[r]]
     tree_nr <- PCMTreeExtractClade(tree, nr, tableAncestors = tableAncestors)
-    PCMTreeSetDefaultRegime(tree_nr, 1)
+    PCMTreeSetPartition(tree_nr)
+    # model_mr <- do.call(
+    #   MixedGaussian,
+    #   c(list(k = k, modelTypes = modelTypes, mapping = mapping[r]), argsMixedGaussian))
+
     fit <- LookupFit(
       tree = tree_nr, modelTypes = modelTypes, modelMapping = mr,
       tableFits = tableFits)
+    #fit <- LookupFit2(tree = tree_nr, model = model_nr, tableFits = tableFits)
 
     if(nrow(fit) == 0) {
-      stop("ERR:04120:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: no entry in tableFits for the given tree and modelMapping.")
+      stop("ComposeMixedGaussianFromCladeFits:: no entry in tableFits for the given tree and modelMapping.")
     }
 
     fitVector <- fit$fitVector[[1]]
@@ -136,10 +143,14 @@ ComposeMixedGaussianFromFits <- function(
         vecFitModel <- PCMParamGetShortVector(fitModel[[name]], k = k, R = 1)
 
         if(! length(vecCurrent) == length(vecFitModel) ) {
-          stop(paste0("ERR:04121:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: a global parameter ", name,
-                      " in a fit-model has a different short-vector length from the to-be fit model length(vecToFit)=",
-                      length(vecCurrent), ", length(vecFitModel)=", length(vecFitModel), "; class model to fit = ", mr,
-                      "; class fitted model = ", toString(class(fitModel[[name]]))))
+          stop(
+            paste0(
+              "ComposeMixedGaussianFromCladeFits:: a global parameter ",
+              name,
+              " in a fit-model has a different short-vector length from the to-be fit model length(vecToFit)=",
+              length(vecCurrent), ", length(vecFitModel)=", length(vecFitModel),
+              "; class model to fit = ", mr,
+              "; class fitted model = ", toString(class(fitModel[[name]]))))
         }
         vecCurrent <- vecCurrent + vecFitModel/R
         PCMParamLoadOrStore(model[[name]], vecCurrent, 0, k, 1, load = TRUE)
@@ -149,10 +160,17 @@ ComposeMixedGaussianFromFits <- function(
           model[[as.character(r)]] <- fitModel[[name]]
           subModelsLoaded[r] <- TRUE
         } else {
-          stop("ERR:04122:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: submodel for regime ", r, " was already loaded from a best clade fit.")
+          stop(
+            "ComposeMixedGaussianFromCladeFits:: submodel for regime ",
+            r, " was already loaded from a best clade fit.")
         }
       } else {
-        stop("ERR:04123:PCMFit:PCMFit.R:ComposeMixedGaussianFromCladeFits:: Found a member (", name, ") in fitModel starting from node (", nr, ") and with class '", class(fitModel[[name]]), "' which is neither a global parameter nor a model of the needed type (", mr, ").")
+        stop(
+          "ComposeMixedGaussianFromCladeFits:: Found a member (",
+          name, ") in fitModel starting from node (", nr, ") and with class '",
+          class(fitModel[[name]]),
+          "' which is neither a global parameter nor a model of the needed type (",
+          mr, ").")
       }
     }
   }
@@ -189,7 +207,7 @@ SaveTempWorkerResults <- function(fitsNew, filePrefix) {
 
 # combine fits from parallel tasks into a data.table and saves this data.table to
 # an .RData file
-CombineTaskResults <- function(..., filePrefix, envNCalls) {
+CombineTaskResults <- function(..., envNCalls) {
   envNCalls$ncalls <- envNCalls$ncalls + 1
   data <- rbindlist(
     lapply(
@@ -202,7 +220,8 @@ CombineTaskResults <- function(..., filePrefix, envNCalls) {
               "\n")
           NULL
         }
-      }))
+      }),
+    use.names = TRUE)
   data
 }
 
@@ -265,6 +284,7 @@ InitTableFits <- function(
 }
 
 #' @importFrom data.table is.data.table
+#' @export
 UpdateTableFits <- function(tableFits, newFits) {
   if(!is.data.table(newFits) && !is.data.table(tableFits)) {
     stop("Both newFits and tableFits are not data.table objects!")
@@ -298,7 +318,7 @@ UpdateTableFits <- function(tableFits, newFits) {
 #' @return a copy of tableFits with added column "model" and, if necessary,
 #' updated integer model-type indices in the "fitVector" column.
 #' @importFrom PCMBase MixedGaussian PCMTreeEvalNestedEDxOnTree
-#'
+#' @importFrom data.table setnames
 #' @export
 RetrieveFittedModelsFromFitVectors <- function(
   fitMappings,
@@ -314,13 +334,18 @@ RetrieveFittedModelsFromFitVectors <- function(
 
   setAttributes = FALSE) {
 
+  if(is.null(tableFits$score)) {
+    # in previous versions the column score was named aic
+    setnames(tableFits, "aic", "score")
+  }
+
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
   # original argument value.
   arguments <- as.list(environment())
 
   tableFits2 <- copy(tableFits)
-  tableFits2[, fittedModel:=lapply(1:.N, function(i, numRows) {
+  tableFits2[, fittedModel:=lapply(seq_len(.N), function(i, numRows) {
     model <- do.call(
       PCMLoadMixedGaussianFromFitVector,
       c(list(fitVector = fitVector[[i]],
@@ -344,17 +369,23 @@ RetrieveFittedModelsFromFitVectors <- function(
       } else {
         stop(
           paste0(
-            "ERR:04141:PCMFit:PCMFitModelMappings.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (",
+            "RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (",
             toString(modelTypes),
             ") should be a subset of modelTypesNew (",
             toString(modelTypesNew), ")."))
       }
     }
     if(setAttributes) {
-      tree <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], arguments$tree)
-      PCMTreeSetRegimes(tree, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(tree)))
+      tree <- PCMTreeEvalNestedEDxOnTree(
+        treeEDExpression[[i]], PCMTree(arguments$tree))
+      PCMTreeSetPartition(
+        tree, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(tree)))
       X <- arguments$X[, tree$tip.label]
       SE <- arguments$SE[, tree$tip.label]
+      if(is.null(SE)) {
+        SE <- X
+        SE[] <- 0.0
+      }
       attr(model, "tree") <- tree
       attr(model, "X") <- X
       attr(model, "SE") <- SE
@@ -370,23 +401,31 @@ RetrieveFittedModelsFromFitVectors <- function(
     # update the fitVectors according to the new modelTypes
     if(is.character(modelTypesNew) && all(modelTypes %in% modelTypesNew) ) {
       # note that the constructor MixedGaussian accepts character vector as well as integer vector for mapping.
-      tableFits2[, fitVector:=lapply(1:.N, function(i) {
-        treei <- PCMTreeEvalNestedEDxOnTree(treeEDExpression[[i]], arguments$tree)
-        PCMTreeSetRegimes(treei, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(treei)))
+      tableFits2[, fitVector:=lapply(seq_len(.N), function(i) {
+        treei <- PCMTreeEvalNestedEDxOnTree(
+          treeEDExpression[[i]], PCMTree(arguments$tree))
+        PCMTreeSetPartition(
+          treei, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(treei)))
         par <- c(PCMGetVecParamsRegimesAndModels(fittedModel[[i]], treei), numParam = PCMParamCount(fittedModel[[i]]))
         fitVec <- fitVector[[i]]
-        fitVec[1:length(par)] <- par
+        fitVec[seq_len(length(par))] <- par
         fitVec
       })]
     } else {
-      stop(paste0("ERR:04142:PCMFit:Utilities.R:RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (", toString(modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
+      stop(paste0("RetrieveFittedModels:: if modelTypesNew is not NULL fitMappings$arguments$modelTypes (", toString(modelTypes), ") should be a subset of modelTypesNew (", toString(modelTypesNew), ")."))
     }
   }
   tableFits2
 }
 
+#' @importFrom data.table setnames
 #' @export
 RetrieveBestFitScore <- function(fitMappings, rank = 1) {
+  if(is.null(fitMappings$tableFits$score)) {
+    # the fit was produced with a previous version where the score column
+    # was named aic.
+    setnames(fitMappings$tableFits, old = "aic", new = "score")
+  }
   tableFits <- RetrieveFittedModelsFromFitVectors(
     fitMappings = fitMappings,
     tableFits = fitMappings$tableFits[treeEDExpression=="tree"][order(score)][rank],
@@ -394,7 +433,7 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
 
 
   res <- list(
-    tree = fitMappings$tree,
+    tree = PCMTree(fitMappings$tree),
     X = fitMappings$X,
     modelTypes = fitMappings$arguments$modelTypes,
     inferredRegimeNodes = tableFits$startingNodesRegimesLabels[[1]],
@@ -404,23 +443,25 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   )
 
   PCMTreeSetLabels(res$tree)
-  PCMTreeSetRegimes(res$tree, res$inferredRegimeNodes)
+  PCMTreeSetPartition(res$tree, res$inferredRegimeNodes)
 
   res[["inferredMappedModels"]] <- attr(res$inferredModel, "mapping")[res$tree$edge.regime]
   res
 }
 
-#' @importFrom PCMBase PCMTreeGetStartingNodesRegimes PCMTreeGetLabels
+#' @importFrom PCMBase PCMTreeGetPartition PCMTreeGetLabels
 #' @importFrom digest digest
 #' @export
-HashCodes <- function(tree, modelTypes, startingNodesRegimesLabels, modelMapping) {
-  orderSNRL <- order(as.integer(startingNodesRegimesLabels))
+HashCodes <- function(
+  tree, modelTypes, startingNodesRegimesLabels, modelMapping) {
+
+  orderPNLs <- order(as.integer(startingNodesRegimesLabels))
   list(
     hashCodeTree = digest(PCMTreeToString(tree), serialize = FALSE),
     hashCodeStartingNodesRegimesLabels = digest(
-      toString(startingNodesRegimesLabels[orderSNRL]), serialize = FALSE),
+      toString(startingNodesRegimesLabels[orderPNLs]), serialize = FALSE),
     hashCodeMapping = digest(
-      toString(MatchModelMapping(modelMapping[orderSNRL], modelTypes)), serialize = FALSE)
+      toString(MatchModelMapping(modelMapping[orderPNLs], modelTypes)), serialize = FALSE)
   )
 }
 
@@ -433,19 +474,21 @@ HashCodes <- function(tree, modelTypes, startingNodesRegimesLabels, modelMapping
 #' @param tableFits a data.table having at least the following columns:
 #' \itemize{
 #' \item{hashCodeTree}{an MD5 key column of type character-vector}
-#' \item{hashCodeStartingNodesRegimesLabels}{an MD5 key column of type character-vector representing the hash-code of
-#' \code{PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)]}.}
+#' \item{hashCodePartitionNodeLabels}{an MD5 key column of type character-vector
+#'  representing the hash-code of
+#'  \code{PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]}.}
 #' \item{hashCodeMapping}{an MD5 key column of type character-vector}}
 #' @return the corresponding fit-vector to the given tree and model mapping or
 #' if no such entry is found, issues an error.
 #' @importFrom digest digest
+#' @importFrom data.table setnames
 #' @export
 LookupFit <- function(
   tree, modelTypes, modelMapping, tableFits,
   hashCodes = HashCodes(tree = tree,
                         modelTypes = modelTypes,
                         startingNodesRegimesLabels =
-                          PCMTreeGetLabels(tree)[PCMTreeGetStartingNodesRegimes(tree)],
+                          PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)],
                         modelMapping = modelMapping )) {
   tableFits[hashCodes, , mult="first", nomatch=0]
 }
@@ -459,7 +502,7 @@ PlotSearchHistory <- function(
   sizeBlackAllowedModelTypes = 1.4, sizeColorAllowedModelTypes = 1.4, sizeRankInQueue = 1.4,
   vjustBlackAllowedModelTypes = -1.6, vjustColorAllowedModelTypes = -1.6,
   ...) {
-  tree <- fit$tree
+  tree <- PCMTree(fit$tree)
 
   treeRootInt <- PCMTreeNumTips(tree) + 1L
   PCMTreeSetLabels(tree)
@@ -470,7 +513,7 @@ PlotSearchHistory <- function(
     historyEntry <- fit$mainLoopHistory[[i]]
     rootNodei <- fit$queuePartitionRoots[i, node]
 
-    PCMTreeSetRegimes(tree, historyEntry$headQPR_Partition)
+    PCMTreeSetPartition(tree, historyEntry$headQPR_Partition)
 
     if(length(historyEntry$listPartitions) > 0) {
       dtCladePartition <- data.table(node=unique(unlist(historyEntry$listPartitions)))
@@ -490,13 +533,13 @@ PlotSearchHistory <- function(
 
       dtCladePartition[, allowedModelTypes:=sapply(node, function(n) {
         iLabel <- as.integer(n)
-        # we need the if(), because PCMTreeGetRegimesForNodes returns an empty
+        # we need the if(), because PCMTreeGetPartsForNodes returns an empty
         # vector for the root-node
         iRegime <- if(iLabel == treeRootInt) {
           historyEntry$headQPR_MappingIdx[1]
         } else {
           historyEntry$headQPR_MappingIdx[
-            PCMTreeGetRegimesForNodes(tree, iLabel)]
+            PCMTreeGetPartsForNodes(tree, iLabel)]
         }
 
         text <- do.call(
@@ -516,10 +559,11 @@ PlotSearchHistory <- function(
 
       fitTablei <- RetrieveFittedModelsFromFitVectors(
         fit,
-        LookupFit(tree,
-                  fit$arguments$modelTypes,
-                  historyEntry$headQPR_Mapping,
-                  fit$tableFits), setAttributes = TRUE)
+        LookupFit(
+          tree = tree,
+          modelTypes = fit$arguments$modelTypes,
+          modelMapping = historyEntry$headQPR_Mapping,
+          tableFits = fit$tableFits), setAttributes = TRUE)
 
       ploti <- PCMTreePlot(tree, ...) %<+% as.data.frame(dtCladePartition) %<+% as.data.frame(remainingQueuei) +
         geom_nodepoint(aes(shape=selected), size=sizeColorNodepoints, na.rm = TRUE) +
@@ -540,7 +584,7 @@ PlotSearchHistory <- function(
 #' @export
 PlotTreeRegimesAndMapping <- function(tree, regimeNodes, mappingIdx = NULL) {
   PCMTreeSetLabels(tree)
-  PCMTreeSetRegimes(tree, regimeNodes)
+  PCMTreeSetPartition(tree, regimeNodes)
   pl <- PCMTreePlot(tree) #+ geom_nodelab(size = 2)
 
   if(!is.null(mappingIdx)) {

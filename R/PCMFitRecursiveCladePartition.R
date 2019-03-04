@@ -273,11 +273,12 @@ PCMFitRecursiveCladePartition <- function(
     listPartitions <- lapply(
       listPartitions,
       function(partNodes) {
-        PCMTreeSetRegimes(tree, partNodes)
-        partNodes2 <- PCMTreeGetStartingNodesRegimes(tree, preorder = preorderTree)
+        PCMTreeSetPartition(tree, partNodes)
+        partNodes2 <- PCMTreeGetPartition(tree)
 
         dtTipsPerRegime <- data.table(
-          regime = tree$edge.regime,
+          regime = PCMTreeGetPartRegimes(tree)[PCMTreeGetPartsForNodes(
+            tree, tree$edge[, 2])], #tree$edge.regime,
           edge2 = tree$edge[,2])[edge2 <= PCMTreeNumTips(tree),
                                  list(N=.N), keyby=regime]
         dtTipsPerRegime[, node:=nodeLabelsTree[partNodes2[regime]]]
@@ -313,7 +314,7 @@ PCMFitRecursiveCladePartition <- function(
     if(verbose) {
       cat("Step 2.6 (", Sys.time() ,"): Preparing allowed model-types for each clade-partition\n")
     }
-    PCMTreeSetRegimes(tree, as.integer(bestPartition))
+    PCMTreeSetPartition(tree, as.integer(bestPartition))
 
     if(is.list(arguments$listAllowedModelTypesIndices)) {
 
@@ -363,7 +364,7 @@ PCMFitRecursiveCladePartition <- function(
             iRegime <- if(iLabel == treeRootInt) {
               1L
             } else {
-              PCMTreeGetRegimesForNodes(tree, iLabel)
+              PCMTreeGetPartsForNodes(tree, iLabel)
             }
             bestCladePartitionMapping <- match(bestMapping[iRegime], modelTypes)
 
