@@ -21,8 +21,9 @@ LookupFit(tree, modelTypes, modelMapping, tableFits,
 \item{tableFits}{a data.table having at least the following columns:
 \itemize{
 \item{hashCodeTree}{an MD5 key column of type character-vector}
-\item{hashCodeStartingNodesRegimesLabels}{an MD5 key column of type character-vector representing the hash-code of
-\code{PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]}.}
+\item{hashCodePartitionNodeLabels}{an MD5 key column of type character-vector
+ representing the hash-code of
+ \code{PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]}.}
 \item{hashCodeMapping}{an MD5 key column of type character-vector}}}
 }
 \value{
