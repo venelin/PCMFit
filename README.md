@@ -14,45 +14,6 @@ Currently the package can be installed from github using the command:
 
 ``` r
 devtools::install_github("venelin/PCMFit")
-#> Downloading GitHub repo venelin/PCMFit@master
-#> mvtnorm (1.0-8 -> 1.0-10) [CRAN]
-#> R6      (2.3.0 -> 2.4.0 ) [CRAN]
-#> stringi (1.2.4 -> 1.3.1 ) [CRAN]
-#> Skipping 1 packages ahead of CRAN: PCMBase
-#> Installing 3 packages: mvtnorm, R6, stringi
-#> Installing packages into '/Users/vmitov/Library/R/3.5/library'
-#> (as 'lib' is unspecified)
-#> 
-#> The downloaded binary packages are in
-#>  /var/folders/nb/_b5mkf753p3c86s9nrpk33gc002289/T//RtmptdaXPk/downloaded_packages
-#>   
-✔  checking for file ‘/private/var/folders/nb/_b5mkf753p3c86s9nrpk33gc002289/T/RtmptdaXPk/remotes11b347c96ed5d/venelin-PCMFit-3572aae/DESCRIPTION’
-#> 
-  
-─  preparing ‘PCMFit’:
-#> 
-  
-   checking DESCRIPTION meta-information ...
-  
-✔  checking DESCRIPTION meta-information
-#> 
-  
-─  checking for LF line-endings in source and make files and shell scripts
-#> 
-  
-─  checking for empty or unneeded directories
-#> 
-  
-─  building ‘PCMFit_0.6.0.tar.gz’
-#> 
-  
-   Warning: invalid uid value replaced by that for user 'nobody'
-#> 
-  
-   
-#> 
-#> Installing package into '/Users/vmitov/Library/R/3.5/library'
-#> (as 'lib' is unspecified)
 ```
 
 ### CRAN

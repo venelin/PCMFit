@@ -40,7 +40,7 @@ information loss estimate such as the Akaike information criterion (AIC).
 ### Github
 Currently the package can be installed from github using the command:
 
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("venelin/PCMFit")
 ```
 
