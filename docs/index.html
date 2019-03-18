@@ -34,7 +34,13 @@
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<![endif]--><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-129563006-6"></script><script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-129563006-6');
+</script>
 </head>
 <body>
     <div class="container template-article">
@@ -62,7 +68,7 @@
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="articles/pcmfit.html">Get started</a>
 </li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -72,9 +78,18 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/pcmfit.html">Inferring Phylogenetic Comparative Models using PCMFit</a>
+      <a href="articles/pcmfitmixed.html">MGPM Inference with Unknown Shifts</a>
+    </li>
+    <li>
+      <a href="articles/parambootstrap.html">Confidence Assessment using Parametric Bootstrap</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="reference/index.html">Reference</a>
+</li>
+<li>
+  <a href="news/index.html">News</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -93,9 +108,10 @@
     
     
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<div id="pcmfit" class="section level1">
+
+<div id="pcmfit-statistical-inference-of-phylogenetic-comparative-models" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#pcmfit" class="anchor"></a>PCMFit</h1></div>
+<a href="#pcmfit-statistical-inference-of-phylogenetic-comparative-models" class="anchor"></a>PCMFit: Statistical inference of phylogenetic comparative models</h1></div>
 <p>The goal of PCMFit is to provide a generic fast maximum likelihood fit and model selection of phylogenetic comparative models (PCMs) to a phylogenetic tree and multivariate trait data at its tips. Supports Gaussian and mixed Gaussian phylogenetic models (MGPM) over all types of trees (including non-ultrametric trees and polytomies). Supports non-existing traits or missing measurements for some of the traits on some of the species. Supports specifying or inferring measurement error for the trait values associated with each tip of the tree. The Gaussian phylogenetic models include various parametrizations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching processes. The mixed Gaussian models represent models with shifts in the model parameters as well as the type of model at points of the tree. Each shift-point is described as a couple of a shift-node and associated type of model (e.g. OU or BM) driving the trait evolution from the beginning of the branch leading to the shift-node toward the shift-node and its descendants until reaching a tip or another shift-point. The function PCMFit is used to fit a given PCM or a MGPM for a given tree with specified shift-points. The function PCMFitMixed is used to fit an ensemble of possible MGPMs over a tree for which the shift-points are unknown. This function can perform model selection of the best MGPM for a given tree and data according to an information loss estimate such as the Akaike information criterion (AIC).</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -134,7 +150,16 @@
 </ul>
 </div>
 
-      </div>
+      <div class="dev-status">
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://travis-ci.org/venelin/PCMFit"><img src="https://travis-ci.org/venelin/PCMFit.svg?branch=master" alt="Travis build status"></a></li>
+<li><a href="https://codecov.io/github/venelin/PCMFit?branch=master"><img src="https://codecov.io/gh/venelin/PCMFit/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
+<li><a href="https://cran.r-project.org/package=PCMFit"><img src="http://www.r-pkg.org/badges/version/PCMFit?color=blue" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cran.r-project.org/package=PCMFit"><img src="http://cranlogs.r-pkg.org/badges/PCMFit?color=blue" alt="Downloads"></a></li>
+</ul>
+</div>
+</div>
 
 </div>
 

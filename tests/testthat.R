@@ -1,4 +1,4 @@
 library(testthat)
-library(PCMStep)
+library(PCMFit)
 
-test_check("PCMStep")
+test_check("PCMFit")

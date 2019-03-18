@@ -1,0 +1,32 @@
+url: http://venelin.github.io/PCMFit
+
+template:
+  params:
+    ganalytics: UA-129563006-6
+
+navbar:
+  title: PCMFit
+  type: default
+  left:
+  - icon: fa-home fa-lg
+    href: index.html
+  - text: Get started
+    href: articles/pcmfit.html
+  - text: Articles
+    menu:
+    - text: MGPM Inference with Unknown Shifts
+      href: articles/pcmfitmixed.html
+    - text: Confidence Assessment using Parametric Bootstrap
+      href: articles/parambootstrap.html
+  - text: Reference
+    href: reference/index.html
+  - text: News
+    href: news/index.html
+  right: []
+
+articles:
+- title: All vignettes
+  desc: ~
+  contents:
+  - '`pcmfit`'
+  - '`pcmfitmixed`'
