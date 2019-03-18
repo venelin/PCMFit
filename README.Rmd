@@ -50,4 +50,4 @@ Release of the package to CRAN is planned after release of the first stable and 
 
 ## Documentation
 
-The writing of the [vignette](https://venelin.github.io/PCMFit/articles/pcmfit.html) and [help articles](https://venelin.github.io/PCMBase/reference/index.html) for this R-package is currently in progress. Please, contact the author for assistance, in case you need to use PCMFit. Thanks for your understanding.
+The writing of the [vignette](https://venelin.github.io/PCMFit/articles/pcmfit.html) and [help articles](https://venelin.github.io/PCMFit/reference/index.html) for this R-package is currently in progress. Please, contact the author for assistance, in case you need to use PCMFit. Thanks for your understanding.
