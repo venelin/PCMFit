@@ -36,7 +36,7 @@ CollectBootstrapResults <- function(
       }))
 }
 
-#' @importFrom PCMBase TruePositiveRate FalsePositiveRate PCMTreeDtNodes PCMTreeSetLabels PCMMean PCMVar PCMTreeNearestNodesToEpoch PCMTreeGetPartsForNodes PCMTreeGetLabels
+#' @importFrom PCMBase TruePositiveRate FalsePositiveRate PCMTreeDtNodes PCMTreeSetLabels PCMMean PCMVar PCMTreeNearestNodesToEpoch PCMTreeGetPartsForNodes PCMTreeGetLabels PCMNumTraits PCMTreeGetPartNames
 CollectBootstrapResultInternal <- function(
   id,
   resultFile,
@@ -260,24 +260,175 @@ CollectBootstrapResultInternal <- function(
   }
 }
 
+#' @export
+ExtractTimeSeriesForTraitValue <- function(
+  model,
+  epochs = seq(0, max(PCMTreeNodeTimes(attr(model, "tree"))), length.out = 20),
+  backboneTree = NULL,
+  traitIndex = 1L,
+  traitName = paste0("Trait_", traitIndex)) {
+
+  if(is.null(backboneTree)) {
+    tree <- attr(model, "tree")
+    if(is.null(tree)) {
+      stop("ExtractTimeSeriesForTraitValue: Both, backboneTree and attr(model, 'tree') are NULL.")
+    } else {
+      len <- max(PCMTreeNodeTimes(tree, tipsOnly = TRUE))
+      epochs <- epochs[epochs >= 0 & epochs <= len]
+
+      minLen <- (max(epochs) - min(epochs)) / length(epochs) / 10
+      for(epoch in epochs) {
+        tree <- PCMTreeInsertSingletonsAtEpoch(tree, epoch, minLength = minLen)
+      }
+
+      backboneTree <- PCMTreeBackbonePartition(tree)
+    }
+  }
+
+  mI <- PCMInfo(X = NULL, tree = backboneTree, model = model)
+  inferredMeans <- PCMMean(
+    backboneTree, model, metaI = mI,
+    internal = TRUE)
+
+  nodeTimesBackbone <-
+    structure(PCMTreeNodeTimes(backboneTree),
+              names = PCMTreeGetLabels(backboneTree))
+
+  res <- rbindlist(lapply(
+    PCMTreeGetPartNames(backboneTree), function(part) {
+      treeBackbonePart <-
+        PCMTreeBackbonePartition(backboneTree, partsToKeep = part)
+
+      rbindlist(lapply(epochs, function(epoch) {
+        nodeAtEpoch <- PCMTreeNearestNodesToEpoch(treeBackbonePart, epoch)
+        nodeAtEpochLab <- PCMTreeGetLabels(treeBackbonePart)[nodeAtEpoch]
+
+        i <-  match(nodeAtEpochLab, PCMTreeGetLabels(backboneTree))
+
+        mu <- inferredMeans[traitIndex, i]
+
+        data.table(
+          partFinal = part,
+          regimeFinal = PCMTreeGetPartRegimes(treeBackbonePart)[part],
+          node = nodeAtEpoch, nodeLab = nodeAtEpochLab,
+          partNode = PCMTreeGetPartsForNodes(treeBackbonePart, nodeAtEpoch),
+          regimeNode = PCMTreeGetPartRegimes(treeBackbonePart)[
+            PCMTreeGetPartsForNodes(treeBackbonePart, nodeAtEpoch)],
+          timeNode = nodeTimesBackbone[nodeAtEpochLab],
+          value = mu)
+      }))
+    }))
+  columnNamesWithoutTraitName <- c("value")
+
+  setnames(
+    res,
+    old = columnNamesWithoutTraitName,
+    new = paste0(traitName, ".", columnNamesWithoutTraitName))
+
+  res[
+    , timeInterval:=c(0, timeNode[2:.N]-timeNode[1:(.N-1L)]),
+    by = partFinal]
+
+  res
+}
+
+#' @export
+#' @importFrom PCMBase PCMTreeNodeTimes PCMTreeInsertSingletonsAtEpoch PCMTreeBackbonePartition PCMTreeGetPartRegimes
+ExtractTimeSeriesForTraitRegression <- function(
+  model,
+  epochs = seq(0, max(PCMTreeNodeTimes(attr(model, "tree"))), length.out = 20),
+  backboneTree = NULL,
+  traitIndexX = 1L,
+  traitIndexY = 2L,
+  traitNameX = paste0("Trait_", traitIndexX),
+  traitNameY = paste0("Trait_", traitIndexY) ) {
+
+  if(is.null(backboneTree)) {
+    tree <- attr(model, "tree")
+    if(is.null(tree)) {
+      stop("ExtractTimeSeriesForTraitValue: Both, backboneTree and attr(model, 'tree') are NULL.")
+    } else {
+      len <- max(PCMTreeNodeTimes(tree, tipsOnly = TRUE))
+      epochs <- epochs[epochs >= 0 & epochs <= len]
+
+      minLen <- (max(epochs) - min(epochs)) / length(epochs) / 10
+      for(epoch in epochs) {
+        tree <- PCMTreeInsertSingletonsAtEpoch(tree, epoch, minLength = minLen)
+      }
+
+      backboneTree <- PCMTreeBackbonePartition(tree)
+    }
+  }
+
+  nodeTimesBackbone <-
+    structure(PCMTreeNodeTimes(backboneTree),
+              names = PCMTreeGetLabels(backboneTree))
+
+  k <- PCMNumTraits(model)
+  mI <- PCMInfo(X = NULL, tree = backboneTree, model = model)
+
+  inferredMeans <- PCMMean(backboneTree, model, metaI = mI, internal = TRUE)
+  inferredVars <- PCMVar(backboneTree, model, metaI = mI, internal = TRUE)$Wii
+
+  res <- rbindlist(lapply(
+    PCMTreeGetPartNames(backboneTree), function(part) {
+      treeBackbonePart <-
+        PCMTreeBackbonePartition(backboneTree, partsToKeep = part)
+
+      rbindlist(lapply(epochs, function(epoch) {
+        nodeAtEpoch <- PCMTreeNearestNodesToEpoch(treeBackbonePart, epoch)
+        nodeAtEpochLab <- PCMTreeGetLabels(treeBackbonePart)[nodeAtEpoch]
+
+        i <-  match(nodeAtEpochLab, PCMTreeGetLabels(backboneTree))
+
+        mu <- inferredMeans[, i]
+        Sigma <- inferredVars[, (i-1)*k + (1:k)]
+        slope <- Sigma[traitIndexX, traitIndexY] / Sigma[traitIndexX, traitIndexX]
+        intercept <- mu[traitIndexY] - mu[traitIndexX]*slope
+
+        data.table(
+          partFinal = part,
+          regimeFinal = PCMTreeGetPartRegimes(treeBackbonePart)[part],
+          node = nodeAtEpoch, nodeLab = nodeAtEpochLab,
+          partNode = PCMTreeGetPartsForNodes(treeBackbonePart, nodeAtEpoch),
+          regimeNode = PCMTreeGetPartRegimes(treeBackbonePart)[
+            PCMTreeGetPartsForNodes(treeBackbonePart, nodeAtEpoch)],
+          timeNode = nodeTimesBackbone[nodeAtEpochLab],
+
+          slope = slope,
+          intercept = intercept )
+
+      }))
+    }))
+
+  columnNamesWithoutTraitName <- c("slope", "intercept")
+
+  setnames(
+    res,
+    old = columnNamesWithoutTraitName,
+    new = paste0(traitNameY, ".on.", traitNameX, ".", columnNamesWithoutTraitName))
+
+  res[
+    , timeInterval:=c(0, timeNode[2:.N]-timeNode[1:(.N-1L)]),
+    by = partFinal]
+
+  res
+}
+
+
 #' @importFrom data.table setnames
 #' @export
 ExtractBSDataForTraitValue <- function(
   tableBSFits,
   inferredModel,
-  inferredTree,
-  inferredBackboneTree,
   epochs,
+  inferredBackboneTree,
   traitIndex = 1L,
   traitName = paste0("Trait_", traitIndex)
 ) {
   mI <- PCMInfo(X = NULL, tree = inferredBackboneTree, model = inferredModel)
   inferredMeans <- PCMMean(
-    inferredBackboneTree, PCMApplyTransformation(inferredModel), metaI = mI,
-    internal = TRUE)
-  inferredVars <- PCMVar(
-    inferredBackboneTree, PCMApplyTransformation(inferredModel), metaI = mI,
-    internal = TRUE)$Wii
+    inferredBackboneTree, inferredModel, metaI = mI, internal = TRUE)
 
   nodeTimesBackbone <-
     structure(PCMTreeNodeTimes(inferredBackboneTree),
@@ -365,9 +516,8 @@ ExtractBSDataForTraitValue <- function(
 ExtractBSDataForTraitRegression <- function(
   tableBSFits,
   inferredModel,
-  inferredTree,
-  inferredBackboneTree,
   epochs,
+  inferredBackboneTree,
   traitIndexX = 1L,
   traitIndexY = 2L,
   traitNameX = paste0("Trait_", traitIndexX),
@@ -381,11 +531,9 @@ ExtractBSDataForTraitRegression <- function(
   mI <- PCMInfo(X = NULL, tree = inferredBackboneTree, model = inferredModel)
 
   inferredMeans <- PCMMean(
-    inferredBackboneTree, PCMApplyTransformation(inferredModel), metaI = mI,
-    internal = TRUE)
+    inferredBackboneTree, inferredModel, metaI = mI, internal = TRUE)
   inferredVars <- PCMVar(
-    inferredBackboneTree, PCMApplyTransformation(inferredModel), metaI = mI,
-    internal = TRUE)$Wii
+    inferredBackboneTree, inferredModel, metaI = mI, internal = TRUE)$Wii
 
   res <- rbindlist(lapply(
     PCMTreeGetPartNames(inferredBackboneTree), function(part) {
@@ -512,8 +660,8 @@ ExtractBSDataModelTypeFreqs <- function(
   tableBSFits,
   inferredModel,
   inferredTree,
-  inferredBackboneTree,
-  epochs ) {
+  epochs,
+  inferredBackboneTree) {
 
   nodeTimesBackbone <-
     structure(PCMTreeNodeTimes(inferredBackboneTree),
@@ -590,9 +738,8 @@ ExtractBSDataModelTypeFreqs <- function(
 ExtractBSDataTprWithinParts <- function(
   tableBSFits,
   inferredModel,
-  inferredTree,
-  inferredBackboneTree,
-  epochs ) {
+  epochs,
+  inferredBackboneTree) {
 
   nodeTimesBackbone <-
     structure(PCMTreeNodeTimes(inferredBackboneTree),
@@ -650,9 +797,7 @@ ExtractBSDataTprWithinParts <- function(
 ExtractBSDataTprFprGlobal <- function(
   tableBSFits,
   inferredModel,
-  inferredTree,
-  inferredBackboneTree,
-  epochs ) {
+  inferredBackboneTree) {
 
 
   dtNodesBackboneTree <- PCMTreeDtNodes(inferredBackboneTree)

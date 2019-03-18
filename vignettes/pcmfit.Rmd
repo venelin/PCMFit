@@ -1,0 +1,97 @@
+---
+title: "Inferring Phylogenetic Comparative Models using PCMFit"
+author: "Venelin Mitov"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Inferring Phylogenetic Comparative Models using PCMFit}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: REFERENCES.bib
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+if(!requireNamespace("ggtree")) {
+  message("Building the vignette requires ggtree R-package. Trying to install.")
+  status.ggtree <- try({
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    BiocManager::install("ggtree", version = "3.8")
+  }, silent = TRUE)
+  if(class(status.ggtree == "try-error")) {
+    stop(
+      "The ggtree installation did not succeed. The vignette cannot be built.")
+  }
+}
+```
+
+The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.
+
+# Prerequisites
+
+- PCMBase [PCMBase home page](https://venelin.github.io/PCMBase)
+
+- Loading the prerequisites:
+
+```{r load-libraries, results='hide', warning=FALSE, message=FALSE}
+library(PCMBase)
+library(PCMFit)
+library(data.table)
+library(ggplot2)
+library(ggtree)
+library(cowplot)
+```
+
+# A brief introduction to mixed Gaussian phylogenetic models
+
+# An example
+
+## The tree
+
+## The MGPM
+
+## The trait values
+
+```{r, fig.width=7, fig.height=3.5, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. "}
+tree <- PCMTree(PCMFitDemoObjects$dtSimulated$treeWithRegimes[[1]])
+X <- PCMFitDemoObjects$dtSimulated$X[[1]]
+
+plTree <- PCMTreePlot(tree, layout="fan") %<+% 
+  data.table(
+    node = c(12, 77, 45), 
+    part.model = c(" 1.D ", " 2.C ", " 3.B "),
+    offset = 5) + 
+  geom_tiplab2(size = 2) + 
+  geom_tiplab2(aes(label = part.model), offset = 16) + 
+  geom_nodelab(size = 2, color = "black") + 
+  geom_treescale(width = max(PCMTreeNodeTimes(tree)), x = 0, linesize = .25, fontsize = 2, offset = 79)
+
+plX <- PCMPlotTraitData2D(
+  X[, seq_len(PCMTreeNumTips(tree))], 
+  tree, 
+  scaleSizeWithTime = FALSE) +
+  geom_text(
+    aes(x = x, y = y, label = id, color = regime), 
+    size=2, 
+    position = position_jitter(.4, .4)) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
+```
+
+# Inferring a single-regime model
+
+# Inferring a MGPM with known shift-point configuration and model type assignment
+
+# Inferring a MGPM when the shift-point configuration is unknown
+ 
