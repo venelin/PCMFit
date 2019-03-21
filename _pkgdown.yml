@@ -14,9 +14,9 @@ navbar:
     href: articles/pcmfit.html
   - text: Articles
     menu:
-    - text: MGPM Inference with Unknown Shifts
+    - text: Inferring an MGPM with Unknown Shifts
       href: articles/pcmfitmixed.html
-    - text: Confidence Assessment using Parametric Bootstrap
+    - text: Parametric Bootstrap
       href: articles/parambootstrap.html
   - text: Reference
     href: reference/index.html
@@ -30,3 +30,4 @@ articles:
   contents:
   - '`pcmfit`'
   - '`pcmfitmixed`'
+  - '`parabootstrap`'

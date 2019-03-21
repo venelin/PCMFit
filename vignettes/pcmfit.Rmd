@@ -8,7 +8,7 @@ output:
     toc: true
     toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Inferring Phylogenetic Comparative Models using PCMFit}
+  %\VignetteIndexEntry{Getting started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: REFERENCES.bib
@@ -93,5 +93,4 @@ cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
 
 # Inferring a MGPM with known shift-point configuration and model type assignment
 
-# Inferring a MGPM when the shift-point configuration is unknown
- 
+# References

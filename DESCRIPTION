@@ -5,26 +5,32 @@ Version: 0.6.0
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
 Maintainer: Venelin Mitov <vmitov@gmail.com>
-Description: Fast maximum likelihood fit and model selection of phylogenetic 
-    comparative models (PCMs) to a phylogenetic tree and multivariate trait
-    data at its tips. Supports Gaussian and mixed Gaussian phylogenetic models 
-    (MGPM) over all types of trees (including non-ultrametric trees and 
-    polytomies). Supports non-existing traits or missing measurements for some 
-    of the traits on some of the species. Supports specifying or inferring 
-    measurement error for the trait values associated with each tip of the tree. 
-    The Gaussian phylogenetic models include various parametrizations of 
-    Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching 
-    processes. The mixed Gaussian models represent models with shifts in the 
-    model parameters as well as the type of model at points of the tree. Each 
-    shift-point is described as a couple of a shift-node and associated type of
-    model (e.g. OU or BM) driving the trait evolution from the beginning of the 
-    branch leading to the shift-node toward the shift-node and its descendants 
-    until reaching a tip or another shift-point. The function PCMFit is used to 
-    fit a given PCM or a MGPM for a given tree with specified shift-points. The
-    function PCMFitMixed is used to fit an ensemble of possible MGPMs over a 
-    tree for which the shift-points are unknown. This function can perform model
-    selection of the best MGPM for a given tree and data according to an 
-    information loss estimate such as the Akaike information criterion (AIC). 
+Description: The goal of PCMFit is to provide a generic tool for inference and 
+  selection of phylogenetic comparative models (PCMs). Currently, the package 
+  implements Gaussian and mixed Gaussian phylogenetic models (MGPM) over all 
+  tree types (including non-ultrametric and polytomic trees). The package 
+  supports non-existing traits or missing measurements for some of the traits on 
+  some of the species. The package supports specifying measurement error 
+  associated with each tip of the tree or inferring a measurement error 
+  parameter for a group of tips. The Gaussian phylogenetic models include 
+  various parametrizations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) 
+  multivariate branching processes. The mixed Gaussian models represent models 
+  with shifts in the model parameters as well as the type of model at points of 
+  the tree. Each shift-point is described as a pair of a shift-node and 
+  associated type of model (e.g. OU or BM) driving the trait evolution from the 
+  beginning of the branch leading to the shift-node toward the shift-node and 
+  its descendants until reaching a tip or another shift-point. The function 
+  PCMFit is used to fit a given PCM or a MGPM for a given tree with specified 
+  shift-points. The function PCMFitMixed is used to fit an ensemble of possible 
+  MGPMs over a tree for which the shift-points are unknown. This function can 
+  perform model selection of the best MGPM for a given tree and data according 
+  to an information loss function such as the Akaike information criterion 
+  (AIC). The package has been thoroughly tested and applied to real data in the 
+  related research article entitled "Automatic Generation of Evolutionary 
+  Hypotheses using Mixed Gaussian Phylogenetic Models" (currently in review). 
+  Currently, the package is available from <https://github.com/venelin/PCMFit>. 
+  The web-page <https://venelin.github.io/PCMFit/> provides access to 
+  documentation and related resources.
 Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true
@@ -44,3 +50,8 @@ Suggests:
     rmarkdown
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
+URL: https://venelin.github.io/PCMFit/index.html, 
+    https://github.com/venelin/PCMFit, https://doi.org/10.3929/ethz-b-000315296
+BugReports: https://github.com/venelin/PCMFit/issues
+
+

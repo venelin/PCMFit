@@ -1,0 +1,37 @@
+---
+title: "Parametric Bootstrap of an MGPM"
+author: "Venelin Mitov"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    fig_caption: yes
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Performing Parametric Bootstrap of an MGPM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: REFERENCES.bib
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+if(!requireNamespace("ggtree")) {
+  message("Building the vignette requires ggtree R-package. Trying to install.")
+  status.ggtree <- try({
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+      install.packages("BiocManager")
+    BiocManager::install("ggtree", version = "3.8")
+  }, silent = TRUE)
+  if(class(status.ggtree == "try-error")) {
+    stop(
+      "The ggtree installation did not succeed. The vignette cannot be built.")
+  }
+}
+```
+
+# References

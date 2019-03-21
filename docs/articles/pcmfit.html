@@ -59,10 +59,10 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/pcmfitmixed.html">MGPM Inference with Unknown Shifts</a>
+      <a href="../articles/pcmfitmixed.html">Inferring an MGPM with Unknown Shifts</a>
     </li>
     <li>
-      <a href="../articles/parambootstrap.html">Confidence Assessment using Parametric Bootstrap</a>
+      <a href="../articles/parambootstrap.html">Parametric Bootstrap</a>
     </li>
   </ul>
 </li>
@@ -88,9 +88,9 @@
       <h1>Inferring Phylogenetic Comparative Models using PCMFit</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-03-18</h4>
+            <h4 class="date">2019-03-21</h4>
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/pcmfit.Rmd"><code>vignettes/pcmfit.Rmd</code></a></small>
       <div class="hidden name"><code>pcmfit.Rmd</code></div>
 
     </div>
@@ -139,7 +139,7 @@ plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.gi
     <span class="dt">part.model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">" 1.D "</span>, <span class="st">" 2.C "</span>, <span class="st">" 3.B "</span>),
     <span class="dt">offset =</span> <span class="dv">5</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">label =</span> part.model), <span class="dt">offset =</span> <span class="dv">16</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">label =</span> part.model), <span class="dt">offset =</span> <span class="dv">16</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(<span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(tree)), <span class="dt">x =</span> <span class="dv">0</span>, <span class="dt">linesize =</span> .<span class="dv">25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)
 
@@ -147,12 +147,12 @@ plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.githu
   X[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))], 
   tree, 
   <span class="dt">scaleSizeWithTime =</span> <span class="ot">FALSE</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span>(
-    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), 
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_text">geom_text</a></span>(
+    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), 
     <span class="dt">size=</span><span class="dv">2</span>, 
-    <span class="dt">position =</span> <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/position_jitter.html">position_jitter</a></span>(.<span class="dv">4</span>, .<span class="dv">4</span>)) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span>() <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)
+    <span class="dt">position =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/position_jitter">position_jitter</a></span>(.<span class="dv">4</span>, .<span class="dv">4</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggtheme">theme_bw</a></span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)
 
 cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
 <div class="figure">
@@ -170,9 +170,9 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <h1 class="hasAnchor">
 <a href="#inferring-a-mgpm-with-known-shift-point-configuration-and-model-type-assignment" class="anchor"></a>Inferring a MGPM with known shift-point configuration and model type assignment</h1>
 </div>
-<div id="inferring-a-mgpm-when-the-shift-point-configuration-is-unknown" class="section level1">
+<div id="references" class="section level1">
 <h1 class="hasAnchor">
-<a href="#inferring-a-mgpm-when-the-shift-point-configuration-is-unknown" class="anchor"></a>Inferring a MGPM when the shift-point configuration is unknown</h1>
+<a href="#references" class="anchor"></a>References</h1>
 </div>
   </div>
 
@@ -192,7 +192,7 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 </li>
       <li><a href="#inferring-a-single-regime-model">Inferring a single-regime model</a></li>
       <li><a href="#inferring-a-mgpm-with-known-shift-point-configuration-and-model-type-assignment">Inferring a MGPM with known shift-point configuration and model type assignment</a></li>
-      <li><a href="#inferring-a-mgpm-when-the-shift-point-configuration-is-unknown">Inferring a MGPM when the shift-point configuration is unknown</a></li>
+      <li><a href="#references">References</a></li>
       </ul>
 </div>
       </div>
