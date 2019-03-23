@@ -8,13 +8,10 @@ PCMFit: Statistical inference of phylogenetic comparative models
 The goal of PCMFit is to provide a generic tool for inference and selection of phylogenetic comparative models (PCMs). Currently, the package implements Gaussian and mixed Gaussian phylogenetic models (MGPM) over all tree types (including non-ultrametric and polytomic trees). The package supports non-existing traits or missing measurements for some of the traits on some of the species. The package supports specifying measurement error associated with each tip of the tree or inferring a measurement error parameter for a group of tips. The Gaussian phylogenetic models include various parametrizations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching processes. The mixed Gaussian models represent models with shifts in the model parameters as well as the type of model at points of the tree. Each shift-point is described as a pair of a shift-node and associated type of model (e.g. OU or BM) driving the trait evolution from the beginning of the branch leading to the shift-node toward the shift-node and its descendants until reaching a tip or another shift-point. The function PCMFit is used to fit a given PCM or a MGPM for a given tree with specified shift-points. The function PCMFitMixed is used to fit an ensemble of possible MGPMs over a tree for which the shift-points are unknown. This function can perform model selection of the best MGPM for a given tree and data according to an information loss function such as the Akaike information criterion (AIC). The package has been thoroughly tested and applied to real data in the related research article entitled "Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models" (currently in review). Currently, the package is available from <https://github.com/venelin/PCMFit>. The web-page <https://venelin.github.io/PCMFit/> provides access to documentation and related resources.
 
 <!--An early version of this article is available in Chapter 7 of the doctoral thesis available at <https://doi.org/10.3929/ethz-b-000315296>. -->
-Installation
-============
-
 Prerequisites
--------------
+=============
 
-PCMFit depends on several R-packages:
+Before installing PCMFit, it is necessary to ensure that several R-packages are installed or can be installed from CRAN. These are listed below:
 
 -   [PCMBase](https://venelin.github.io/PCMBase). The PCMBase package is available on CRAN and should be installed automatically during the installation of PCMFit. If this does not happen, try the command:
 
@@ -34,9 +31,10 @@ devtools::install_github("venelin/PCMBaseCpp")
 -   other third party dependencies include the packages [`data.table`](https://CRAN.R-project.org/package=data.table), [`foreach`](https://CRAN.R-project.org/package=foreach), [`iterators`](https://CRAN.R-project.org/package=iterators), [`ape`](https://CRAN.R-project.org/package=ape) and [`digest`](https://CRAN.R-project.org/package=digest). These packages should be installed automatically from CRAN when installing PCMFit. If this does not happen, consult the packages' web-pages (links above).
 
 Installing PCMFit
------------------
+=================
 
-### From Github
+From Github
+-----------
 
 Currently the package can be installed from github using the command:
 
@@ -44,14 +42,15 @@ Currently the package can be installed from github using the command:
 devtools::install_github("venelin/PCMFit")
 ```
 
-### From CRAN
+From CRAN
+---------
 
 Publishing PCMFit on CRAN is planned after release of the first stable and documented version.
 
 Parallel execution
-------------------
+==================
 
-Currently PCMFit implements parallel execution for the inference of mixed Gaussian phylogenetic models with unknown shifts. To enable this, it is necessary to run PCMFit on a computer equipped with a multiple core processor or on multiple node computing cluster. In its current implementation, PCMFit uses the function `%dopar%` from the R-package [`foreach`](https://CRAN.R-project.org/package=foreach) to parallelize the execution of (nested) `foreach` loops. I have tested this parallelization using two parallel backends for the `%dopar%` function:
+Currently PCMFit implements parallel execution for the inference of mixed Gaussian phylogenetic models with unknown shifts. This is optional but highly recommended. To enable parallel execution, it is necessary to run PCMFit on a computer equipped with a multiple core processor or on multiple node computing cluster. In its current implementation, PCMFit uses the function `%dopar%` from the R-package [`foreach`](https://CRAN.R-project.org/package=foreach) to parallelize the execution of (nested) `foreach` loops. I have tested this parallelization using two parallel backends for the `%dopar%` function:
 
 -   Using the R packages [`doMPI`](https://CRAN.R-project.org/package=doMPI) and [`Rmpi`](https://CRAN.R-project.org/package=Rmpi) on a multiple node cluster with `open_mpi/1.6.5` installed. In particular, I have run MGPM inference using up to 250 cores on the [ETH scientific computing cluster Euler](https://scicomp.ethz.ch/wiki/Euler).
 -   Using the R package [`doParallel`](https://CRAN.R-project.org/package=doParallel) on a MacBook Pro (Retina, 15-inch, Late 2013), 2.3 GHz Intel Core i7 processor (4 physical cores, 8 logical cores), running macOS Sierra 10.12.6.
