@@ -34,4 +34,6 @@ if(!requireNamespace("ggtree")) {
 }
 ```
 
+**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.*
+
 # References

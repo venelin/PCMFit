@@ -1,5 +1,8 @@
 ---
-output: github_document
+output: 
+  github_document:
+    toc: true
+    toc_depth: 2
 bibliography: vignettes/REFERENCES.bib
 ---
 
@@ -51,22 +54,85 @@ The goal of PCMFit is to provide a generic tool for inference and
 
 <!--An early version of this article is available in Chapter 7 of the doctoral thesis available at <https://doi.org/10.3929/ethz-b-000315296>. -->
 
-## Installation
+# Installation
+## Prerequisites
+PCMFit depends on several R-packages:
 
-### Github
+- [PCMBase](https://venelin.github.io/PCMBase). The PCMBase package is available on CRAN and should be installed automatically during the installation of PCMFit. If this does not happen, try the command:
+```{r, eval =FALSE}
+install.packages("PCMBase")
+```
+- [[PCMBaseCpp](https://github.com/venelin/PCMBaseCpp)]. This package provides fast Rcpp modules for likelihood calculation of the model types implemented in PCMBase. PCMBaseCpp can be used as a companion and not a substitute of PCMBase. The sole purpose of PCMBaseCpp is to speed-up the likelihood calculation by implementing the most computationally intensive algorithms in C++, rather than R [@Mitov:2018fl]. Hence, installing this package is optional but highly recommended, in particular, if the goal is to infer models with shifts and/or to infer models on trees bigger than 100 tips. Currently, PCMBaseCpp can be installed from github using the command:
+```{r, eval=FALSE}
+# These three packages require an available C++ compiler on the system:
+install.packages("Rcpp")
+install.packages("RcppArmadillo")
+devtools::install_github("venelin/PCMBaseCpp")
+```
+- other third party dependencies include the packages [`data.table`](https://CRAN.R-project.org/package=data.table), [`foreach`](https://CRAN.R-project.org/package=foreach), [`iterators`](https://CRAN.R-project.org/package=iterators), [`ape`](https://CRAN.R-project.org/package=ape) and [`digest`](https://CRAN.R-project.org/package=digest). These packages should be installed automatically from CRAN when installing PCMFit. If this does not happen, consult the packages' web-pages (links above).
+
+## Installing PCMFit
+
+### From Github
 Currently the package can be installed from github using the command:
-
 ```{r, eval=FALSE}
 devtools::install_github("venelin/PCMFit")
 ```
 
-### CRAN
+### From CRAN
+Publishing PCMFit on CRAN is planned after release of the first stable and documented version.
 
-Publishing the package on CRAN is planned after release of the first stable and documented version.
+## Parallel execution
+Currently PCMFit implements parallel execution for the inference of mixed Gaussian phylogenetic models with unknown shifts. To enable this, it is necessary to run PCMFit on a computer equipped with a multiple core processor or on multiple node computing cluster. In its current implementation, PCMFit uses the function `%dopar%` from the R-package [`foreach`](https://CRAN.R-project.org/package=foreach) to parallelize the execution of (nested) `foreach` loops. I have tested this parallelization using two parallel backends for the `%dopar%` function: 
 
-## Resources
+- Using the R packages [`doMPI`](https://CRAN.R-project.org/package=doMPI) and [`Rmpi`](https://CRAN.R-project.org/package=Rmpi) on a multiple node cluster with `open_mpi/1.6.5` installed. In particular, I have run MGPM inference using up to 250 cores on the [ETH scientific computing cluster Euler](https://scicomp.ethz.ch/wiki/Euler).
+- Using the R package [`doParallel`](https://CRAN.R-project.org/package=doParallel) on a MacBook Pro (Retina, 15-inch, Late 2013), 2.3 GHz Intel Core i7 processor (4 physical cores, 8 logical cores), running macOS Sierra 10.12.6.
 
-**Note:** *The writing of the vignettes and [help articles](https://venelin.github.io/PCMFit/reference/index.html) for this package is in progress. Please, contact the author for assistance, in case you need to use PCMFit. Thanks for your understanding.*
+To install the above packages, follow the most recent instructions in their documentation (links to the packages web-pages provided above). Once you have installed the parallel backend of choice, you can paste/edit the following code snippet in the beginning of the R-script for running PCMFit model inference:
+
+```{r, eval=FALSE}
+library(PCMBase)
+library(PCMBaseCpp)
+library(PCMFit)
+# other needed packages, e.g. ape, data.table etc...
+
+# extract dataset identifier and possibly other parameters from the command line:
+args <- commandArgs(trailingOnly = TRUE)
+if(length(args) > 0) {
+  data_id <- as.integer(args[1])
+} else {
+  data_id <- 1L
+}
+
+# A character string used in filenames for a model inference on a given data:
+prefixFiles = paste0("MGPM_A_F_BC2_RR_DATAID_", data_id)
+
+
+# creating the cluster for this PCMFit run:
+if(!exists("cluster") || is.null(cluster)) {
+  if(require(doMPI)) {
+    # using MPI cluster as distributed node cluster (possibly running on a 
+    # cluster of multiple nodes)
+    # Get the number of cores. Assume this is run in a batch job.
+    p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
+    cluster <- startMPIcluster(count = p-1, verbose = TRUE)
+    doMPI::registerDoMPI(cluster)
+  } else {
+    # possibly running on personal computer without mpi installation
+    cluster <- parallel::makeCluster(
+      parallel::detectCores(logical = TRUE),
+      outfile = paste0("log_", prefixFiles, ".txt"))
+    doParallel::registerDoParallel(cluster)
+  }
+}
+```
+
+Finally, to tell PCMFit that it should run the inference in parallel, specify the argument `doParallel=TRUE` in calls to the function `PCMFitMixed`. A full example for this is provided in the user guide 
+[Inferring an MGPM with Unknown Shifts](https://venelin.github.io/PCMFit/articles/pcmfitmixed.html). 
+
+# Resources
+
+**Note:** *The writing of the user gudes and [help articles](https://venelin.github.io/PCMFit/reference/index.html) for this package is in progress. Please, contact the author for assistance, in case you need to use PCMFit. Thanks for your understanding.*
 
 The user guides and technical reference for the library are available on the [PCMFit web-page](https://venelin.github.io/PCMFit/):
 
@@ -78,14 +144,15 @@ The research article "Automatic Generation of Evolutionary Hypotheses using Mixe
 
 The PCMFit source code is located in the [PCMFit github repository](https://github.com/venelin/PCMFit). 
 
+Feature requests, bugs, etc can be reported in the [PCMFit issues list](https://github.com/venelin/PCMFit/issues).
+
+# Related tools
 PCMFit builds on top of a stack of three tools enabling fast likelihood calculation and simulation of MGPMs:
 
 * The R-package [PCMBase](https://venelin.github.io/PCMBase/) implements the specification, likelihood calculation and simulation of MGPMs [@Mitov:2018fl]. 
 * The auxiliary package [PCMBaseCpp](https://github.com/venelin/PCMBaseCpp) provides a fast C++ implementation of the likelihood calculation as described in [@Mitov:2018fl]. 
 * PCMBaseCpp relies on the C++ library [SPLITT](https://github.com/venelin/SPLITT) implementing fast traversal of phylogenetic trees [@Mitov:2018dqa]. 
 
-
-Feature requests, bugs, etc can be reported in the [PCMFit issues list](https://github.com/venelin/PCMFit/issues).
 
 # Citing PCMFit
 
@@ -96,17 +163,20 @@ To give credit to the PCMFit package in a publication, please cite one of the fo
 * Mitov, V., & Stadler, T. (2018). Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library. bioRxiv, 235739. http://doi.org/10.1101/235739
 
 
-# Used R-packages
+# Used software packages
+Although, I have been consistent in my effort to update the following list with new packages I have used in developing and testing PCMFit, there is chance that I have omitted some of these tools. I apologise to their authors. 
+
 ```{r create-references, echo=FALSE, include=FALSE, eval=TRUE}
 treeProcessing <- c("ape", "data.table", "PCMBase")
 pcmProcessing <- c("PCMBase", "PCMBaseCpp", "SPLITT")
-parallelProcessing <- c("iterators", "foreach", "mpi")
+parallelProcessing <- c("iterators", "foreach", "doParallel")
+dataProcessing <- c("data.table")
 maths <- c("expm", "mvtnorm")
 plots <- c("ggtree", "ggplot2")
 testing <- c("testthat")
 docs <- c("roxygen2", "pkgdown")
 
-packagesUsed <- c(treeProcessing, maths, plots, testing, docs)
+packagesUsed <- c(treeProcessing, pcmProcessing, parallelProcessing, dataProcessing, maths, plots, testing, docs)
 
 printPackages <- function(packs) {
   res <- ""
@@ -126,7 +196,10 @@ knitr::write_bib(packagesUsed, file = "./vignettes/REFERENCES-R.bib")
 The PCMFit R-package uses the following 3rd party R-packages:
 
 * For tree processing in R: `r printPackages(treeProcessing)`;
-* For algebraic manipulation: `r printPackages(maths)`;
+* For specification and manipulation of models in R: `r printPackages(pcmProcessing)`;
+* For data processing in R: `r printPackages(dataProcessing)`;
+* For parallel execution: `r printPackages(parallelProcessing)`;
+* For algebraic computation: `r printPackages(maths)`;
 * For plotting: `r printPackages(plots)`;
 * For unit-testing: `r printPackages(testing)`;
 * For documentation and web-site generation: `r printPackages(docs)`;

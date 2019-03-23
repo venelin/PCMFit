@@ -34,11 +34,11 @@ if(!requireNamespace("ggtree")) {
 }
 ```
 
-The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.
+**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.*
 
 # Prerequisites
 
-- PCMBase [PCMBase home page](https://venelin.github.io/PCMBase)
+
 
 - Loading the prerequisites:
 
@@ -52,6 +52,8 @@ library(cowplot)
 ```
 
 # A brief introduction to mixed Gaussian phylogenetic models
+
+
 
 # An example
 
