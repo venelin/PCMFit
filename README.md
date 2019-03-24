@@ -19,12 +19,23 @@ Before installing PCMFit, it is necessary to ensure that several R-packages are 
 install.packages("PCMBase")
 ```
 
--   \[[PCMBaseCpp](https://github.com/venelin/PCMBaseCpp)\]. This package provides fast Rcpp modules for likelihood calculation of the model types implemented in PCMBase. PCMBaseCpp can be used as a companion and not a substitute of PCMBase. The sole purpose of PCMBaseCpp is to speed-up the likelihood calculation by implementing the most computationally intensive algorithms in C++, rather than R (Mitov et al. 2018). Hence, installing this package is optional but highly recommended, in particular, if the goal is to infer models with shifts and/or to infer models on trees bigger than 100 tips. Currently, PCMBaseCpp can be installed from github using the command:
+-   \[[PCMBaseCpp](https://github.com/venelin/PCMBaseCpp)\]. This package contains Rcpp modules for likelihood calculation of the model types implemented in PCMBase. PCMBaseCpp can be used as a companion and not a substitute of PCMBase. The sole purpose of PCMBaseCpp is to accelerate the likelihood calculation by implementing the most computationally intensive algorithm in C++, which has shown a dramatic speed-up (in the order of 100 times) (Mitov et al. 2018). Hence, installing this package is optional but highly recommended, in particular, if the goal is to infer models with shifts and/or to infer models on trees bigger than 100 tips. Installing PCMBaseCpp requires a C++ compiler to be installed on the system. This installation has been tested on two systems:
+
+    -   On Mac OS X, it has been tested using the default (clang) and the Intel (icpc) compiler.
+    -   On Linux (Euler ETH cluster), it has been tested with the following modules loaded (commands in the file `.bashrc`):
+
+``` sh
+module load interconnect/ethernet
+module load new gcc/6.3.0 open_mpi/1.6.5 r/3.4.0 intel/2017.5
+```
+
+Upon validating the availability of a C++ compiler, PCMBaseCpp can be installed using the commands:
 
 ``` r
-# These three packages require an available C++ compiler on the system:
+# These two packages are available on CRAN
 install.packages("Rcpp")
 install.packages("RcppArmadillo")
+# At the time of writing, PCMBaseCpp is available only from github. 
 devtools::install_github("venelin/PCMBaseCpp")
 ```
 
@@ -50,9 +61,9 @@ Publishing PCMFit on CRAN is planned after release of the first stable and docum
 Parallel execution
 ==================
 
-Currently PCMFit implements parallel execution for the inference of mixed Gaussian phylogenetic models with unknown shifts. This is optional but highly recommended. To enable parallel execution, it is necessary to run PCMFit on a computer equipped with a multiple core processor or on multiple node computing cluster. In its current implementation, PCMFit uses the function `%dopar%` from the R-package [`foreach`](https://CRAN.R-project.org/package=foreach) to parallelize the execution of (nested) `foreach` loops. I have tested this parallelization using two parallel backends for the `%dopar%` function:
+Currently PCMFit implements parallel execution for the inference of mixed Gaussian phylogenetic models with unknown shifts. This is optional but highly recommended. To enable parallel execution, it is necessary to run PCMFit on a computer equipped with a multiple core processor or on multiple node computing cluster. In its current implementation, PCMFit uses the function `%dopar%` from the R-package [`foreach`](https://CRAN.R-project.org/package=foreach) to parallelize the execution of (nested) `foreach` loops. This parallelization has been tested using two parallel backends for the `%dopar%` function:
 
--   Using the R packages [`doMPI`](https://CRAN.R-project.org/package=doMPI) and [`Rmpi`](https://CRAN.R-project.org/package=Rmpi) on a multiple node cluster with `open_mpi/1.6.5` installed. In particular, I have run MGPM inference using up to 250 cores on the [ETH scientific computing cluster Euler](https://scicomp.ethz.ch/wiki/Euler).
+-   Using the R packages [`doMPI`](https://CRAN.R-project.org/package=doMPI) and [`Rmpi`](https://CRAN.R-project.org/package=Rmpi) on a multiple node cluster with `open_mpi/1.6.5` installed. In particular, MGPM inference has been run using up to 250 cores on the [ETH scientific computing cluster Euler](https://scicomp.ethz.ch/wiki/Euler).
 -   Using the R package [`doParallel`](https://CRAN.R-project.org/package=doParallel) on a MacBook Pro (Retina, 15-inch, Late 2013), 2.3 GHz Intel Core i7 processor (4 physical cores, 8 logical cores), running macOS Sierra 10.12.6.
 
 To install the above packages, follow the most recent instructions in their documentation (links to the packages web-pages provided above). Once you have installed the parallel backend of choice, you can paste/edit the following code snippet in the beginning of the R-script for running PCMFit model inference:
@@ -134,7 +145,7 @@ To give credit to the PCMFit package in a publication, please cite one of the fo
 Used software packages
 ======================
 
-Although, I have been consistent in my effort to update the following list with new packages I have used in developing and testing PCMFit, there is chance that I have omitted some of these tools. I apologise to their authors.
+Although, I have been consistent in my effort to update the following list with any new package I have used in developing and testing PCMFit, chances are that I have omitted some of these tools. I apologise to their authors.
 
 The PCMFit R-package uses the following 3rd party R-packages:
 
