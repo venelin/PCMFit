@@ -41,6 +41,14 @@ devtools::install_github("venelin/PCMBaseCpp")
 
 -   other third party dependencies include the packages [`data.table`](https://CRAN.R-project.org/package=data.table), [`foreach`](https://CRAN.R-project.org/package=foreach), [`iterators`](https://CRAN.R-project.org/package=iterators), [`ape`](https://CRAN.R-project.org/package=ape) and [`digest`](https://CRAN.R-project.org/package=digest). These packages should be installed automatically from CRAN when installing PCMFit. If this does not happen, consult the packages' web-pages (links above).
 
+-   An optional but highly recommended dependency. The function `PCMTreePlot` in the package PCMBase uses the R-package ggtree, which is not on CRAN. It is highly recommended to install this package in order to be able to visualize trees with colored parts corresponding to defferent evolutionary regimes. If `ggtree` is not installed, the figures in the vignettes and coding examples cannot be generated. At the time of writing this documentation, `ggtree` can be installed from bioconductor through the following code (if that does not work, check the [ggtree home page](https://guangchuangyu.github.io/software/ggtree/)):
+
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("ggtree", version = "3.8")
+```
+
 Installing PCMFit
 =================
 
@@ -110,15 +118,15 @@ Finally, to tell PCMFit that it should run the inference in parallel, specify th
 Resources
 =========
 
-**Note:** *The writing of the user gudes and [help articles](https://venelin.github.io/PCMFit/reference/index.html) for this package is in progress. Please, contact the author for assistance, in case you need to use PCMFit. Thanks for your understanding.*
+A brief historical background and theoretical overview of PCMs can be found in Chapter 1 of (Mitov 2018a). A more general introduction can be found in (Harmon 2018). The research article "Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models" provides a general introduction to MGPMs and reports a real data example and a simulation based comparison of MGPMs versus other implementations of phylogenetic comparative models with shifts. The article is currently undergoing peer review for a publication.
 
 The user guides and technical reference for the library are available on the [PCMFit web-page](https://venelin.github.io/PCMFit/):
+
+**Note:** *The writing of the user gudes and [help articles](https://venelin.github.io/PCMFit/reference/index.html) for this package is in progress. Please, contact the author for assistance, in case you need to use PCMFit. Thanks for your understanding.*
 
 -   The [Getting started](https://venelin.github.io/PCMFit/articles/pcmfit.html) guide introduces mixed Gaussian phylogenetic models (MGPMs) and provides an example how to use the function `PCMFit()` to infer such models on a given tree and trait data.
 -   The [Inferring an MGPM with Unknown Shifts](https://venelin.github.io/PCMFit/articles/pcmfitmixed.html) guide shows how to use the function `PCMFitMixed()` to select the best MGPM for a given tree and trait data, based on an information loss function such as the Akaike information criterion (AIC) *(in preparation)*.
 -   The [Performing Parametric Bootstrap of an MGPM](https://venelin.github.io/PCMFit/articles/parambootstrap.html) guide shows how to simulate and perform MGPM inference on parametric bootstrap datasets in order to assess the uncertainty of a given MGPM *(in preparation)*.
-
-The research article "Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models" provides a general introduction to MGPMs and reports a real data example and a simulation based comparison of MGPMs versus other implementations of phylogenetic comparative models with shifts. The article is currently undergoing peer review for a publication.
 
 The PCMFit source code is located in the [PCMFit github repository](https://github.com/venelin/PCMFit).
 
@@ -138,9 +146,43 @@ Citing PCMFit
 
 To give credit to the PCMFit package in a publication, please cite one of the following:
 
--   Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
+-   Mitov, V. (2018). Phylogenetic Comparative Methods in the Era of Big Data, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
+
+        @phdthesis{Mitov:2018hh,
+        author = {Mitov, Venelin},
+        title = {{Phylogenetic Comparative Methods in the Era of Big Data}},
+        school = {ETH Zurich},
+        year = {2018},
+        address = {Zurich},
+        url = {https://doi.org/10.3929/ethz-b-000315296},
+        }
+
+    <!--* Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.-->
 -   Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2018, September 24). Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package. arXiv.org. <https://arxiv.org/abs/1809.09014>.
--   Mitov, V., & Stadler, T. (2018). Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library. bioRxiv, 235739. <http://doi.org/10.1101/235739>
+
+        @article{Mitov:2018fl,
+        author = {Mitov, Venelin and Bartoszek, Krzysztof and Asimomitis, Georgios and Stadler, Tanja},
+        title = {{Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package}},
+        journal = {arXiv.org},
+        year = {2018},
+        eprint = {1809.09014},
+        eprinttype = {arxiv},
+        eprintclass = {q-bio.PE},
+        pages = {arXiv:1809.09014},
+        month = sep,
+        annote = {34 pages, 6 figures}
+        }
+
+-   Mitov, V., & Stadler, T. (2018). Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library. Methods in Ecology and Evolution, 2041--210X.13136. <http://doi.org/10.1101/235739>
+
+        @article{Mitov:2018dqa,
+        author = {Mitov, Venelin and Stadler, Tanja},
+        title = {{Parallel likelihood calculation for phylogenetic comparative models: The SPLITT C++ library}},
+        journal = {Methods in Ecology and Evolution},
+        year = {2018},
+        pages = {2041--210X.13136},
+        month = dec
+        }
 
 Used software packages
 ======================
@@ -149,12 +191,12 @@ Although, I have been consistent in my effort to update the following list with 
 
 The PCMFit R-package uses the following 3rd party R-packages:
 
--   For tree processing in R: ape v5.2 (Paradis et al. 2018), data.table v1.12.0 (Dowle and Srinivasan 2019), PCMBase v1.2.9 (Mitov 2019a);
--   For specification and manipulation of models in R: PCMBase v1.2.9 (Mitov 2019a), PCMBaseCpp v0.1.4 (Mitov 2019b), SPLITT v1.2.1 (Mitov 2018);
+-   For tree processing in R: ape v5.3 (Paradis et al. 2019), data.table v1.12.0 (Dowle and Srinivasan 2019), PCMBase v1.2.9 (Mitov 2019a);
+-   For specification and manipulation of models in R: PCMBase v1.2.9 (Mitov 2019a), PCMBaseCpp v0.1.4 (Mitov 2019b), SPLITT v1.2.1 (Mitov 2018b);
 -   For data processing in R: data.table v1.12.0 (Dowle and Srinivasan 2019);
 -   For parallel execution: iterators v1.0.10 (Analytics and Weston 2018), foreach v1.4.4 (Revolution Analytics and Weston, n.d.), doParallel v1.0.14 (Corporation and Weston 2018);
--   For algebraic computation: expm v0.999.3 (Goulet et al. 2018), mvtnorm v1.0.10 (Genz et al. 2019);
--   For plotting: ggtree v1.14.6 (Yu and Lam 2019), ggplot2 v3.1.0 (Wickham et al. 2018);
+-   For algebraic computation: expm v0.999.4 (Goulet et al. 2019), mvtnorm v1.0.10 (Genz et al. 2019);
+-   For plotting: ggtree v1.14.6 (Yu and Lam 2019), ggplot2 v3.1.0 (Wickham et al. 2018), cowplot v0.9.4 (Wilke 2019);
 -   For unit-testing: testthat v2.0.1 (Wickham 2018);
 -   For documentation and web-site generation: roxygen2 v6.1.1 (Wickham, Danenberg, and Eugster 2018), pkgdown v1.3.0 (Wickham and Hesselberth 2018);
 
@@ -169,19 +211,23 @@ Dowle, Matt, and Arun Srinivasan. 2019. *Data.table: Extension of ‘Data.frame�
 
 Genz, Alan, Frank Bretz, Tetsuhisa Miwa, Xuefei Mi, and Torsten Hothorn. 2019. *Mvtnorm: Multivariate Normal and T Distributions*. <https://CRAN.R-project.org/package=mvtnorm>.
 
-Goulet, Vincent, Christophe Dutang, Martin Maechler, David Firth, Marina Shapira, and Michael Stadelmann. 2018. *Expm: Matrix Exponential, Log, ’Etc’*. <https://CRAN.R-project.org/package=expm>.
+Goulet, Vincent, Christophe Dutang, Martin Maechler, David Firth, Marina Shapira, and Michael Stadelmann. 2019. *Expm: Matrix Exponential, Log, ’Etc’*. <https://CRAN.R-project.org/package=expm>.
 
-Mitov, Venelin. 2018. *SPLITT: A Generic Library for Serial and Parallel Lineage Traversal of Trees*.
+Harmon, Luke J. 2018. *Phylogenetic Comparative Methods*. Learning from Trees. <https://lukejharmon.github.io/pcm/>.
 
-———. 2019a. *PCMBase: Simulation and Likelihood Calculation of Phylogenetic Comparative Models*.
+Mitov, Venelin. 2018a. “Phylogenetic Comparative Methods in the Era of Big Data.” PhD thesis, Zurich: ETH Zurich. <https://doi.org/10.3929/ethz-b-000315296>.
 
-———. 2019b. *PCMBaseCpp: A C++ Backend for Calculating the Likelihood of Phylogenetic Comparative Models*.
+———. 2018b. *SPLITT: A Generic Library for Serial and Parallel Lineage Traversal of Trees*.
+
+———. 2019a. *PCMBase: Simulation and Likelihood Calculation of Phylogenetic Comparative Models*. <https://CRAN.R-project.org/package=PCMBase>.
+
+———. 2019b. *PCMBaseCpp: A C++ Implementation of Parallel Likelihood Calculation for Phylogenetic Comparative Models*.
 
 Mitov, Venelin, and Tanja Stadler. 2018. “Parallel likelihood calculation for phylogenetic comparative models: The SPLITT C++ library.” *Methods in Ecology and Evolution*, December, 2041–210X.13136.
 
 Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package.” *arXiv.org*, September, arXiv:1809.09014. <http://arxiv.org/abs/1809.09014>.
 
-Paradis, Emmanuel, Simon Blomberg, Ben Bolker, Joseph Brown, Julien Claude, Hoa Sien Cuong, Richard Desper, et al. 2018. *Ape: Analyses of Phylogenetics and Evolution*. <https://CRAN.R-project.org/package=ape>.
+Paradis, Emmanuel, Simon Blomberg, Ben Bolker, Joseph Brown, Julien Claude, Hoa Sien Cuong, Richard Desper, et al. 2019. *Ape: Analyses of Phylogenetics and Evolution*. <https://CRAN.R-project.org/package=ape>.
 
 Revolution Analytics, and Steve Weston. n.d. *Foreach: Provides Foreach Looping Construct for R*.
 
@@ -192,5 +238,7 @@ Wickham, Hadley, and Jay Hesselberth. 2018. *Pkgdown: Make Static Html Documenta
 Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, and Kara Woo. 2018. *Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics*. <https://CRAN.R-project.org/package=ggplot2>.
 
 Wickham, Hadley, Peter Danenberg, and Manuel Eugster. 2018. *Roxygen2: In-Line Documentation for R*. <https://CRAN.R-project.org/package=roxygen2>.
+
+Wilke, Claus O. 2019. *Cowplot: Streamlined Plot Theme and Plot Annotations for ’Ggplot2’*. <https://CRAN.R-project.org/package=cowplot>.
 
 Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. *Ggtree: An R Package for Visualization and Annotation of Phylogenetic Trees with Their Covariates and Other Associated Data*. <https://guangchuangyu.github.io/software/ggtree>.

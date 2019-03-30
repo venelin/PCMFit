@@ -38,8 +38,6 @@ if(!requireNamespace("ggtree")) {
 
 # Prerequisites
 
-
-
 - Loading the prerequisites:
 
 ```{r load-libraries, results='hide', warning=FALSE, message=FALSE}
