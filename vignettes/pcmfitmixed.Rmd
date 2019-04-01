@@ -32,8 +32,210 @@ if(!requireNamespace("ggtree")) {
       "The ggtree installation did not succeed. The vignette cannot be built.")
   }
 }
+
+useCacheMGPM_A_F_BC2_RR <- TRUE
 ```
 
-**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.*
+**Note:** *The writing of this vignette is currently in progress. If needed, please, contact the author for assistance. Thanks for your understanding.*
+
+# Setting up the computing cluster
+```{r, eval=TRUE}
+library(PCMBase)
+library(PCMBaseCpp)
+library(PCMFit)
+library(data.table)
+library(ggtree)
+library(ggplot2)
+# other needed packages, e.g. ape, data.table etc...
+
+# extract dataset identifier and possibly other parameters from the command line:
+args <- commandArgs(trailingOnly = TRUE)
+if(length(args) > 0) {
+  data_id <- as.integer(args[1])
+} else {
+  data_id <- 1L
+}
+
+# A character string used in filenames for a model inference on a given data:
+prefixFiles = paste0("MGPM_A_F_BC2_RR_DATAID_", data_id)
+
+
+# creating the cluster for this PCMFit run:
+if(!exists("cluster") || is.null(cluster)) {
+  if(require(doMPI)) {
+    # using MPI cluster as distributed node cluster (possibly running on a 
+    # cluster of multiple nodes)
+    # Get the number of cores. Assume this is run in a batch job.
+    p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
+    cluster <- startMPIcluster(count = p-1, verbose = TRUE)
+    doMPI::registerDoMPI(cluster)
+  } else {
+    # possibly running on personal computer without mpi installation
+    cluster <- parallel::makeCluster(
+      parallel::detectCores(logical = TRUE),
+      outfile = paste0("log_", prefixFiles, ".txt"))
+    doParallel::registerDoParallel(cluster)
+  }
+}
+```
+
+```{r}
+# This function is going to be executed on each worker node.
+generatePCMModelsFunction <- function() {
+  # make results reproducible
+  set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
+
+  PCMGenerateModelTypes()
+  fileName <- 'DefineParameterLimits.R'
+  codeDefineLimits <- readChar(fileName, file.info(fileName)$size)
+  eval(parse(text = codeDefineLimits), .GlobalEnv)
+}
+```
+# Running the MGPM Inference
+```{r}
+tree <- PCMTree(PCMFitDemoObjects$dtSimulated$tree[[1]])
+X <- PCMFitDemoObjects$dtSimulated$X[[1]][, seq_len(PCMTreeNumTips(tree))]
+```
+
+```{r}
+currentResultFile <- paste0("CurrentResults_fits_", prefixFiles, ".RData")
+if(file.exists(currentResultFile)) {
+  load(currentResultFile)
+  tableFitsPrev <- listResults$tableFits
+} else {
+  tableFitsPrev <- NULL
+}
+
+if(is.null(PCMFitDemoObjects$fitMGPM_A_F_BC2_RR) || 
+   !useCacheMGPM_A_F_BC2_RR) {
+  fitMGPM_A_F_BC2_RR <- PCMFitMixed(
+    X = X, tree = tree, metaIFun = PCMInfoCpp,
+    tableFitsPrev = tableFitsPrev,
+    generatePCMModelsFun = generatePCMModelsFunction, 
+    maxNumRoundRobins = 2, maxNumPartitionsInRoundRobins = 2,
+    printFitVectorsToConsole = TRUE,
+    doParallel = TRUE)
+  
+  PCMFitDemoObjects$fitMGPM_A_F_BC2_RR <- fitMGPM_A_F_BC2_RR
+  usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+} 
+
+fitMGPM_A_F_BC2_RR <- PCMFitDemoObjects$fitMGPM_A_F_BC2_RR
+```
+
+```{r, eval=FALSE}
+currentResultFile <- paste0("CurrentResults_fits_", prefixFiles, ".RData")
+if(file.exists(currentResultFile)) {
+  load(currentResultFile)
+  tableFitsPrev <- listResults$tableFits
+} else {
+  tableFitsPrev <- NULL
+}
+
+fitMGPM_A_F_BC2_RR <- PCMFitMixed(
+    X = X, tree = tree, metaIFun = PCMInfoCpp,
+    generatePCMModelsFun = generatePCMModelsFunction, 
+    maxNumRoundRobins = 2, maxNumPartitionsInRoundRobins = 2,
+    prefixFiles = prefixFiles,
+    doParallel = TRUE)
+```
+
+```{r}
+modelTrue <- PCMFitDemoObjects$dtSimulated$model[[1]]
+modelTrue
+
+# We specify the tree and trait values for the true model in order to easily 
+# calculate parameter count likelihood and AIC for it:
+attr(modelTrue, "tree") <- PCMFitDemoObjects$dtSimulated$treeWithRegimes[[1]]
+attr(modelTrue, "X") <- X
+attr(modelTrue, "SE") <- X * 0.0
+```
+
+```{r}
+bestFit <- RetrieveBestFitScore(fitMGPM_A_F_BC2_RR)
+
+listModels <- list(
+  RetrieveBestModel(PCMFitDemoObjects$fitBM), 
+  RetrieveBestModel(PCMFitDemoObjects$fitOU),
+  RetrieveBestModel(PCMFitDemoObjects$fitMGPMTrueTypeMapping), 
+  RetrieveBestModel(PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat), 
+  modelTrue,
+  bestFit$inferredModel)
+
+dtSummary <- data.table(
+  model = c(
+    "Global BM", 
+    "Global OU", 
+    "True MGPM, unknown parameters", 
+    "True MGPM, known true parameters", 
+    "True MGPM, true parameters",
+    "Inferred MGPM, unknown shift-points and parameters"),
+  p = sapply(listModels, PCMParamCount),
+  logLik = sapply(listModels, logLik), 
+  AIC = sapply(listModels, AIC))
+knitr::kable(dtSummary)
+```
+
+```{r}
+PCMMapModelTypesToRegimes(
+  bestFit$inferredModel, attr(bestFit$inferredModel, "tree"))
+```
+
+```{r}
+PCMMapModelTypesToRegimes(modelTrue, attr(modelTrue, "tree"))
+```
+
+```{r, fig.width=7, fig.height=7, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. **C** and **D**: Analogical to **A** and **B** according to the MGPM found using the AIC score as a criterion."}
+
+plTree <- PCMTreePlot(attr(modelTrue, "tree"), layout="fan") %<+% 
+  data.table(
+    node = c(12, 77, 45), 
+    part.model = c(" 1.D ", " 2.C ", " 3.B "),
+    offset = 5) + 
+  geom_tiplab2(size = 2) + 
+  geom_tiplab2(aes(label = part.model), offset = 16) + 
+  geom_nodelab(size = 2, color = "black") + 
+  geom_treescale(
+    width = max(PCMTreeNodeTimes(attr(modelTrue, "tree"))), x = 0, 
+    linesize = .25, fontsize = 2, offset = 79)
+
+plX <- PCMPlotTraitData2D(
+  X[, seq_len(PCMTreeNumTips(attr(modelTrue, "tree")))], 
+  attr(modelTrue, "tree"), 
+  scaleSizeWithTime = FALSE) +
+  geom_text(
+    aes(x = x, y = y, label = id, color = regime), 
+    size=2, 
+    position = position_jitter(.4, .4)) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+plTreeInferred <- 
+  PCMTreePlot(attr(bestFit$inferredModel, "tree"), layout="fan") %<+% 
+  data.table(
+    node = c(12, 77, 45), 
+    part.model = c(" 2.C ", " 1.C ", " 3.B "),
+    offset = 5) + 
+  geom_tiplab2(size = 2) + 
+  geom_tiplab2(aes(label = part.model), offset = 16) + 
+  geom_nodelab(size = 2, color = "black") + 
+  geom_treescale(
+    width = max(PCMTreeNodeTimes(attr(bestFit$inferredModel, "tree"))), x = 0, 
+    linesize = .25, fontsize = 2, offset = 79)
+
+plXInferred <- PCMPlotTraitData2D(
+  X[, seq_len(PCMTreeNumTips(attr(bestFit$inferredModel, "tree")))], 
+  attr(bestFit$inferredModel, "tree"), 
+  scaleSizeWithTime = FALSE) +
+  geom_text(
+    aes(x = x, y = y, label = id, color = regime), 
+    size=2, 
+    position = position_jitter(.4, .4)) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+cowplot::plot_grid(
+  plTree, plX, plTreeInferred, plXInferred, labels = LETTERS[1:4])
+```
 
 # References

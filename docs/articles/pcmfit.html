@@ -112,7 +112,10 @@
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(cowplot)</code></pre></div>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(cowplot)
+
+<span class="co"># make results reproducible</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</code></pre></div>
 <p>In the next sections, we go through each of the above steps:</p>
 <div id="step-1--an-example-dataset" class="section level1">
 <h1 class="hasAnchor">
@@ -401,7 +404,8 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <h2 class="hasAnchor">
 <a href="#specifying-parameter-limits" class="anchor"></a>Specifying parameter limits</h2>
 <p>An optional but important preliminary step is to explicitly specify the limits for the model parameters. This is needed, because the default settings might not be appropriate for the data in question. Here is an example how the model parameter limits can be set. Note that we specify these limits for the base “BM” and “OU” model types, but they are inherited by their subtypes A, …, F, as specified in the comments.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># lower limits for models A and B</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## File: DefineParameterLimits.R
+<span class="co"># lower limits for models A and B</span>
 PCMParamLowerLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
   o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
   k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)

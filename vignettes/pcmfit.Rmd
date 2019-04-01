@@ -33,8 +33,6 @@ if(!requireNamespace("ggtree")) {
   }
 }
 
-# make results reproducible
-set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
 useCacheGlobalModels <- TRUE
 useCacheMGPMTrueTypeMapping <- TRUE
 useCacheMGPMTrueTypeMappingCheat <- TRUE
@@ -58,6 +56,9 @@ library(data.table)
 library(ggplot2)
 library(ggtree)
 library(cowplot)
+
+# make results reproducible
+set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
 ```
 
 In the next sections, we go through each of the above steps:
@@ -202,6 +203,7 @@ cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
 An optional but important preliminary step is to explicitly specify the limits for the model parameters. This is needed, because the default settings might not be appropriate for the data in question. Here is an example how the model parameter limits can be set. Note that we specify these limits for the base "BM" and "OU" model types, but they are inherited by their subtypes A, ..., F, as specified in the comments.
 
 ```{r}
+## File: DefineParameterLimits.R
 # lower limits for models A and B
 PCMParamLowerLimit.BM <- function(o, k, R, ...) {
   o <- NextMethod()
