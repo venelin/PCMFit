@@ -103,17 +103,9 @@
 <a href="#setting-up-the-computing-cluster" class="anchor"></a>Setting up the computing cluster</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBaseCpp)
-<span class="co">#&gt; Loading required package: Rcpp</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)
-<span class="co">#&gt; ggtree v1.14.6  For help: https://guangchuangyu.github.io/software/ggtree</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; If you use ggtree in published research, please cite the most appropriate paper(s):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; - Guangchuang Yu, David Smith, Huachen Zhu, Yi Guan, Tommy Tsan-Yuk Lam. ggtree: an R package for visualization and annotation of phylogenetic trees with their covariates and other associated data. Methods in Ecology and Evolution 2017, 8(1):28-36, doi:10.1111/2041-210X.12628</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; - Guangchuang Yu, Tommy Tsan-Yuk Lam, Huachen Zhu, Yi Guan. Two methods for mapping and visualizing associated data on phylogeny using ggtree. Molecular Biology and Evolution 2018, accepted. doi: 10.1093/molbev/msy194</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)
 <span class="co"># other needed packages, e.g. ape, data.table etc...</span>
 
@@ -145,10 +137,7 @@ prefixFiles =<span class="st"> </span><span class="kw"><a href="https://www.rdoc
       <span class="dt">outfile =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))
     doParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/doParallel/topics/registerDoParallel">registerDoParallel</a></span>(cluster)
   }
-}
-<span class="co">#&gt; Loading required package: doMPI</span>
-<span class="co">#&gt; Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="co">#&gt; logical.return = TRUE, : there is no package called 'doMPI'</span></code></pre></div>
+}</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This function is going to be executed on each worker node.</span>
 generatePCMModelsFunction &lt;-<span class="st"> </span><span class="cf">function</span>() {
   <span class="co"># make results reproducible</span>
@@ -173,117 +162,17 @@ X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimu
   tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span>
 }
 
-<span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR) <span class="op">||</span><span class="st"> </span>
-<span class="st">   </span><span class="op">!</span>useCacheMGPM_A_F_BC2_RR) {
-  fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(
-    <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,
-    <span class="dt">tableFitsPrev =</span> tableFitsPrev,
-    <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, 
-    <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,
-    <span class="dt">printFitVectorsToConsole =</span> <span class="ot">TRUE</span>,
-    <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)
-  
-  PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span>fitMGPM_A_F_BC2_RR
-  usethis<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/usethis/topics/use_data">use_data</a></span>(PCMFitDemoObjects, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
-} 
-
-fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">currentResultFile &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"CurrentResults_fits_"</span>, prefixFiles, <span class="st">".RData"</span>)
-<span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(currentResultFile)) {
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/load">load</a></span>(currentResultFile)
-  tableFitsPrev &lt;-<span class="st"> </span>listResults<span class="op">$</span>tableFits
-} <span class="cf">else</span> {
-  tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span>
-}
-
 fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(
     <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,
     <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, 
     <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,
+    <span class="dt">tableFitsPrev =</span> tableFitsPrev,
     <span class="dt">prefixFiles =</span> prefixFiles,
     <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelTrue &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>model[[<span class="dv">1</span>]]
-modelTrue
-<span class="co">#&gt; Mixed Gaussian model</span>
-<span class="co">#&gt; S3 class: MixedGaussian_432, MixedGaussian, GaussianPCM, PCM, _Transformable; k=2; p=18; regimes: 1, 2, 3. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
-<span class="co">#&gt; [1]  1 -1</span>
-<span class="co">#&gt; 1 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span>
-<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
-<span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=7; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 1.39 0.00</span>
-<span class="co">#&gt; [2,] 0.00 0.59</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
-<span class="co">#&gt;         1</span>
-<span class="co">#&gt; [1,] 5.94</span>
-<span class="co">#&gt; [2,] 2.58</span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.29 0.02</span>
-<span class="co">#&gt; [2,] 0.00 0.36</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;  </span>
-<span class="co">#&gt; 2 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span>
-<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
-<span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=6; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.37 0.00</span>
-<span class="co">#&gt; [2,] 0.00 1.06</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
-<span class="co">#&gt;         1</span>
-<span class="co">#&gt; [1,] 5.41</span>
-<span class="co">#&gt; [2,] 2.63</span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _Diagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.36  0.0</span>
-<span class="co">#&gt; [2,] 0.00  0.4</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;  </span>
-<span class="co">#&gt; 3 (BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM):</span>
-<span class="co">#&gt; Brownian motion model</span>
-<span class="co">#&gt; S3 class: BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=3; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.17 0.14</span>
-<span class="co">#&gt; [2,] 0.00 0.50</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;  </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; upper triangular Choleski factor of the non-phylogenetic variance-covariance):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; </span>
-
-<span class="co"># We specify the tree and trait values for the true model in order to easily </span>
-<span class="co"># calculate parameter count likelihood and AIC for it:</span>
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"tree"</span>) &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>treeWithRegimes[[<span class="dv">1</span>]]
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"SE"</span>) &lt;-<span class="st"> </span>X <span class="op">*</span><span class="st"> </span><span class="fl">0.0</span></code></pre></div>
+</div>
+<div id="retrieving-and-analyzing-the-best-scoring-model-fit" class="section level1">
+<h1 class="hasAnchor">
+<a href="#retrieving-and-analyzing-the-best-scoring-model-fit" class="anchor"></a>Retrieving and analyzing the best scoring model fit</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bestFit &lt;-<span class="st"> </span><span class="kw">RetrieveBestFitScore</span>(fitMGPM_A_F_BC2_RR)
 
 listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
@@ -428,6 +317,7 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#setting-up-the-computing-cluster">Setting up the computing cluster</a></li>
       <li><a href="#running-the-mgpm-inference">Running the MGPM Inference</a></li>
+      <li><a href="#retrieving-and-analyzing-the-best-scoring-model-fit">Retrieving and analyzing the best scoring model fit</a></li>
       <li><a href="#references">References</a></li>
       </ul>
 </div>

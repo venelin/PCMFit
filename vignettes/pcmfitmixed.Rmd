@@ -39,7 +39,7 @@ useCacheMGPM_A_F_BC2_RR <- TRUE
 **Note:** *The writing of this vignette is currently in progress. If needed, please, contact the author for assistance. Thanks for your understanding.*
 
 # Setting up the computing cluster
-```{r, eval=TRUE}
+```{r, results="hide", warning=FALSE, message=FALSE, eval=TRUE}
 library(PCMBase)
 library(PCMBaseCpp)
 library(PCMFit)
@@ -97,7 +97,7 @@ tree <- PCMTree(PCMFitDemoObjects$dtSimulated$tree[[1]])
 X <- PCMFitDemoObjects$dtSimulated$X[[1]][, seq_len(PCMTreeNumTips(tree))]
 ```
 
-```{r}
+```{r, include=FALSE, warning=FALSE, results="hide", eval = TRUE}
 currentResultFile <- paste0("CurrentResults_fits_", prefixFiles, ".RData")
 if(file.exists(currentResultFile)) {
   load(currentResultFile)
@@ -136,13 +136,14 @@ fitMGPM_A_F_BC2_RR <- PCMFitMixed(
     X = X, tree = tree, metaIFun = PCMInfoCpp,
     generatePCMModelsFun = generatePCMModelsFunction, 
     maxNumRoundRobins = 2, maxNumPartitionsInRoundRobins = 2,
+    tableFitsPrev = tableFitsPrev,
     prefixFiles = prefixFiles,
     doParallel = TRUE)
 ```
 
-```{r}
+# Retrieving and analyzing the best scoring model fit
+```{r, echo=FALSE}
 modelTrue <- PCMFitDemoObjects$dtSimulated$model[[1]]
-modelTrue
 
 # We specify the tree and trait values for the true model in order to easily 
 # calculate parameter count likelihood and AIC for it:
