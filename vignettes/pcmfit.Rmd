@@ -34,7 +34,10 @@ if(!requireNamespace("ggtree")) {
 }
 
 # make results reproducible
-set.seed(2, kind = "Mersenne-Twister", normal.kind = "Inversion")
+set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
+useCacheGlobalModels <- TRUE
+useCacheMGPMTrueTypeMapping <- TRUE
+useCacheMGPMTrueTypeMappingCheat <- TRUE
 ```
 
 **Note:** *The writing of this vignette is currently in progress. If needed, please, contact the author for assistance. Thanks for your understanding.*
@@ -305,13 +308,13 @@ PCMParamUpperLimit.OU <- function(o, k, R, ...) {
 ## Fitting the global models
 
 ```{r fitGlobalModels, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
-if(is.null(PCMFitDemoObjects$fitBM)) {
+if(is.null(PCMFitDemoObjects$fitBM) || !useCacheGlobalModels) {
   fitBM <- PCMFit(X, tree, modelBM, metaI = PCMBaseCpp::PCMInfoCpp)
   PCMFitDemoObjects$fitBM <- fitBM
   usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
 } 
 
-if(is.null(PCMFitDemoObjects$fitOU)) {
+if(is.null(PCMFitDemoObjects$fitOU) || !useCacheGlobalModels) {
   fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
   PCMFitDemoObjects$fitOU <- fitOU
   usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
@@ -329,7 +332,7 @@ fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
 ## Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters
 
 ```{r fitMGPMTrueTypeMapping, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
-if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMapping)) {
+if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMapping) || !useCacheMGPMTrueTypeMapping) {
   fitMGPMTrueTypeMapping <- PCMFit(
     X, treeWithTrueShifts, modelTrueTypeMapping, 
     metaI = PCMBaseCpp::PCMInfoCpp)
@@ -351,9 +354,13 @@ fitMGPMTrueTypeMapping <- PCMFit(
 ## Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values
 
 ```{r fitMGPMTrueTypeMappingCheat, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
-if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat)) {
+if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat) || !useCacheMGPMTrueTypeMappingCheat) {
   fitMGPMTrueTypeMappingCheat <- PCMFit(
-    X, treeWithTrueShifts, modelTrue, metaI = PCMBaseCpp::PCMInfoCpp)
+    X, treeWithTrueShifts, modelTrueTypeMapping, 
+    matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L),
+    numRunifInitVecParams = 1000L,
+    numGuessInitVecParams = 100L,
+    metaI = PCMBaseCpp::PCMInfoCpp)
   
   PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat <- fitMGPMTrueTypeMappingCheat
   usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
@@ -364,8 +371,12 @@ fitMGPMTrueTypeMappingCheat <- PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat
 
 ```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
 fitMGPMTrueTypeMappingCheat <- PCMFit(
-  X, treeWithTrueShifts, modelTrueTypeMapping, metaI = PCMBaseCpp::PCMInfoCpp,
-  matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L))
+  X, treeWithTrueShifts, modelTrueTypeMapping, 
+    matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L),
+    numRunifInitVecParams = 1000L,
+    numGuessInitVecParams = 100L,
+  metaI = PCMBaseCpp::PCMInfoCpp,
+  matParInit = jitterModelParams(modelTrue))
 ```
 
 # Step 5. Evaluating the model fits

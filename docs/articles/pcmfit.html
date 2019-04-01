@@ -520,8 +520,12 @@ fitMGPMTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href=".
 <h2 class="hasAnchor">
 <a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitMGPMTrueTypeMappingCheat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(
-  X, treeWithTrueShifts, modelTrueTypeMapping, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp,
-  <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L))</code></pre></div>
+  X, treeWithTrueShifts, modelTrueTypeMapping, 
+    <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L),
+    <span class="dt">numRunifInitVecParams =</span> 1000L,
+    <span class="dt">numGuessInitVecParams =</span> 100L,
+  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp,
+  <span class="dt">matParInit =</span> <span class="kw">jitterModelParams</span>(modelTrue))</code></pre></div>
 </div>
 </div>
 <div id="step-5--evaluating-the-model-fits" class="section level1">
@@ -556,31 +560,31 @@ knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentat
 <tr class="odd">
 <td align="left">Global BM</td>
 <td align="right">5</td>
-<td align="right">-221.68133</td>
+<td align="right">-221.6813</td>
 <td align="right">455.3627</td>
 </tr>
 <tr class="even">
 <td align="left">Global OU</td>
 <td align="right">11</td>
-<td align="right">-216.77302</td>
-<td align="right">457.5460</td>
+<td align="right">-204.6016</td>
+<td align="right">433.2033</td>
 </tr>
 <tr class="odd">
 <td align="left">True MGPM, unknown parameters</td>
 <td align="right">18</td>
-<td align="right">-94.94477</td>
-<td align="right">235.8895</td>
+<td align="right">-107.3973</td>
+<td align="right">260.7947</td>
 </tr>
 <tr class="even">
 <td align="left">True MGPM, known true parameters</td>
 <td align="right">18</td>
-<td align="right">-93.60573</td>
-<td align="right">233.2115</td>
+<td align="right">-102.6350</td>
+<td align="right">251.2700</td>
 </tr>
 <tr class="odd">
 <td align="left">True MGPM, true parameters</td>
 <td align="right">18</td>
-<td align="right">-102.63502</td>
+<td align="right">-102.6350</td>
 <td align="right">251.2700</td>
 </tr>
 </tbody>
