@@ -182,7 +182,7 @@ PCMFit builds on top of a stack of three tools enabling fast likelihood calculat
 
 # Citing PCMFit
 
-To give credit to the PCMFit package in a publication, please cite one of the following:
+To acknowledge the PCMFit package in a publication or other presentation, please cite one of the following:
 
 * Mitov, V. (2018). Phylogenetic Comparative Methods in the Era of Big Data, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
 ```
@@ -195,7 +195,18 @@ address = {Zurich},
 url = {https://doi.org/10.3929/ethz-b-000315296},
 }
 ```
-<!--* Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.-->
+Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Article in Review, preprint available in Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
+```
+@article{Mitov:2019agh,
+author = {Mitov, Venelin and Bartoszek, Krzysztof and Stadler, Tanja},
+title = {{Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models}},
+journal = {article in review, preprint in Ch. 7 of Thesis No. 25428, ETH Zurich},
+year = {2019},
+pages = {},
+month = mai,
+url = {https://doi.org/10.3929/ethz-b-000315296}
+}
+```
 * Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2018, September 24). Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package. arXiv.org. https://arxiv.org/abs/1809.09014.
 ```
 @article{Mitov:2018fl,

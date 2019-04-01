@@ -1,5 +1,5 @@
 ---
-title: "Inferring Phylogenetic Comparative Models using PCMFit"
+title: "Getting started with the PCMFit R-package"
 author: "Venelin Mitov"
 date: "`r Sys.Date()`"
 output: 
@@ -32,14 +32,22 @@ if(!requireNamespace("ggtree")) {
       "The ggtree installation did not succeed. The vignette cannot be built.")
   }
 }
+
+# make results reproducible
+set.seed(2, kind = "Mersenne-Twister", normal.kind = "Inversion")
 ```
 
-**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.*
+**Note:** *The writing of this vignette is currently in progress. If needed, please, contact the author for assistance. Thanks for your understanding.*
 
-# Prerequisites
+Using the PCMFit R-package comprises several steps:
 
-- Loading the prerequisites:
+1. Preparing the data, to which we wish to fit phylogenetic comparative model (PCM);
+2. Deciding on the type of PCM we wish to infer;
+3. Defining the PCM;
+4. Calling a PCMFit model inference function on the data and model type we have defined;
+5. Evaluating the inferred model.
 
+Before we start, let's load the packages needed for this tutorial:
 ```{r load-libraries, results='hide', warning=FALSE, message=FALSE}
 library(PCMBase)
 library(PCMFit)
@@ -49,29 +57,29 @@ library(ggtree)
 library(cowplot)
 ```
 
-# A brief introduction to mixed Gaussian phylogenetic models
+In the next sections, we go through each of the above steps:
 
+# Step 1. An example dataset
 
-
-# An example
+For this tutorial, we will use a simulated non-ultrametric tree of $N=80$ tips and simulated $k=2$-variate trait values. Both of these are stored in the data-table `dtSimulated` included with the PCMFit package.
 
 ## The tree
+```{r}
+tree <- PCMTree(PCMFitDemoObjects$dtSimulated$tree[[1]])
+tree
+```
 
-## The MGPM
+## The data
+```{r}
+X <- PCMFitDemoObjects$dtSimulated$X[[1]][, seq_len(PCMTreeNumTips(tree))]
+dim(X)
+```
 
-## The trait values
+We use the `PCMBase::PCMTreePlot()` and `PCMBase::PCMPlotTraitData2D()` functions to generate plots of the tree and the data (note that `PCMBase::PCMTreePlot()` requires the `ggtree` R-package which is currently not on CRAN - see the [ggtree home page](https://guangchuangyu.github.io/software/ggtree/) for instructions how to install this package):
 
-```{r, fig.width=7, fig.height=3.5, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. "}
-tree <- PCMTree(PCMFitDemoObjects$dtSimulated$treeWithRegimes[[1]])
-X <- PCMFitDemoObjects$dtSimulated$X[[1]]
-
-plTree <- PCMTreePlot(tree, layout="fan") %<+% 
-  data.table(
-    node = c(12, 77, 45), 
-    part.model = c(" 1.D ", " 2.C ", " 3.B "),
-    offset = 5) + 
+```{r, fig.width=7, fig.height=3.5, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips. **B**:  bivariate trait values at the tips of the tree. "}
+plTree <- PCMTreePlot(tree, layout="fan") +
   geom_tiplab2(size = 2) + 
-  geom_tiplab2(aes(label = part.model), offset = 16) + 
   geom_nodelab(size = 2, color = "black") + 
   geom_treescale(width = max(PCMTreeNodeTimes(tree)), x = 0, linesize = .25, fontsize = 2, offset = 79)
 
@@ -89,8 +97,298 @@ plX <- PCMPlotTraitData2D(
 cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
 ```
 
-# Inferring a single-regime model
+# Step 2. Gaussian model types
 
-# Inferring a MGPM with known shift-point configuration and model type assignment
+In this tutorial, we use the six model types $BM_{A}$, $BM_{B}$, $OU_{C}$, $OU_{D}$, $OU_{E}$, $OU_{F}$ from the $\mathcal{G}_{LInv}$-family as defined in [@Mitov:2019agh]. These model types are also described in the PCMBase [Getting started guide](https://venelin.github.io/PCMBase/articles/PCMBase.html#groups-of-model-types):
+```{r}
+# scroll to the right in the following listing to see the aliases for the six 
+# default model types:
+PCMDefaultModelTypes()
+```
+
+Our purpose for this tutorial will be to select an optimal model for the data. We will compare "global" models in which one model of one of the above model types is fit to the entire tree and data, versus a mixed Gaussian phylogenetic model where different models of the above model types are assigned to different parts of the tree. 
+
+# Step 3. Creating model objects
+
+## Global models
+### A global $BM_{B}$ model
+```{r}
+modelBM <- PCM(
+  PCMDefaultModelTypes()["B"], modelTypes = PCMDefaultModelTypes(), k = 2)
+
+modelBM
+```
+
+### A global $OU_{F}$ model
+```{r}
+modelOU <- PCM(
+  PCMDefaultModelTypes()["F"], modelTypes = PCMDefaultModelTypes(), k = 2)
+
+modelOU
+```
+
+## MGPM models
+### A MGPM with the true shift-point configuration and model type mapping
+```{r}
+modelTrueTypeMapping <- MixedGaussian(
+  k = 2,
+  modelTypes = MGPMDefaultModelTypes(),
+  mapping = c(4, 3, 2),
+  X0 = structure(
+    0, class = c("VectorParameter",
+                 "_Global"), description = "trait values at the root"), 
+  Sigmae_x = structure(
+    0, class = c("MatrixParameter", "_Omitted",
+                 "_Global"),
+    description =
+      "Upper triangular Choleski factor of the non-phylogenetic variance-covariance"))
+
+treeWithTrueShifts <- PCMTree(PCMFitDemoObjects$dtSimulated$tree[[1]])
+PCMTreeSetPartRegimes(
+  treeWithTrueShifts, 
+  part.regime = c(`81` = 1, `105` = 2, `125` = 3), 
+  setPartition = TRUE)
+```
+
+### A MGPM with the true shift-point configuration, model type mapping and parameter values
+```{r}
+modelTrue <- PCMFitDemoObjects$dtSimulated$model[[1]]
+modelTrue
+
+# We specify the tree and trait values for the true model in order to easily 
+# calculate parameter count likelihood and AIC for it:
+attr(modelTrue, "tree") <- treeWithTrueShifts
+attr(modelTrue, "X") <- X
+attr(modelTrue, "SE") <- X * 0.0
+```
+
+
+## A view of the data according to the true shift-point configuration
+```{r, fig.width=7, fig.height=3.5, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. "}
+
+plTree <- PCMTreePlot(treeWithTrueShifts, layout="fan") %<+% 
+  data.table(
+    node = c(12, 77, 45), 
+    part.model = c(" 1.D ", " 2.C ", " 3.B "),
+    offset = 5) + 
+  geom_tiplab2(size = 2) + 
+  geom_tiplab2(aes(label = part.model), offset = 16) + 
+  geom_nodelab(size = 2, color = "black") + 
+  geom_treescale(
+    width = max(PCMTreeNodeTimes(treeWithTrueShifts)), x = 0, 
+    linesize = .25, fontsize = 2, offset = 79)
+
+plX <- PCMPlotTraitData2D(
+  X[, seq_len(PCMTreeNumTips(treeWithTrueShifts))], 
+  treeWithTrueShifts, 
+  scaleSizeWithTime = FALSE) +
+  geom_text(
+    aes(x = x, y = y, label = id, color = regime), 
+    size=2, 
+    position = position_jitter(.4, .4)) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
+```
+
+# Step 4. Model inference
+
+## Specifying parameter limits
+
+An optional but important preliminary step is to explicitly specify the limits for the model parameters. This is needed, because the default settings might not be appropriate for the data in question. Here is an example how the model parameter limits can be set. Note that we specify these limits for the base "BM" and "OU" model types, but they are inherited by their subtypes A, ..., F, as specified in the comments.
+
+```{r}
+# lower limits for models A and B
+PCMParamLowerLimit.BM <- function(o, k, R, ...) {
+  o <- NextMethod()
+  k <- attr(o, "k", exact = TRUE)
+  R <- length(attr(o, "regimes", exact = TRUE))
+
+  if(is.Global(o$Sigma_x)) {
+    if(!is.Diagonal(o$Sigma_x)) {
+      o$Sigma_x[1, 2] <- -.0
+    }
+  } else {
+    if(!is.Diagonal(o$Sigma_x)) {
+      for(r in seq_len(R)) {
+        o$Sigma_x[1, 2, r] <- -.0
+      }
+    }
+  }
+  o
+}
+
+# upper limits for models A and B
+PCMParamUpperLimit.BM <- function(o, k, R, ...) {
+  o <- NextMethod()
+  k <- attr(o, "k", exact = TRUE)
+  R <- length(attr(o, "regimes", exact = TRUE))
+
+  if(is.Global(o$Sigma_x)) {
+    o$Sigma_x[1, 1] <- o$Sigma_x[2, 2] <- 1.0
+    if(!is.Diagonal(o$Sigma_x)) {
+      o$Sigma_x[1, 2] <- 1.0
+    }
+  } else {
+    for(r in seq_len(R)) {
+      o$Sigma_x[1, 1, r] <- o$Sigma_x[2, 2, r] <- 1.0
+      if(!is.Diagonal(o$Sigma_x)) {
+        o$Sigma_x[1, 2, r] <- 1.0
+      }
+    }
+  }
+  o
+}
+
+# lower limits for models C, ..., F.
+PCMParamLowerLimit.OU <- function(o, k, R, ...) {
+  o <- NextMethod()
+  k <- attr(o, "k", exact = TRUE)
+  R <- length(attr(o, "regimes", exact = TRUE))
+
+  if(is.Global(o$Theta)) {
+    o$Theta[1] <- 0.0
+    o$Theta[2] <- -1.2
+  } else {
+    for(r in seq_len(R)) {
+      o$Theta[1, r] <- 0.0
+      o$Theta[2, r] <- -1.2
+    }
+  }
+  if(is.Global(o$Sigma_x)) {
+    if(!is.Diagonal(o$Sigma_x)) {
+      o$Sigma_x[1, 2] <- -.0
+    }
+  } else {
+    if(!is.Diagonal(o$Sigma_x)) {
+      for(r in seq_len(R)) {
+        o$Sigma_x[1, 2, r] <- -.0
+      }
+    }
+  }
+  o
+}
+
+# upper limits for models C, ..., F.
+PCMParamUpperLimit.OU <- function(o, k, R, ...) {
+  o <- NextMethod()
+  k <- attr(o, "k", exact = TRUE)
+  R <- length(attr(o, "regimes", exact = TRUE))
+
+  if(is.Global(o$Theta)) {
+    o$Theta[1] <- 7.8
+    o$Theta[2] <- 4.2
+  } else {
+    for(r in seq_len(R)) {
+      o$Theta[1, r] <- 7.8
+      o$Theta[2, r] <- 4.2
+    }
+  }
+  if(is.Global(o$Sigma_x)) {
+    o$Sigma_x[1, 1] <- o$Sigma_x[2, 2] <- 1.0
+    if(!is.Diagonal(o$Sigma_x)) {
+      o$Sigma_x[1, 2] <- 1.0
+    }
+  } else {
+    for(r in seq_len(R)) {
+      o$Sigma_x[1, 1, r] <- o$Sigma_x[2, 2, r] <- 1.0
+      if(!is.Diagonal(o$Sigma_x)) {
+        o$Sigma_x[1, 2, r] <- 1.0
+      }
+    }
+  }
+  o
+}
+```
+
+## Fitting the global models
+
+```{r fitGlobalModels, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
+if(is.null(PCMFitDemoObjects$fitBM)) {
+  fitBM <- PCMFit(X, tree, modelBM, metaI = PCMBaseCpp::PCMInfoCpp)
+  PCMFitDemoObjects$fitBM <- fitBM
+  usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+} 
+
+if(is.null(PCMFitDemoObjects$fitOU)) {
+  fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
+  PCMFitDemoObjects$fitOU <- fitOU
+  usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+} 
+
+fitBM <- PCMFitDemoObjects$fitBM
+fitOU <- PCMFitDemoObjects$fitOU
+```
+
+```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
+fitBM <- PCMFit(X, tree, modelBM, metaI = PCMBaseCpp::PCMInfoCpp)
+fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
+```
+
+## Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters
+
+```{r fitMGPMTrueTypeMapping, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
+if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMapping)) {
+  fitMGPMTrueTypeMapping <- PCMFit(
+    X, treeWithTrueShifts, modelTrueTypeMapping, 
+    metaI = PCMBaseCpp::PCMInfoCpp)
+  
+  PCMFitDemoObjects$fitMGPMTrueTypeMapping <- fitMGPMTrueTypeMapping
+  usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+}
+
+fitMGPMTrueTypeMapping <- PCMFitDemoObjects$fitMGPMTrueTypeMapping
+```
+
+```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
+# This can take about 5 minutes to finish
+fitMGPMTrueTypeMapping <- PCMFit(
+  X, treeWithTrueShifts, modelTrueTypeMapping, metaI = PCMBaseCpp::PCMInfoCpp)
+```
+
+
+## Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values
+
+```{r fitMGPMTrueTypeMappingCheat, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
+if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat)) {
+  fitMGPMTrueTypeMappingCheat <- PCMFit(
+    X, treeWithTrueShifts, modelTrue, metaI = PCMBaseCpp::PCMInfoCpp)
+  
+  PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat <- fitMGPMTrueTypeMappingCheat
+  usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+}
+
+fitMGPMTrueTypeMappingCheat <- PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat
+```
+
+```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
+fitMGPMTrueTypeMappingCheat <- PCMFit(
+  X, treeWithTrueShifts, modelTrueTypeMapping, metaI = PCMBaseCpp::PCMInfoCpp,
+  matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L))
+```
+
+# Step 5. Evaluating the model fits
+
+```{r}
+listModels <- list(
+  RetrieveBestModel(fitBM), 
+  RetrieveBestModel(fitOU),
+  RetrieveBestModel(fitMGPMTrueTypeMapping), 
+  RetrieveBestModel(fitMGPMTrueTypeMappingCheat), 
+  modelTrue)
+
+dtSummary <- data.table(
+  model = c(
+    "Global BM", 
+    "Global OU", 
+    "True MGPM, unknown parameters", 
+    "True MGPM, known true parameters", 
+    "True MGPM, true parameters"),
+  p = sapply(listModels, PCMParamCount),
+  logLik = sapply(listModels, logLik), 
+  AIC = sapply(listModels, AIC))
+knitr::kable(dtSummary)
+```
 
 # References

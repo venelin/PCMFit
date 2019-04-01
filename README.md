@@ -144,7 +144,7 @@ PCMFit builds on top of a stack of three tools enabling fast likelihood calculat
 Citing PCMFit
 =============
 
-To give credit to the PCMFit package in a publication, please cite one of the following:
+To acknowledge the PCMFit package in a publication or other presentation, please cite one of the following:
 
 -   Mitov, V. (2018). Phylogenetic Comparative Methods in the Era of Big Data, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
 
@@ -157,7 +157,18 @@ To give credit to the PCMFit package in a publication, please cite one of the fo
         url = {https://doi.org/10.3929/ethz-b-000315296},
         }
 
-    <!--* Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.-->
+    Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Article in Review, preprint available in Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
+
+        @article{Mitov:2019agh,
+        author = {Mitov, Venelin and Bartoszek, Krzysztof and Stadler, Tanja},
+        title = {{Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models}},
+        journal = {article in review, preprint in Ch. 7 of Thesis No. 25428, ETH Zurich},
+        year = {2019},
+        pages = {},
+        month = mai,
+        url = {https://doi.org/10.3929/ethz-b-000315296}
+        }
+
 -   Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2018, September 24). Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package. arXiv.org. <https://arxiv.org/abs/1809.09014>.
 
         @article{Mitov:2018fl,
@@ -191,8 +202,8 @@ Although, I have been consistent in my effort to update the following list with 
 
 The PCMFit R-package uses the following 3rd party R-packages:
 
--   For tree processing in R: ape v5.3 (Paradis et al. 2019), data.table v1.12.0 (Dowle and Srinivasan 2019), PCMBase v1.2.9 (Mitov 2019a);
--   For specification and manipulation of models in R: PCMBase v1.2.9 (Mitov 2019a), PCMBaseCpp v0.1.4 (Mitov 2019b), SPLITT v1.2.1 (Mitov 2018b);
+-   For tree processing in R: ape v5.3 (Paradis et al. 2019), data.table v1.12.0 (Dowle and Srinivasan 2019), PCMBase v1.2.10 (Mitov 2019a);
+-   For specification and manipulation of models in R: PCMBase v1.2.10 (Mitov 2019a), PCMBaseCpp v0.1.4 (Mitov 2019b), SPLITT v1.2.1 (Mitov 2018b);
 -   For data processing in R: data.table v1.12.0 (Dowle and Srinivasan 2019);
 -   For parallel execution: iterators v1.0.10 (Analytics and Weston 2018), foreach v1.4.4 (Revolution Analytics and Weston, n.d.), doParallel v1.0.14 (Corporation and Weston 2018);
 -   For algebraic computation: expm v0.999.4 (Goulet et al. 2019), mvtnorm v1.0.10 (Genz et al. 2019);

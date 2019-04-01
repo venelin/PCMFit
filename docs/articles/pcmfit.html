@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inferring Phylogenetic Comparative Models using PCMFit • PCMFit</title>
+<title>Getting started with the PCMFit R-package • PCMFit</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Inferring Phylogenetic Comparative Models using PCMFit">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with the PCMFit R-package">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -85,10 +85,10 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Inferring Phylogenetic Comparative Models using PCMFit</h1>
+      <h1>Getting started with the PCMFit R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-03-30</h4>
+            <h4 class="date">2019-04-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/pcmfit.Rmd"><code>vignettes/pcmfit.Rmd</code></a></small>
       <div class="hidden name"><code>pcmfit.Rmd</code></div>
@@ -97,48 +97,51 @@
 
     
     
-<p><strong>Note:</strong> <em>The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.</em></p>
-<div id="prerequisites" class="section level1">
-<h1 class="hasAnchor">
-<a href="#prerequisites" class="anchor"></a>Prerequisites</h1>
-<ul>
-<li>Loading the prerequisites:</li>
-</ul>
+<p><strong>Note:</strong> <em>The writing of this vignette is currently in progress. If needed, please, contact the author for assistance. Thanks for your understanding.</em></p>
+<p>Using the PCMFit R-package comprises several steps:</p>
+<ol style="list-style-type: decimal">
+<li>Preparing the data, to which we wish to fit phylogenetic comparative model (PCM);</li>
+<li>Deciding on the type of PCM we wish to infer;</li>
+<li>Defining the PCM;</li>
+<li>Calling a PCMFit model inference function on the data and model type we have defined;</li>
+<li>Evaluating the inferred model.</li>
+</ol>
+<p>Before we start, let’s load the packages needed for this tutorial:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(cowplot)</code></pre></div>
-</div>
-<div id="a-brief-introduction-to-mixed-gaussian-phylogenetic-models" class="section level1">
+<p>In the next sections, we go through each of the above steps:</p>
+<div id="step-1--an-example-dataset" class="section level1">
 <h1 class="hasAnchor">
-<a href="#a-brief-introduction-to-mixed-gaussian-phylogenetic-models" class="anchor"></a>A brief introduction to mixed Gaussian phylogenetic models</h1>
-</div>
-<div id="an-example" class="section level1">
-<h1 class="hasAnchor">
-<a href="#an-example" class="anchor"></a>An example</h1>
+<a href="#step-1--an-example-dataset" class="anchor"></a>Step 1. An example dataset</h1>
+<p>For this tutorial, we will use a simulated non-ultrametric tree of <span class="math inline">\(N=80\)</span> tips and simulated <span class="math inline">\(k=2\)</span>-variate trait values. Both of these are stored in the data-table <code>dtSimulated</code> included with the PCMFit package.</p>
 <div id="the-tree" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-tree" class="anchor"></a>The tree</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])
+tree
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Phylogenetic tree with 80 tips and 79 internal nodes.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Tip labels:</span>
+<span class="co">#&gt;  1, 2, 3, 4, 5, 6, ...</span>
+<span class="co">#&gt; Node labels:</span>
+<span class="co">#&gt;  81, 82, 83, 84, 85, 86, ...</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Rooted; includes branch lengths.</span></code></pre></div>
 </div>
-<div id="the-mgpm" class="section level2">
+<div id="the-data" class="section level2">
 <h2 class="hasAnchor">
-<a href="#the-mgpm" class="anchor"></a>The MGPM</h2>
-</div>
-<div id="the-trait-values" class="section level2">
-<h2 class="hasAnchor">
-<a href="#the-trait-values" class="anchor"></a>The trait values</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>treeWithRegimes[[<span class="dv">1</span>]])
-X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>X[[<span class="dv">1</span>]]
-
-plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">%&lt;+%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
-    <span class="dt">node =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">12</span>, <span class="dv">77</span>, <span class="dv">45</span>), 
-    <span class="dt">part.model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">" 1.D "</span>, <span class="st">" 2.C "</span>, <span class="st">" 3.B "</span>),
-    <span class="dt">offset =</span> <span class="dv">5</span>) <span class="op">+</span><span class="st"> </span>
+<a href="#the-data" class="anchor"></a>The data</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>X[[<span class="dv">1</span>]][, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(X)
+<span class="co">#&gt; [1]  2 80</span></code></pre></div>
+<p>We use the <code><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMBase::PCMTreePlot()</a></code> and <code><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMBase::PCMPlotTraitData2D()</a></code> functions to generate plots of the tree and the data (note that <code><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMBase::PCMTreePlot()</a></code> requires the <code>ggtree</code> R-package which is currently not on CRAN - see the <a href="https://guangchuangyu.github.io/software/ggtree/">ggtree home page</a> for instructions how to install this package):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">+</span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">label =</span> part.model), <span class="dt">offset =</span> <span class="dv">16</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(<span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(tree)), <span class="dt">x =</span> <span class="dv">0</span>, <span class="dt">linesize =</span> .<span class="dv">25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)
 
@@ -155,23 +158,442 @@ plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.githu
 
 cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
 <div class="figure">
-<img src="pcmfit_files/figure-html/unnamed-chunk-1-1.png" alt="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. " width="672"><p class="caption">
+<img src="pcmfit_files/figure-html/unnamed-chunk-3-1.png" alt="**Example phylogenetic comparative data.** **A**: a tree of 80 tips. **B**:  bivariate trait values at the tips of the tree. " width="672"><p class="caption">
+<strong>Example phylogenetic comparative data.</strong> <strong>A</strong>: a tree of 80 tips. <strong>B</strong>: bivariate trait values at the tips of the tree.
+</p>
+</div>
+</div>
+</div>
+<div id="step-2--gaussian-model-types" class="section level1">
+<h1 class="hasAnchor">
+<a href="#step-2--gaussian-model-types" class="anchor"></a>Step 2. Gaussian model types</h1>
+<p>In this tutorial, we use the six model types <span class="math inline">\(BM_{A}\)</span>, <span class="math inline">\(BM_{B}\)</span>, <span class="math inline">\(OU_{C}\)</span>, <span class="math inline">\(OU_{D}\)</span>, <span class="math inline">\(OU_{E}\)</span>, <span class="math inline">\(OU_{F}\)</span> from the <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family as defined in <span class="citation">(Mitov, Bartoszek, and Stadler 2019)</span>. These model types are also described in the PCMBase <a href="https://venelin.github.io/PCMBase/articles/PCMBase.html#groups-of-model-types">Getting started guide</a>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># scroll to the right in the following listing to see the aliases for the six </span>
+<span class="co"># default model types:</span>
+<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()
+<span class="co">#&gt;                                                                                                                                                                                A </span>
+<span class="co">#&gt;                                                                                                      "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
+<span class="co">#&gt;                                                                                                                                                                                B </span>
+<span class="co">#&gt;                                                                                   "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
+<span class="co">#&gt;                                                                                                                                                                                C </span>
+<span class="co">#&gt;                                       "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
+<span class="co">#&gt;                                                                                                                                                                                D </span>
+<span class="co">#&gt;                    "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
+<span class="co">#&gt;                                                                                                                                                                                E </span>
+<span class="co">#&gt; "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
+<span class="co">#&gt;                                                                                                                                                                                F </span>
+<span class="co">#&gt;                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span></code></pre></div>
+<p>Our purpose for this tutorial will be to select an optimal model for the data. We will compare “global” models in which one model of one of the above model types is fit to the entire tree and data, versus a mixed Gaussian phylogenetic model where different models of the above model types are assigned to different parts of the tree.</p>
+</div>
+<div id="step-3--creating-model-objects" class="section level1">
+<h1 class="hasAnchor">
+<a href="#step-3--creating-model-objects" class="anchor"></a>Step 3. Creating model objects</h1>
+<div id="global-models" class="section level2">
+<h2 class="hasAnchor">
+<a href="#global-models" class="anchor"></a>Global models</h2>
+<div id="a-global-bm_b-model" class="section level3">
+<h3 class="hasAnchor">
+<a href="#a-global-bm_b-model" class="anchor"></a>A global <span class="math inline">\(BM_{B}\)</span> model</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCM.html">PCM</a></span>(
+  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"B"</span>], <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>(), <span class="dt">k =</span> <span class="dv">2</span>)
+
+modelBM
+<span class="co">#&gt; Brownian motion model</span>
+<span class="co">#&gt; S3 class: BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=5; regimes: 1. Parameters/sub-models:</span>
+<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
+<span class="co">#&gt; [1] 0 0</span>
+<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,]    0    0</span>
+<span class="co">#&gt; [2,]    0    0</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; </span></code></pre></div>
+</div>
+<div id="a-global-ou_f-model" class="section level3">
+<h3 class="hasAnchor">
+<a href="#a-global-ou_f-model" class="anchor"></a>A global <span class="math inline">\(OU_{F}\)</span> model</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelOU &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCM.html">PCM</a></span>(
+  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"F"</span>], <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>(), <span class="dt">k =</span> <span class="dv">2</span>)
+
+modelOU
+<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
+<span class="co">#&gt; S3 class: OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=11; regimes: 1. Parameters/sub-models:</span>
+<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
+<span class="co">#&gt; [1] 0 0</span>
+<span class="co">#&gt; H (MatrixParameter, _Schur, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,]    0    0</span>
+<span class="co">#&gt; [2,]    0    0</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
+<span class="co">#&gt;      1</span>
+<span class="co">#&gt; [1,] 0</span>
+<span class="co">#&gt; [2,] 0</span>
+<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,]    0    0</span>
+<span class="co">#&gt; [2,]    0    0</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; </span></code></pre></div>
+</div>
+</div>
+<div id="mgpm-models" class="section level2">
+<h2 class="hasAnchor">
+<a href="#mgpm-models" class="anchor"></a>MGPM models</h2>
+<div id="a-mgpm-with-the-true-shift-point-configuration-and-model-type-mapping" class="section level3">
+<h3 class="hasAnchor">
+<a href="#a-mgpm-with-the-true-shift-point-configuration-and-model-type-mapping" class="anchor"></a>A MGPM with the true shift-point configuration and model type mapping</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/MixedGaussian.html">MixedGaussian</a></span>(
+  <span class="dt">k =</span> <span class="dv">2</span>,
+  <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">MGPMDefaultModelTypes</a></span>(),
+  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>),
+  <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(
+    <span class="dv">0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>,
+                 <span class="st">"_Global"</span>), <span class="dt">description =</span> <span class="st">"trait values at the root"</span>), 
+  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(
+    <span class="dv">0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>,
+                 <span class="st">"_Global"</span>),
+    <span class="dt">description =</span>
+      <span class="st">"Upper triangular Choleski factor of the non-phylogenetic variance-covariance"</span>))
+
+treeWithTrueShifts &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])
+<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(
+  treeWithTrueShifts, 
+  <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">81</span><span class="st">`</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">`</span><span class="dt">105</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="st">`</span><span class="dt">125</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>), 
+  <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)</code></pre></div>
+</div>
+<div id="a-mgpm-with-the-true-shift-point-configuration-model-type-mapping-and-parameter-values" class="section level3">
+<h3 class="hasAnchor">
+<a href="#a-mgpm-with-the-true-shift-point-configuration-model-type-mapping-and-parameter-values" class="anchor"></a>A MGPM with the true shift-point configuration, model type mapping and parameter values</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelTrue &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>model[[<span class="dv">1</span>]]
+modelTrue
+<span class="co">#&gt; Mixed Gaussian model</span>
+<span class="co">#&gt; S3 class: MixedGaussian_432, MixedGaussian, GaussianPCM, PCM, _Transformable; k=2; p=18; regimes: 1, 2, 3. Parameters/sub-models:</span>
+<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
+<span class="co">#&gt; [1]  1 -1</span>
+<span class="co">#&gt; 1 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span>
+<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
+<span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=7; regimes: 1. Parameters/sub-models:</span>
+<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,] 1.39 0.00</span>
+<span class="co">#&gt; [2,] 0.00 0.59</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
+<span class="co">#&gt;         1</span>
+<span class="co">#&gt; [1,] 5.94</span>
+<span class="co">#&gt; [2,] 2.58</span>
+<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,] 0.29 0.02</span>
+<span class="co">#&gt; [2,] 0.00 0.36</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; 2 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span>
+<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
+<span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=6; regimes: 1. Parameters/sub-models:</span>
+<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,] 0.37 0.00</span>
+<span class="co">#&gt; [2,] 0.00 1.06</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
+<span class="co">#&gt;         1</span>
+<span class="co">#&gt; [1,] 5.41</span>
+<span class="co">#&gt; [2,] 2.63</span>
+<span class="co">#&gt; Sigma_x (MatrixParameter, _Diagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,] 0.36  0.0</span>
+<span class="co">#&gt; [2,] 0.00  0.4</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; 3 (BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM):</span>
+<span class="co">#&gt; Brownian motion model</span>
+<span class="co">#&gt; S3 class: BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=3; regimes: 1. Parameters/sub-models:</span>
+<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
+<span class="co">#&gt; , , 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;      [,1] [,2]</span>
+<span class="co">#&gt; [1,] 0.17 0.14</span>
+<span class="co">#&gt; [2,] 0.00 0.50</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; upper triangular Choleski factor of the non-phylogenetic variance-covariance):</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; </span>
+
+<span class="co"># We specify the tree and trait values for the true model in order to easily </span>
+<span class="co"># calculate parameter count likelihood and AIC for it:</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"tree"</span>) &lt;-<span class="st"> </span>treeWithTrueShifts
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"SE"</span>) &lt;-<span class="st"> </span>X <span class="op">*</span><span class="st"> </span><span class="fl">0.0</span></code></pre></div>
+</div>
+</div>
+<div id="a-view-of-the-data-according-to-the-true-shift-point-configuration" class="section level2">
+<h2 class="hasAnchor">
+<a href="#a-view-of-the-data-according-to-the-true-shift-point-configuration" class="anchor"></a>A view of the data according to the true shift-point configuration</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(treeWithTrueShifts, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">%&lt;+%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
+    <span class="dt">node =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">12</span>, <span class="dv">77</span>, <span class="dv">45</span>), 
+    <span class="dt">part.model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">" 1.D "</span>, <span class="st">" 2.C "</span>, <span class="st">" 3.B "</span>),
+    <span class="dt">offset =</span> <span class="dv">5</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">label =</span> part.model), <span class="dt">offset =</span> <span class="dv">16</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(
+    <span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(treeWithTrueShifts)), <span class="dt">x =</span> <span class="dv">0</span>, 
+    <span class="dt">linesize =</span> .<span class="dv">25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)
+
+plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMPlotTraitData2D</a></span>(
+  X[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(treeWithTrueShifts))], 
+  treeWithTrueShifts, 
+  <span class="dt">scaleSizeWithTime =</span> <span class="ot">FALSE</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_text">geom_text</a></span>(
+    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), 
+    <span class="dt">size=</span><span class="dv">2</span>, 
+    <span class="dt">position =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/position_jitter">position_jitter</a></span>(.<span class="dv">4</span>, .<span class="dv">4</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggtheme">theme_bw</a></span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)
+
+cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
+<div class="figure">
+<img src="pcmfit_files/figure-html/unnamed-chunk-9-1.png" alt="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. " width="672"><p class="caption">
 <strong>Example phylogenetic comparative data.</strong> <strong>A</strong>: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, …, F). <strong>B</strong>: bivariate trait values at the tips of the tree.
 </p>
 </div>
 </div>
 </div>
-<div id="inferring-a-single-regime-model" class="section level1">
+<div id="step-4--model-inference" class="section level1">
 <h1 class="hasAnchor">
-<a href="#inferring-a-single-regime-model" class="anchor"></a>Inferring a single-regime model</h1>
+<a href="#step-4--model-inference" class="anchor"></a>Step 4. Model inference</h1>
+<div id="specifying-parameter-limits" class="section level2">
+<h2 class="hasAnchor">
+<a href="#specifying-parameter-limits" class="anchor"></a>Specifying parameter limits</h2>
+<p>An optional but important preliminary step is to explicitly specify the limits for the model parameters. This is needed, because the default settings might not be appropriate for the data in question. Here is an example how the model parameter limits can be set. Note that we specify these limits for the base “BM” and “OU” model types, but they are inherited by their subtypes A, …, F, as specified in the comments.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># lower limits for models A and B</span>
+PCMParamLowerLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
+  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
+  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
+  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
+
+  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
+    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
+    }
+  } <span class="cf">else</span> {
+    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+      <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
+        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
+      }
+    }
+  }
+  o
+}
+
+<span class="co"># upper limits for models A and B</span>
+PCMParamUpperLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
+  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
+  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
+  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
+
+  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
+    o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+    }
+  } <span class="cf">else</span> {
+    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
+      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>, r] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+      <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+      }
+    }
+  }
+  o
+}
+
+<span class="co"># lower limits for models C, ..., F.</span>
+PCMParamLowerLimit.OU &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
+  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
+  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
+  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
+
+  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Theta)) {
+    o<span class="op">$</span>Theta[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="fl">0.0</span>
+    o<span class="op">$</span>Theta[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="op">-</span><span class="fl">1.2</span>
+  } <span class="cf">else</span> {
+    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
+      o<span class="op">$</span>Theta[<span class="dv">1</span>, r] &lt;-<span class="st"> </span><span class="fl">0.0</span>
+      o<span class="op">$</span>Theta[<span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="op">-</span><span class="fl">1.2</span>
+    }
+  }
+  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
+    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
+    }
+  } <span class="cf">else</span> {
+    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+      <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
+        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
+      }
+    }
+  }
+  o
+}
+
+<span class="co"># upper limits for models C, ..., F.</span>
+PCMParamUpperLimit.OU &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
+  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
+  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
+  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
+
+  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Theta)) {
+    o<span class="op">$</span>Theta[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="fl">7.8</span>
+    o<span class="op">$</span>Theta[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">4.2</span>
+  } <span class="cf">else</span> {
+    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
+      o<span class="op">$</span>Theta[<span class="dv">1</span>, r] &lt;-<span class="st"> </span><span class="fl">7.8</span>
+      o<span class="op">$</span>Theta[<span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">4.2</span>
+    }
+  }
+  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
+    o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+    }
+  } <span class="cf">else</span> {
+    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
+      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>, r] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+      <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
+        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
+      }
+    }
+  }
+  o
+}</code></pre></div>
 </div>
-<div id="inferring-a-mgpm-with-known-shift-point-configuration-and-model-type-assignment" class="section level1">
+<div id="fitting-the-global-models" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fitting-the-global-models" class="anchor"></a>Fitting the global models</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelBM, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)
+fitOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelOU, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</code></pre></div>
+</div>
+<div id="fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This can take about 5 minutes to finish</span>
+fitMGPMTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(
+  X, treeWithTrueShifts, modelTrueTypeMapping, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</code></pre></div>
+</div>
+<div id="fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="section level2">
+<h2 class="hasAnchor">
+<a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitMGPMTrueTypeMappingCheat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(
+  X, treeWithTrueShifts, modelTrueTypeMapping, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp,
+  <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L))</code></pre></div>
+</div>
+</div>
+<div id="step-5--evaluating-the-model-fits" class="section level1">
 <h1 class="hasAnchor">
-<a href="#inferring-a-mgpm-with-known-shift-point-configuration-and-model-type-assignment" class="anchor"></a>Inferring a MGPM with known shift-point configuration and model type assignment</h1>
+<a href="#step-5--evaluating-the-model-fits" class="anchor"></a>Step 5. Evaluating the model fits</h1>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
+  <span class="kw">RetrieveBestModel</span>(fitBM), 
+  <span class="kw">RetrieveBestModel</span>(fitOU),
+  <span class="kw">RetrieveBestModel</span>(fitMGPMTrueTypeMapping), 
+  <span class="kw">RetrieveBestModel</span>(fitMGPMTrueTypeMappingCheat), 
+  modelTrue)
+
+dtSummary &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
+  <span class="dt">model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(
+    <span class="st">"Global BM"</span>, 
+    <span class="st">"Global OU"</span>, 
+    <span class="st">"True MGPM, unknown parameters"</span>, 
+    <span class="st">"True MGPM, known true parameters"</span>, 
+    <span class="st">"True MGPM, true parameters"</span>),
+  <span class="dt">p =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, PCMParamCount),
+  <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, logLik), 
+  <span class="dt">AIC =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, AIC))
+knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>(dtSummary)</code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">model</th>
+<th align="right">p</th>
+<th align="right">logLik</th>
+<th align="right">AIC</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Global BM</td>
+<td align="right">5</td>
+<td align="right">-221.68133</td>
+<td align="right">455.3627</td>
+</tr>
+<tr class="even">
+<td align="left">Global OU</td>
+<td align="right">11</td>
+<td align="right">-216.77302</td>
+<td align="right">457.5460</td>
+</tr>
+<tr class="odd">
+<td align="left">True MGPM, unknown parameters</td>
+<td align="right">18</td>
+<td align="right">-94.94477</td>
+<td align="right">235.8895</td>
+</tr>
+<tr class="even">
+<td align="left">True MGPM, known true parameters</td>
+<td align="right">18</td>
+<td align="right">-93.60573</td>
+<td align="right">233.2115</td>
+</tr>
+<tr class="odd">
+<td align="left">True MGPM, true parameters</td>
+<td align="right">18</td>
+<td align="right">-102.63502</td>
+<td align="right">251.2700</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="references" class="section level1">
+<div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
+<div id="refs" class="references">
+<div id="ref-Mitov:2019agh">
+<p>Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models.” <em>Article in Review, Preprint in Ch. 7 of Thesis No. 25428, ETH Zurich</em>, mai. <a href="https://doi.org/10.3929/ethz-b-000315296" class="uri">https://doi.org/10.3929/ethz-b-000315296</a>.</p>
+</div>
+</div>
 </div>
   </div>
 
@@ -180,17 +602,29 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#prerequisites">Prerequisites</a></li>
-      <li><a href="#a-brief-introduction-to-mixed-gaussian-phylogenetic-models">A brief introduction to mixed Gaussian phylogenetic models</a></li>
-      <li>
-<a href="#an-example">An example</a><ul class="nav nav-pills nav-stacked">
+<li>
+<a href="#step-1--an-example-dataset">Step 1. An example dataset</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#the-tree">The tree</a></li>
-      <li><a href="#the-mgpm">The MGPM</a></li>
-      <li><a href="#the-trait-values">The trait values</a></li>
+      <li><a href="#the-data">The data</a></li>
       </ul>
 </li>
-      <li><a href="#inferring-a-single-regime-model">Inferring a single-regime model</a></li>
-      <li><a href="#inferring-a-mgpm-with-known-shift-point-configuration-and-model-type-assignment">Inferring a MGPM with known shift-point configuration and model type assignment</a></li>
+      <li><a href="#step-2--gaussian-model-types">Step 2. Gaussian model types</a></li>
+      <li>
+<a href="#step-3--creating-model-objects">Step 3. Creating model objects</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#global-models">Global models</a></li>
+      <li><a href="#mgpm-models">MGPM models</a></li>
+      <li><a href="#a-view-of-the-data-according-to-the-true-shift-point-configuration">A view of the data according to the true shift-point configuration</a></li>
+      </ul>
+</li>
+      <li>
+<a href="#step-4--model-inference">Step 4. Model inference</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#specifying-parameter-limits">Specifying parameter limits</a></li>
+      <li><a href="#fitting-the-global-models">Fitting the global models</a></li>
+      <li><a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters">Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters</a></li>
+      <li><a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values">Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values</a></li>
+      </ul>
+</li>
+      <li><a href="#step-5--evaluating-the-model-fits">Step 5. Evaluating the model fits</a></li>
       <li><a href="#references">References</a></li>
       </ul>
 </div>

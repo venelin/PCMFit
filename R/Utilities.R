@@ -418,6 +418,7 @@ RetrieveFittedModelsFromFitVectors <- function(
   tableFits2
 }
 
+
 #' @importFrom data.table setnames
 #' @export
 RetrieveBestFitScore <- function(fitMappings, rank = 1) {

@@ -129,6 +129,7 @@ PCMFit <- function(
     res$modelOptim <- model
     PCMParamLoadOrStore(res$modelOptim, vecParams = par, offset = 0, load = TRUE)
     res$logLikOptim <- res$Optim$value
+
   } else {
     res$modelOptim <- NULL
     res$logLikOptim <- as.double(PCMOptions()$PCMBase.Value.NA)
@@ -137,6 +138,20 @@ PCMFit <- function(
   class(res) <- c("PCMFit", class(res))
   res
 }
+
+#'@export
+RetrieveBestModel <- function(fit) {
+  if(is.PCMFit(fit)) {
+    model <- fit$modelOptim
+    attr(model, "tree") <- fit$tree
+    attr(model, "X") <- fit$X
+    attr(model, "SE") <- fit$SE
+  } else {
+    model <- NULL
+  }
+  model
+}
+
 
 #' @export
 is.PCMFit <- function(object) {
