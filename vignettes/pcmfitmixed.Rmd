@@ -177,16 +177,18 @@ dtSummary <- data.table(
 knitr::kable(dtSummary)
 ```
 
-```{r}
-PCMMapModelTypesToRegimes(
-  bestFit$inferredModel, attr(bestFit$inferredModel, "tree"))
-```
 
 ```{r}
 PCMMapModelTypesToRegimes(modelTrue, attr(modelTrue, "tree"))
 ```
 
-```{r, fig.width=7, fig.height=7, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. **C** and **D**: Analogical to **A** and **B** according to the MGPM found using the AIC score as a criterion."}
+
+```{r}
+PCMMapModelTypesToRegimes(
+  bestFit$inferredModel, attr(bestFit$inferredModel, "tree"))
+```
+
+```{r, fig.width=7, fig.height=7, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. **C** and **D**: Analogical to **A** and **B** according to the MGPM found using the AIC score as a criterion.", echo=FALSE}
 
 plTree <- PCMTreePlot(attr(modelTrue, "tree"), layout="fan") %<+% 
   data.table(
