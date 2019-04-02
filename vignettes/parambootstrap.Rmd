@@ -32,8 +32,158 @@ if(!requireNamespace("ggtree")) {
       "The ggtree installation did not succeed. The vignette cannot be built.")
   }
 }
+
+generateParametricBootstrapDatasets <- FALSE
 ```
 
-**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.*
+**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately and cannot find your way through the coding examples. Thanks for your understanding.*
+
+# Simulating parametric bootstrap datasets
+
+```{r, eval=generateParametricBootstrapDatasets}
+library(data.table)
+library(PCMBase)
+library(PCMFit)
+
+# make results reproducible
+set.seed(12, kind = "Mersenne-Twister", normal.kind = "Inversion")
+
+numBootstraps <- 10
+
+bestModel <- 
+  RetrieveBestFitScore(PCMFitDemoObjects$fitMGPM_A_F_BC2_RR)$inferredModel
+
+metaI <- PCMInfo(
+  X = NULL, tree = attr(bestModel, "tree"), model = bestModel)
+
+# Simulate data with the best fit model from the mammal data with SEs
+valuesBootstrapMGPM_A_F_BC2_RR <- data.table(
+  IdGlob = seq_len(numBootstraps),
+  X = lapply(seq_len(numBootstraps), function(id) {
+    PCMSim(
+      tree = attr(bestModel, "tree"), 
+      model = bestModel, 
+      X0 = bestModel$X0,
+      metaI = metaI)
+  })
+)
+
+options(PCMBase.Value.NA = -1e20)
+options(PCMBase.Lmr.mode = 11)
+options(PCMBase.Threshold.EV = 1e-7)
+
+valuesBootstrapMGPM_A_F_BC2_RR[
+  , c("df", "logLik", "score") := {
+    resLists <- lapply(.I, function(i) {
+      attr(bestModel, "X") <- X[[i]]
+      ll <- logLik(bestModel)
+      aic <- AIC(bestModel)
+      df <- attr(ll, "df")
+      c(df, ll, aic)
+    })
+    list(df = sapply(resLists, function(.) .[1]),
+         logLik = sapply(resLists, function(.) .[2]),
+         score = sapply(resLists, function(.) .[3]))
+  }]
+
+PCMFitDemoObjects$valuesBootstrapMGPM_A_F_BC2_RR <- valuesBootstrapMGPM_A_F_BC2_RR
+usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+```
+
+# Model inference on the parametric bootstrap datasets
+
+## Writing a parametric bootstrap inference R-script
+```{r, results="hide", warning=FALSE, message=FALSE, eval=FALSE}
+# File: FitBootstrap_MGPM_A_F_BC2_RR.R
+# Usage: R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args 1
+library(PCMBase)
+library(PCMBaseCpp)
+library(PCMFit)
+library(data.table)
+
+# extract dataset identifier and possibly other parameters from the command line:
+args <- commandArgs(trailingOnly = TRUE)
+if(length(args) > 0) {
+  data_id <- as.integer(args[1])
+} else {
+  data_id <- 1L
+}
+
+# A character string used in filenames for a model inference on a given data:
+prefixFiles = paste0("MGPM_A_F_BC2_RR_BSID_", data_id)
+
+# creating the cluster for this PCMFit run:
+if(!exists("cluster") || is.null(cluster)) {
+  if(require(doMPI)) {
+    # using MPI cluster as distributed node cluster (possibly running on a 
+    # cluster of multiple nodes)
+    # Get the number of cores. Assume this is run in a batch job.
+    p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
+    cluster <- startMPIcluster(count = p-1, verbose = TRUE)
+    doMPI::registerDoMPI(cluster)
+  } else {
+    # possibly running on personal computer without mpi installation
+    cluster <- parallel::makeCluster(
+      parallel::detectCores(logical = TRUE),
+      outfile = paste0("log_", prefixFiles, ".txt"))
+    doParallel::registerDoParallel(cluster)
+  }
+}
+
+# This function is going to be executed on each worker node.
+generatePCMModelsFunction <- function() {
+  # make results reproducible
+  set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
+
+  PCMGenerateModelTypes()
+  fileName <- '../../DefineParameterLimits.R'
+  codeDefineLimits <- readChar(fileName, file.info(fileName)$size)
+  eval(parse(text = codeDefineLimits), .GlobalEnv)
+}
+
+bestModel <- 
+  RetrieveBestFitScore(PCMFitDemoObjects$fitMGPM_A_F_BC2_RR)$inferredModel
+
+tree <- PCMTree(PCMFitDemoObjects$dtSimulated$tree[[1]])
+X <- PCMFitDemoObjects$valuesBootstrapMGPM_A_F_BC2_RR$X[[data_id]][
+  , seq_len(PCMTreeNumTips(tree))]
+
+currentResultFile <- paste0("CurrentResults_fits_", prefixFiles, ".RData")
+if(file.exists(currentResultFile)) {
+  load(currentResultFile)
+  tableFitsPrev <- listResults$tableFits
+} else {
+  tableFitsPrev <- NULL
+}
+
+fitMGPM_A_F_BC2_RR <- PCMFitMixed(
+    X = X, tree = tree, metaIFun = PCMInfoCpp,
+    generatePCMModelsFun = generatePCMModelsFunction, 
+    maxNumRoundRobins = 2, maxNumPartitionsInRoundRobins = 2,
+    tableFitsPrev = tableFitsPrev,
+    prefixFiles = prefixFiles,
+    doParallel = TRUE)
+
+save(fitMGPM_A_F_BC2_RR, file = paste0("Result_", prefixFiles, ".RData"))
+```
+
+## Running the parametric bootstrap inference scripter on a cluster
+```{sh eval=FALSE}
+# File: FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh
+# Usage: sh FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh
+for id in `seq 1 1 10`
+do
+mkdir -p ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_$id
+cd ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_$id
+if [ -f "Result_MGPM_A_F_BC2_RR_BSID_"$id".RData" ]
+then
+rm MPI*.log
+rm CurrentResults*.RData
+else
+bsub -M 10000 -n 8 -W 3:59 -R ib sh R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args $id
+fi
+cd ../..
+done
+```
 
 # References

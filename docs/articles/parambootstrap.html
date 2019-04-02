@@ -88,7 +88,7 @@
       <h1>Parametric Bootstrap of an MGPM</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-04-01</h4>
+            <h4 class="date">2019-04-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/parambootstrap.Rmd"><code>vignettes/parambootstrap.Rmd</code></a></small>
       <div class="hidden name"><code>parambootstrap.Rmd</code></div>
@@ -97,7 +97,156 @@
 
     
     
-<p><strong>Note:</strong> <em>The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately. Thanks for your understanding.</em></p>
+<p><strong>Note:</strong> <em>The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately and cannot find your way through the coding examples. Thanks for your understanding.</em></p>
+<div id="simulating-parametric-bootstrap-datasets" class="section level1">
+<h1 class="hasAnchor">
+<a href="#simulating-parametric-bootstrap-datasets" class="anchor"></a>Simulating parametric bootstrap datasets</h1>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)
+
+<span class="co"># make results reproducible</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">12</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)
+
+numBootstraps &lt;-<span class="st"> </span><span class="dv">10</span>
+
+bestModel &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw">RetrieveBestFitScore</span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel
+
+metaI &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMInfo.html">PCMInfo</a></span>(
+  <span class="dt">X =</span> <span class="ot">NULL</span>, <span class="dt">tree =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestModel, <span class="st">"tree"</span>), <span class="dt">model =</span> bestModel)
+
+<span class="co"># Simulate data with the best fit model from the mammal data with SEs</span>
+valuesBootstrapMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
+  <span class="dt">IdGlob =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(numBootstraps),
+  <span class="dt">X =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(numBootstraps), <span class="cf">function</span>(id) {
+    <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMSim.html">PCMSim</a></span>(
+      <span class="dt">tree =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestModel, <span class="st">"tree"</span>), 
+      <span class="dt">model =</span> bestModel, 
+      <span class="dt">X0 =</span> bestModel<span class="op">$</span>X0,
+      <span class="dt">metaI =</span> metaI)
+  })
+)
+
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">PCMBase.Value.NA =</span> <span class="op">-</span><span class="fl">1e20</span>)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">PCMBase.Lmr.mode =</span> <span class="dv">11</span>)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">PCMBase.Threshold.EV =</span> <span class="fl">1e-7</span>)
+
+valuesBootstrapMGPM_A_F_BC2_RR[
+  , <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"df"</span>, <span class="st">"logLik"</span>, <span class="st">"score"</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span>{
+    resLists &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(.I, <span class="cf">function</span>(i) {
+      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestModel, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X[[i]]
+      ll &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/logLik">logLik</a></span>(bestModel)
+      aic &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/AIC">AIC</a></span>(bestModel)
+      df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(ll, <span class="st">"df"</span>)
+      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(df, ll, aic)
+    })
+    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">df =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">1</span>]),
+         <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">2</span>]),
+         <span class="dt">score =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">3</span>]))
+  }]
+
+PCMFitDemoObjects<span class="op">$</span>valuesBootstrapMGPM_A_F_BC2_RR &lt;-<span class="st"> </span>valuesBootstrapMGPM_A_F_BC2_RR
+usethis<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/usethis/topics/use_data">use_data</a></span>(PCMFitDemoObjects, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</code></pre></div>
+</div>
+<div id="model-inference-on-the-parametric-bootstrap-datasets" class="section level1">
+<h1 class="hasAnchor">
+<a href="#model-inference-on-the-parametric-bootstrap-datasets" class="anchor"></a>Model inference on the parametric bootstrap datasets</h1>
+<div id="writing-a-parametric-bootstrap-inference-r-script" class="section level2">
+<h2 class="hasAnchor">
+<a href="#writing-a-parametric-bootstrap-inference-r-script" class="anchor"></a>Writing a parametric bootstrap inference R-script</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># File: FitBootstrap_MGPM_A_F_BC2_RR.R</span>
+<span class="co"># Usage: R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args 1</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBaseCpp)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
+
+<span class="co"># extract dataset identifier and possibly other parameters from the command line:</span>
+args &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/commandArgs">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)
+<span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {
+  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(args[<span class="dv">1</span>])
+} <span class="cf">else</span> {
+  data_id &lt;-<span class="st"> </span>1L
+}
+
+<span class="co"># A character string used in filenames for a model inference on a given data:</span>
+prefixFiles =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_BSID_"</span>, data_id)
+
+<span class="co"># creating the cluster for this PCMFit run:</span>
+<span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"cluster"</span>) <span class="op">||</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(cluster)) {
+  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(doMPI)) {
+    <span class="co"># using MPI cluster as distributed node cluster (possibly running on a </span>
+    <span class="co"># cluster of multiple nodes)</span>
+    <span class="co"># Get the number of cores. Assume this is run in a batch job.</span>
+    p =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/strtoi">strtoi</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">'LSB_DJOB_NUMPROC'</span>))
+    cluster &lt;-<span class="st"> </span><span class="kw">startMPIcluster</span>(<span class="dt">count =</span> p<span class="op">-</span><span class="dv">1</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)
+    doMPI<span class="op">::</span><span class="kw">registerDoMPI</span>(cluster)
+  } <span class="cf">else</span> {
+    <span class="co"># possibly running on personal computer without mpi installation</span>
+    cluster &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/makeCluster">makeCluster</a></span>(
+      parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>(<span class="dt">logical =</span> <span class="ot">TRUE</span>),
+      <span class="dt">outfile =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))
+    doParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/doParallel/topics/registerDoParallel">registerDoParallel</a></span>(cluster)
+  }
+}
+
+<span class="co"># This function is going to be executed on each worker node.</span>
+generatePCMModelsFunction &lt;-<span class="st"> </span><span class="cf">function</span>() {
+  <span class="co"># make results reproducible</span>
+  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)
+
+  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMGenerateModelTypes.html">PCMGenerateModelTypes</a></span>()
+  fileName &lt;-<span class="st"> '../../DefineParameterLimits.R'</span>
+  codeDefineLimits &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/readChar">readChar</a></span>(fileName, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.info">file.info</a></span>(fileName)<span class="op">$</span>size)
+  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eval">eval</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/parse">parse</a></span>(<span class="dt">text =</span> codeDefineLimits), .GlobalEnv)
+}
+
+bestModel &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw">RetrieveBestFitScore</span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel
+
+tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])
+X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>valuesBootstrapMGPM_A_F_BC2_RR<span class="op">$</span>X[[data_id]][
+  , <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]
+
+currentResultFile &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"CurrentResults_fits_"</span>, prefixFiles, <span class="st">".RData"</span>)
+<span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(currentResultFile)) {
+  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/load">load</a></span>(currentResultFile)
+  tableFitsPrev &lt;-<span class="st"> </span>listResults<span class="op">$</span>tableFits
+} <span class="cf">else</span> {
+  tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span>
+}
+
+fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(
+    <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,
+    <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, 
+    <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,
+    <span class="dt">tableFitsPrev =</span> tableFitsPrev,
+    <span class="dt">prefixFiles =</span> prefixFiles,
+    <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)
+
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/save">save</a></span>(fitMGPM_A_F_BC2_RR, <span class="dt">file =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Result_"</span>, prefixFiles, <span class="st">".RData"</span>))</code></pre></div>
+</div>
+<div id="running-the-parametric-bootstrap-inference-scripter-on-a-cluster" class="section level2">
+<h2 class="hasAnchor">
+<a href="#running-the-parametric-bootstrap-inference-scripter-on-a-cluster" class="anchor"></a>Running the parametric bootstrap inference scripter on a cluster</h2>
+<div class="sourceCode"><pre class="sourceCode sh"><code class="sourceCode bash"><span class="co"># File: FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</span>
+<span class="co"># Usage: sh FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Control">for</a></span> <span class="fu">id</span> in <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Quotes">`</a></span><span class="fu">seq</span> 1 1 10<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Quotes">`</a></span>
+<span class="kw">do</span>
+<span class="fu">mkdir</span> -p ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_<span class="va">$id</span>
+<span class="bu">cd</span> ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_<span class="va">$id</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Control">if</a></span><span class="bu"> [</span> <span class="ot">-f</span> <span class="st">"Result_MGPM_A_F_BC2_RR_BSID_"</span><span class="va">$id</span><span class="st">".RData"</span><span class="bu"> ]</span>
+<span class="kw">then</span>
+<span class="fu">rm</span> MPI*.log
+<span class="fu">rm</span> CurrentResults*.RData
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Control">else</a></span>
+<span class="ex">bsub</span> -M 10000 -n 8 -W 3:59 -R ib sh R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args <span class="va">$id</span>
+<span class="kw">fi</span>
+<span class="bu">cd</span> ../..
+<span class="kw">done</span></code></pre></div>
+</div>
+</div>
 <div id="references" class="section level1">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
@@ -109,7 +258,14 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#references">References</a></li>
+<li><a href="#simulating-parametric-bootstrap-datasets">Simulating parametric bootstrap datasets</a></li>
+      <li>
+<a href="#model-inference-on-the-parametric-bootstrap-datasets">Model inference on the parametric bootstrap datasets</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#writing-a-parametric-bootstrap-inference-r-script">Writing a parametric bootstrap inference R-script</a></li>
+      <li><a href="#running-the-parametric-bootstrap-inference-scripter-on-a-cluster">Running the parametric bootstrap inference scripter on a cluster</a></li>
+      </ul>
+</li>
+      <li><a href="#references">References</a></li>
       </ul>
 </div>
       </div>
