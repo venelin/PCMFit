@@ -32,7 +32,23 @@ for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
-containing meta-data such as N, M and k.}
+containing meta-data such as N, M and k. Alternatively, this can be a
+function object that returns such a list, e.g. the function\code{PCMInfo}
+or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.}
+
+\item{positiveValueGuard}{a real number (not necessarily positive) used during
+the fit as a threshold for highly positive but incorrec log-likelihood values,
+caused by numerical errors. In particular, such kind of errors cuased by
+limited numerical precision have been observed when using the \code{PCMBaseCpp}
+R-package (see argument \code{metaI} above). This argument value is \code{Inf}
+by default and should be use only as a last escape. The recommended way to
+of preventing such numerical errors is by setting more stringent values for
+the runtime options \code{PCMBase.Threshold.EV} and
+\code{PCMBase.Threshold.SV} (see \code{\link{PCMOptions}}).}
+
+\item{argsPCMParamLowerLimit, argsPCMParamUpperLimit}{named lists with
+arguments passed to the functions \code{\link{PCMParamLowerLimit}} and
+\code{\link{PCMParamUpperLimit}}, respectively. Default: \code{NULL}.}
 
 \item{verbose}{logical indicating if some debug-messages should printed.}
 }
@@ -41,4 +57,7 @@ an object of class PCMFit
 }
 \description{
 Fitting a PCM model to a given tree and data
+}
+\seealso{
+\code{\link{PCMOptions}}
 }

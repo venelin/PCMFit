@@ -17,8 +17,21 @@
 
 #' Fitting a PCM model to a given tree and data
 #' @inheritParams PCMBase::PCMLik
+#' @param positiveValueGuard a real number (not necessarily positive) used during
+#' the fit as a threshold for highly positive but incorrec log-likelihood values,
+#' caused by numerical errors. In particular, such kind of errors cuased by
+#' limited numerical precision have been observed when using the \code{PCMBaseCpp}
+#' R-package (see argument \code{metaI} above). This argument value is \code{Inf}
+#' by default and should be use only as a last escape. The recommended way to
+#' of preventing such numerical errors is by setting more stringent values for
+#' the runtime options \code{PCMBase.Threshold.EV} and
+#' \code{PCMBase.Threshold.SV} (see \code{\link{PCMOptions}}).
+#' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit named lists with
+#' arguments passed to the functions \code{\link{PCMParamLowerLimit}} and
+#' \code{\link{PCMParamUpperLimit}}, respectively. Default: \code{NULL}.
 #' @return an object of class PCMFit
 #' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMParamRandomVecParams PCMOptions
+#' @seealso \code{\link{PCMOptions}}
 #' @export
 PCMFit <- function(
   X, tree, model,

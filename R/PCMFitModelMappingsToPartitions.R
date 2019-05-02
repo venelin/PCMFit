@@ -259,26 +259,22 @@ PCMFitModelMappingsToCladePartitions <- function(
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit)
               matParInitGuess <- GuessInitVecParams(
                 o = modelForFit,
-                k = PCMNumTraits(modelForFit),
-                R = PCMNumRegimes(modelForFit),
-                n = argsConfigOptim$numGuessInitVecParams,
+                n = 1L,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
                 X = X, tree = tree, SE = SE,
-                varyTheta = FALSE)
-              matParInitGuessVaryTheta <- GuessInitVecParams(
+                varyParams = FALSE)
+              matParInitGuessVaryParams <- GuessInitVecParams(
                 o = modelForFit,
-                k = PCMNumTraits(modelForFit),
-                R = PCMNumRegimes(modelForFit),
                 n = argsConfigOptim$numGuessInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
                 X = X, tree = tree, SE = SE,
-                varyTheta = TRUE)
+                varyParams = TRUE)
 
               matParInit <- rbind(matParInitRunif,
                                   matParInitGuess,
-                                  matParInitGuessVaryTheta)
+                                  matParInitGuessVaryParams)
 
               fit <- PCMFit(
                 X = XForFit, tree = treeForFit, model = modelForFit,
@@ -299,22 +295,18 @@ PCMFitModelMappingsToCladePartitions <- function(
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit)
               matParInitGuess <- GuessInitVecParams(
                 o = modelForFit,
-                k = PCMNumTraits(modelForFit),
-                R = PCMNumRegimes(modelForFit),
-                n = argsConfigOptim$numGuessInitVecParams,
+                n = 1L,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
                 X = X, tree = tree, SE = SE,
-                varyTheta = FALSE)
-              matParInitGuessVaryTheta <- GuessInitVecParams(
+                varyParams = FALSE)
+              matParInitGuessVaryParams <- GuessInitVecParams(
                 o = modelForFit,
-                k = PCMNumTraits(modelForFit),
-                R = PCMNumRegimes(modelForFit),
                 n = argsConfigOptim$numGuessInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
                 X = X, tree = tree, SE = SE,
-                varyTheta = TRUE)
+                varyParams = TRUE)
               matParInitJitter <-
                 jitterModelParams(
                   modelForFit,
@@ -328,7 +320,7 @@ PCMFitModelMappingsToCladePartitions <- function(
 
               matParInit <- rbind(matParInitRunif,
                                   matParInitGuess,
-                                  matParInitGuessVaryTheta,
+                                  matParInitGuessVaryParams,
                                   matParInitJitter)
 
               fit <- PCMFit(

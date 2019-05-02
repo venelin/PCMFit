@@ -1,58 +1,437 @@
+#' A heuristic-based guess of the optimal parameters of a model
+#'
+#' @param o a PCM model object.
+#' @param k integer denoting the number of traits in o.
+#' Default: \code{PCMNumTraits(o)}.
+#' @param n integer denoting the number of parameter vectors to generate.
+#' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit lists of parameters
+#' passed to \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}
+#' respectively. (see the argument \code{returnWithinBoundsOnly}).
+#' @param tableAnc an ancestor table for tree. Default \code{NULL}.
+#' @param varyParams logical indicating if fixed (FALSE) or varying (TRUE)
+#' parameter values should be returned for each of the \code{n} vectors. The
+#' default value is TRUE.
+#' @param returnWithinBoundsOnly logical indication if the returned parameter
+#' vectors should be within the lower and upper bound of the model.
+#' @param res an n x p matrix where p is the number of parameters in o.
+#' Internal use only.
+#' @param ... additional arguments passed to implementations.
+#' @return an n x p matrix where p is the number of parameters in o.
+#'
+#' @description This is an S3 generic function that returns a
+#' \code{n}x\code{PCMParamCount(o)} matrix of parameter vectors.
+#' Implementations try to deduce parameter values based on the passed tree
+#' and data, that should be suitable for starting points for likelihood
+#' optimization or MCMC inference.
+#'
+#' @examples
+#' library(PCMBase)
+#' library(PCMFit)
+#' modelBM.ab <- modelBM.ab.Guess <- PCM(
+#'   PCMDefaultModelTypes()["B"], k = 2, regimes = c("a", "b"))
+#' modelBM.ab$X0[] <- c(5, 2)
+#' # in regime 'a' the traits evolve according to two independent BM
+#' # processes (starting from the global vecto X0).
+#' modelBM.ab$Sigma_x[,, "a"] <- rbind(c(1.6, 0.01),
+#'                                     c(0, 2.4))
+#' # in regime 'b' there is a correlation between the traits
+#' modelBM.ab$Sigma_x[,, "b"] <- rbind(c(2.4, 0.08),
+#'                                     c(0.0, 0.8))
+#' modelOU.ab.Guess <- PCM(
+#'   PCMDefaultModelTypes()["F"], k = 2, regimes = c("a", "b"))
+#'
+#' modelMG.ab.Guess <- MixedGaussian(
+#' k = 2, modelTypes = MGPMDefaultModelTypes(),
+#' mapping = c(
+#'   a = unname(MGPMDefaultModelTypes()["B"]),
+#'   b = unname(MGPMDefaultModelTypes()["F"])))
+#'
+#'
+#' param <- double(PCMParamCount(modelBM.ab))
+#'
+#' # load the current model parameters into param
+#' PCMParamLoadOrStore(modelBM.ab, param, offset=0, load=FALSE)
+#' print(param)
+#'
+#'
+#' # make results reproducible
+#' set.seed(2, kind = "Mersenne-Twister", normal.kind = "Inversion")
+#'
+#' # number of regimes
+#' R <- 2
+#'
+#' # number of extant tips
+#' N <- 100
+#'
+#' tree.a <- PCMTree(ape::rtree(n=N))
+#' PCMTreeSetLabels(tree.a)
+#' PCMTreeSetPartRegimes(
+#'     tree.a, part.regime = c(`101` = "a"), setPartition = TRUE)
+#'
+#' lstDesc <- PCMTreeListDescendants(tree.a)
+#' splitNode <- names(lstDesc)[which(sapply(lstDesc, length) > N/2 &
+#'    sapply(lstDesc, length) < 2*N/3)][1]
+#'
+#' tree.ab <- PCMTreeInsertSingletons(
+#'   tree.a, nodes = as.integer(splitNode),
+#'   positions = PCMTreeGetBranchLength(tree.a, as.integer(splitNode))/2)
+#' PCMTreeSetPartRegimes(
+#'   tree.ab,
+#'   part.regime = structure(
+#'   c("a", "b"), names = as.character(c(N+1, splitNode))),
+#'   setPartition = TRUE)
+#'
+#' traits <- PCMSim(tree.ab, modelBM.ab, modelBM.ab$X0)
+#'
+#' likFunBM <- PCMCreateLikelihood(traits, tree.ab, modelBM.ab.Guess)
+#' likFunOU <- PCMCreateLikelihood(traits, tree.ab, modelOU.ab.Guess)
+#' likFunMG <- PCMCreateLikelihood(traits, tree.ab, modelMG.ab.Guess)
+#'
+#' vecGuessBM <-
+#'   GuessInitVecParams(modelBM.ab.Guess, X = traits, tree = tree.ab)
+#' vecGuessOU <-
+#'   GuessInitVecParams(modelOU.ab.Guess, X = traits, tree = tree.ab)
+#' vecGuessMG <-
+#'   GuessInitVecParams(modelMG.ab.Guess, X = traits, tree = tree.ab)
+#'
+#' # likelihood at true parameters used to generate the data
+#' print(param)
+#' likFunBM(param)
+#'
+#' # likelihood at guessed parameter values for the BM model
+#' print(vecGuessBM)
+#' likFunBM(vecGuessBM)
+#'
+#' # likelihood at guessed parameter values for the OU model
+#' print(vecGuessOU)
+#' likFunOU(vecGuessOU)
+#'
+#' # likelihood at guessed parameter values for the BM model
+#' print(vecGuessMG)
+#' likFunMG(vecGuessMG)
+#'
+#' # likelihood at completely random parameter values
+#' vecRand <- PCMParamRandomVecParams(modelBM.ab.Guess, k = 2, R = 2)
+#' likFunBM(vecRand)
+#' @importFrom PCMBase PCMLik
 #' @export
 GuessInitVecParams <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
+  o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
+  n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
   X = NULL,
   tree = NULL,
   SE = NULL,
   tableAnc = NULL,
+  varyParams = FALSE,
   returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(
+    o = oParent, k = PCMNumTraits(oParent), R = PCMNumRegimes(oParent), n = n,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
   ...) {
   UseMethod("GuessInitVecParams", o)
 }
 
+
+#' @importFrom PCMBase PCMParamLocateInShortVector
 #' @export
 GuessInitVecParams.PCM <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
+  o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
+  n = 1L,
   argsPCMParamLowerLimit = NULL,
   argsPCMParamUpperLimit = NULL,
   X = NULL,
   tree = NULL,
   SE = NULL,
   tableAnc = NULL,
+  varyParams = FALSE,
   returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(
+    o = oParent, k = PCMNumTraits(oParent), R = PCMNumRegimes(oParent), n = n,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
   ...) {
 
-  res <- PCMParamRandomVecParams(
-    o = o, k = k, R = R, n = n,
+  paramNames <- "X0"
+  paramDefaultValues <- list()
+  paramSDValues <- list()
+
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
+  arguments <- as.list(environment())
+
+  res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
+
+  if(!inherits(res2, "try-error")) {
+    res <- res2
+  }
+
+  if(returnWithinBoundsOnly) {
+    # need to remove the parameters that go out of the lower-upper bound
+    lowerModel <- do.call(
+      PCMParamLowerLimit, c(list(oParent), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
+
+    upperModel <- do.call(
+      PCMParamUpperLimit, c(list(oParent), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
+
+    res <- EnforceBounds(res, lowerVecParams, upperVecParams)
+  }
+
+  res
+}
+
+#' @export
+GuessInitVecParams.BM <- function(
+  o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  varyParams = FALSE,
+  returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(
+    o = oParent, k = PCMNumTraits(oParent), R = PCMNumRegimes(oParent), n = n,
     argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-    argsPCMParamUpperLimit = argsPCMParamUpperLimit)
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
+  ...) {
+
+  paramNames <- c("X0", "Sigma_x")
+  paramDefaultValues <- list()
+  paramSDValues <- list()
+
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
+  arguments <- as.list(environment())
+
+  res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
+
+  if(!inherits(res2, "try-error")) {
+    res <- res2
+  }
+
+  if(returnWithinBoundsOnly) {
+    # need to remove the parameters that go out of the lower-upper bound
+    lowerModel <- do.call(
+      PCMParamLowerLimit, c(list(oParent), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
+
+    upperModel <- do.call(
+      PCMParamUpperLimit, c(list(oParent), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
+
+    res <- EnforceBounds(res, lowerVecParams, upperVecParams)
+  }
+
+  res
+}
+
+#' @export
+GuessInitVecParams.OU <- function(
+  o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  varyParams = FALSE,
+  returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(
+    o = oParent, k = PCMNumTraits(oParent), R = PCMNumRegimes(oParent), n = n,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
+  ...) {
+
+  paramNames <- c("X0", "H", "Theta", "Sigma_x", "Sigmae_x")
+  paramDefaultValues <- list(H = 0.0)
+  paramSDValues <- list(H = 0.02)
+
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
+  arguments <- as.list(environment())
+
+  res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
+
+  if(!inherits(res2, "try-error")) {
+    res <- res2
+  }
+
+  if(returnWithinBoundsOnly) {
+    # need to remove the parameters that go out of the lower-upper bound
+    lowerModel <- do.call(
+      PCMParamLowerLimit, c(list(oParent), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
+
+    upperModel <- do.call(
+      PCMParamUpperLimit, c(list(oParent), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
+
+    res <- EnforceBounds(res, lowerVecParams, upperVecParams)
+  }
+
+  res
+}
+
+#' @export
+GuessInitVecParams.DOU <- function(
+  o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  varyParams = FALSE,
+  returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(
+    o = oParent, k = PCMNumTraits(oParent), R = PCMNumRegimes(oParent), n = n,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
+  ...) {
+
+  paramNames <- c("X0", "H1", "H2", "Theta", "Sigmae_x", "Sigmae_x")
+  paramDefaultValues <- list(H1 = 0.0, H2 = 0.0)
+  paramSDValues <- list(H1 = 0.02, H2 = 0.02)
+
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
+  arguments <- as.list(environment())
+
+  res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
+
+  if(!inherits(res2, "try-error")) {
+    res <- res2
+  }
+
+  if(returnWithinBoundsOnly) {
+    # need to remove the parameters that go out of the lower-upper bound
+    lowerModel <- do.call(
+      PCMParamLowerLimit, c(list(oParent), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
+
+    upperModel <- do.call(
+      PCMParamUpperLimit, c(list(oParent), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
+
+    res <- EnforceBounds(res, lowerVecParams, upperVecParams)
+  }
+
+  res
+}
+
+
+#' @importFrom PCMBase is.PCM
+#' @export
+GuessInitVecParams.MixedGaussian <- function(
+  o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  varyParams = FALSE,
+  returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(
+    o = oParent, k = PCMNumTraits(oParent), R = PCMNumRegimes(oParent), n = n,
+    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
+  ...) {
+
+  # 1. first we guess all global parameters
+  paramNames <- names(o)[!sapply(o, is.PCM)]
+  paramDefaultValues <- list(H = 0.0, H1 = 0.0, H2 = 0.0)
+  paramSDValues <- list(H = 0.02, H1 = 0.02, H2 = 0.02)
+
+  # Copy all arguments into a list
+  # We establish arguments$<argument-name> as a convention for accessing the
+  # original argument value.
+  arguments <- as.list(environment())
+
+  res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
+
+  if(!inherits(res2, "try-error")) {
+    res <- res2
+  }
+
+  # 2. next, we call GuessInitVecParams for all submodels (i.e. regimes)
+  for(reg in regimes) {
+    res2 <- try(
+      GuessInitVecParams(
+        o = o[[reg]], regimes = reg,
+        oParent = o,
+        accessExpr = paste0('[["', reg, '"]]'),
+        n = n,
+        argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+        argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+        X = X,
+        tree = tree,
+        SE = SE,
+        tableAnc = tableAnc,
+        varyParams = varyParams,
+        returnWithinBoundsOnly = returnWithinBoundsOnly,
+        res = res, ...),
+      silent = TRUE)
+    if(!inherits(res2, "try-error")) {
+      res <- res2
+    }
+  }
+
+  if(returnWithinBoundsOnly) {
+    # need to remove the parameters that go out of the lower-upper bound
+    lowerModel <- do.call(
+      PCMParamLowerLimit, c(list(oParent), argsPCMParamLowerLimit))
+    lowerVecParams <- PCMParamGetShortVector(lowerModel)
+
+    upperModel <- do.call(
+      PCMParamUpperLimit, c(list(oParent), argsPCMParamUpperLimit))
+    upperVecParams <- PCMParamGetShortVector(upperModel)
+
+    res <- EnforceBounds(res, lowerVecParams, upperVecParams)
+  }
+
+  res
+}
+
+EnforceBounds <- function(vecs, lowerVecParams, upperVecParams) {
+  for(i in seq_len(nrow(vecs))) {
+    tooSmall <- (vecs[i, ] < lowerVecParams)
+    tooBig <- (vecs[i, ] > upperVecParams)
+    vecs[i, tooSmall] <- lowerVecParams[tooSmall]
+    vecs[i, tooBig] <- upperVecParams[tooBig]
+  }
+  vecs
+}
+
+GuessX0 <- function(
+  o, regimes,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  ...) {
 
   if( !is.null(X) && "X0" %in% names(o) && !is.Fixed(o$X0) ) {
-    vec.o <- PCMParamGetShortVector(o)
-    vec.along.o <- seq_along(vec.o)
-
-    o.along.o <- o
-
-    PCMParamLoadOrStore(
-      o.along.o, vec.along.o, offset = 0,
-      k = PCMNumTraits(o), R = PCMNumRegimes(o), load = TRUE)
-
     if(is.null(tree)) {
       # no tree supplied, so use the population grand mean to set X0 in the
       # random parameter vectors
-      grandMean <- rowMeans(X, na.rm = TRUE)
-      grandMeanMask <- grandMean + 8108.20
-      o.along.o$X0[] <- grandMeanMask
-      v.along.o <- PCMParamGetShortVector(o.along.o)
-      idxX0 <- match(grandMeanMask, v.along.o)
-      idxX0 <- idxX0[!is.na(idxX0)]
-      v.along.o[idxX0] <- v.along.o[idxX0] - 8108.20
-      o.along.o$X0[] <- grandMean
-
-      res[, idxX0] <- matrix(
-        v.along.o[idxX0], nrow = n, ncol = length(idxX0), byrow = TRUE)
+      list(
+        mean = apply(X, 1, mean, na.rm = TRUE),
+        sd = apply(X, 1, sd, na.rm = TRUE))
     } else {
       # a tree has been supplied, so calculate a weighted mean and assign it to
       # X0 in the random parameter vectors
@@ -107,253 +486,245 @@ GuessInitVecParams.PCM <- function(
         nrow = nrow(X),
         ncol = length(daughtersRoot))
 
-      weightedMean <- colSums(
-        weightsDaughtersRoot * t(meansSubtreesDaughtersRoot),
-        na.rm = TRUE)
-
-      weightedMeanMask <- weightedMean + 8108.20
-
-      o.along.o$X0[] <- weightedMeanMask
-      v.along.o <- PCMParamGetShortVector(o.along.o)
-      idxX0 <- match(weightedMeanMask, v.along.o)
-      idxX0 <- idxX0[!is.na(idxX0)]
-      v.along.o[idxX0] <- v.along.o[idxX0] - 8108.20
-      o.along.o$X0[] <- weightedMean
-
-      res[, idxX0] <- matrix(
-        v.along.o[idxX0], nrow = n, ncol = length(idxX0), byrow = TRUE)
+      list(
+        mean = colSums(
+          weightsDaughtersRoot * t(meansSubtreesDaughtersRoot),
+          na.rm = TRUE),
+        sd = apply(X, 1, sd, na.rm = TRUE))
     }
-
-  }
-  res
-}
-
-
-#' @export
-GuessInitVecParams.OU <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL,
-  returnWithinBoundsOnly = TRUE,
-  ...) {
-
-  res <- NextMethod()
-
-  listArgsRes <- c(as.list(environment()), list(...))
-  do.call(GuessInitVecParamsOUInternal, listArgsRes)
-}
-
-#' @export
-GuessInitVecParams.DOU <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL,
-  returnWithinBoundsOnly = TRUE,
-  ...) {
-
-  res <- NextMethod()
-
-  listArgsRes <- c(as.list(environment()), list(...))
-  do.call(GuessInitVecParamsOUInternal, listArgsRes)
-}
-
-GuessInitVecParamsOUInternal <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL,
-  varyTheta = FALSE,
-  returnWithinBoundsOnly = TRUE,
-  res,
-  ...) {
-
-  if(!is.null(X) && !is.null(tree)) {
-    vec.o <- PCMParamGetShortVector(o)
-    sd.along.o <- vec.along.o <- seq_along(vec.o)
-
-    o.along.o <- o
-
-    PCMParamLoadOrStore(
-      o.along.o, vec.along.o, offset = 0,
-      k = PCMNumTraits(o), R = PCMNumRegimes(o), load = TRUE)
-
-    regimes <- as.character(PCMRegimes(o))
-    rootDists <- PCMTreeNodeTimes(tree)
-    idxsThetas <- c()
-
-    for(r in seq_len(PCMNumRegimes(o))) {
-      reg <- regimes[r]
-
-      tipsInRegime <- PCMTreeGetTipsInPart(tree, reg)
-      weightsTipsInRegime <- rootDists[tipsInRegime]
-      weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
-
-      meanTipsInRegime <- colSums(
-        weightsTipsInRegime * t(X[, tipsInRegime, drop=FALSE]),
-        na.rm = TRUE)
-      varTipsInRegime <- colSums(
-        weightsTipsInRegime * t(X[, tipsInRegime, drop=FALSE] - meanTipsInRegime)^2,
-        na.rm = TRUE)
-
-      maskNum <- 8108.20 + rnorm(1)
-
-      meanTipsInRegimeMask <- meanTipsInRegime + maskNum
-
-      o.along.o$Theta[, reg] <- meanTipsInRegimeMask
-      v.along.o <- PCMParamGetShortVector(o.along.o)
-      idxTheta <- match(meanTipsInRegimeMask, v.along.o)
-      idxTheta <- idxTheta[!is.na(idxTheta)]
-      vec.along.o[idxTheta] <- v.along.o[idxTheta] - maskNum
-
-
-      o.along.o$Theta[, reg] <- sqrt(varTipsInRegime)
-      s.along.o <- PCMParamGetShortVector(o.along.o)
-      sd.along.o[idxTheta] <- s.along.o[idxTheta]
-
-      idxsThetas <- c(idxsThetas, idxTheta)
-    }
-
-    if(varyTheta) {
-      res[, idxsThetas] <- do.call(
-        cbind,
-        lapply(idxsThetas, function(i) {
-          rnorm(n, vec.along.o[i], sd.along.o[i])
-        }))
-    } else {
-      res[, idxsThetas] <- matrix(
-        vec.along.o[idxsThetas],
-        nrow = n,
-        ncol = length(idxsThetas),
-        byrow = TRUE)
-    }
-
-    if(returnWithinBoundsOnly) {
-      # need to remove the parameters that go out of the lower-upper bound
-      lowerModel <- do.call(PCMParamLowerLimit, c(list(o), argsPCMParamLowerLimit))
-      lowerVecParams <- PCMParamGetShortVector(lowerModel)
-
-      upperModel <- do.call(PCMParamUpperLimit, c(list(o), argsPCMParamUpperLimit))
-      upperVecParams <- PCMParamGetShortVector(upperModel)
-
-      withinBounds <- as.logical(
-        sapply(seq_len(nrow(res)), function(i) {
-          isTRUE(all(res[i,] >= lowerVecParams)) &&
-            isTRUE(all(res[i,] <= upperVecParams))
-        }))
-        res <- res[withinBounds, , drop = FALSE]
-    }
-  }
-
-  res
-}
-
-#' @export
-GuessInitVecParams.MixedGaussian <- function(
-  o, k = PCMNumTraits(o), R = PCMNumRegimes(o), n = 1L,
-  argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL,
-  X = NULL,
-  tree = NULL,
-  SE = NULL,
-  tableAnc = NULL,
-  returnWithinBoundsOnly = TRUE,
-  ...) {
-
-  res <- NextMethod()
-
-  argsExtra <- list(...)
-  if("varyTheta" %in% names(argsExtra)) {
-    varyTheta <- argsExtra$varyTheta
   } else {
-    varyTheta = FALSE
+    list(
+      mean = o$X0[],
+      sd = if(!is.null(o$X0)) {
+        abs(o$X0[]) * 0.05
+      } else {
+        double(0L)
+      })
+  }
+}
+
+#' @importFrom PCMBase is.Global PCMTreeGetTipsInRegime PCM PCMDefaultModelTypes PCMVar PCMTreeGetTipsInRegime
+GuessSigma_x <- function(
+  o, regimes,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  ...) {
+
+  Sigma_x <- SDSigma_x <- o$Sigma_x
+
+  if(!(is.null(Sigma_x) || is.Fixed(Sigma_x)) && !is.null(X) && !is.null(tree) ) {
+
+    rootDists <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
+
+    # We use this model to build a phylogenetic variance covariance matrix of
+    # the tree. This is a matrix in which element (i,j) is equal to the shared
+    # root-distance of the nodes i and j.
+    modelCov <- PCM(
+      model = PCMDefaultModelTypes()["A"], regimes = PCMRegimes(tree), k = 1L)
+
+    modelCov$Sigma_x[] <- 1.0
+
+    # Phylogenetic variance covariance matrix
+    CovMat <- PCMVar(tree, modelCov, internal = FALSE)
+
+    CalculateRateMatrixBM <- function(X, C, rootDists) {
+      N <- ncol(X)
+      Cinv <- solve(C)
+      weights <- rootDists / sum(rootDists)
+      meanTipsInRegime <- colSums(weights * t(X), na.rm = TRUE)
+      Y <- t(apply(t(X), 1, function(y) y - meanTipsInRegime))
+      # a column matrix of 1s
+      D <- matrix(1.0, nrow = N)
+      # OLS solution
+      BetaHat <- solve(t(D) %*% Cinv %*% D) %*% t(D) %*% Cinv %*% Y
+      # rate matrix
+      R <- t(Y - D%*%BetaHat) %*% Cinv %*% (Y - D%*%BetaHat) / N
+      chol(R)
+    }
+
+    if(is.Global(Sigma_x)) {
+      # Sigma_x has a global scope for the entire tree
+      tipsNA <- apply(X, 2, function(x) any(is.na(x)))
+      idxTips <- seq_len(PCMTreeNumTips(tree))[!tipsNA]
+      Sigma_x[] <- CalculateRateMatrixBM(
+        X[, idxTips, drop=FALSE],
+        CovMat[idxTips, idxTips, drop = FALSE],
+        rootDists[idxTips])
+      SDSigma_x[,, r] <- sqrt(abs(Sigma_x[,, r]) * 0.01)
+    } else {
+      # Sigma_x has a local scope for each regime in the model
+      for(r in seq_len(PCMNumRegimes(o))) {
+        reg <- regimes[r]
+
+        tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
+        tipsNA <- apply(
+          X[, tipsInRegime, drop=FALSE], 2, function(x) any(is.na(x)))
+        tipsInRegime <- tipsInRegime[!tipsNA]
+
+        Sigma_x[,, r] <- CalculateRateMatrixBM(
+          X[, tipsInRegime, drop=FALSE],
+          CovMat[tipsInRegime, tipsInRegime, drop = FALSE],
+          rootDists[tipsInRegime])
+
+        SDSigma_x[,, r] <- sqrt(abs(Sigma_x[,, r]) * 0.01)
+      }
+    }
   }
 
-  if(!is.null(X) && !is.null(tree)) {
-    vec.o <- PCMParamGetShortVector(o)
-    sd.along.o <- vec.along.o <- seq_along(vec.o)
+  list(mean = as.vector(Sigma_x), sd = as.vector(SDSigma_x))
+}
 
-    o.along.o <- o
+GuessSigmae_x <- function(
+  o, regimes,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  ...) {
+  regimes <- as.character(PCMRegimes(o))
 
-    PCMParamLoadOrStore(
-      o.along.o, vec.along.o, offset = 0,
-      k = PCMNumTraits(o), R = PCMNumRegimes(o), load = TRUE)
+  Sigmae_x <- SDSigmae_x <- o$Sigmae_x
 
-    regimes <- as.character(PCMRegimes(o))
-    rootDists <- PCMTreeNodeTimes(tree)
-    idxsThetas <- c()
+  if(!(is.null(Sigmae_x) || is.Fixed(Sigmae_x)) && !is.null(X)) {
+    Sigmae_x[] <- 0.0
+    SDSigmae_x[] <- 0.02
 
-    for(r in seq_len(PCMNumRegimes(o))) {
-      reg <- regimes[r]
-      if(inherits(o[[reg]], "OU") || inherits(o[[reg]], "DOU")) {
-        tipsInRegime <- PCMTreeGetTipsInPart(tree, reg)
+    if(is.Global(Sigmae_x)) {
+      # Sigmae_x has a global scope for the entire tree
+      for(j in seq_len(PCMNumTraits(o))) {
+        Sigmae_x[j, j] <- sd(X[j,], na.rm = TRUE) * 0.025
+        SDSigmae_x[j, j] <- sqrt(abs(Sigmae_x[j, j]) * 0.05)
+      }
+    } else {
+      # Sigma_x has a local scope for each regime in the model
+      for(r in seq_len(PCMNumRegimes(o))) {
+        reg <- regimes[r]
+        tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
 
+        for(j in seq_len(PCMNumTraits(o))) {
+          Sigmae_x[j, j, r] <- sd(X[j, tipsInRegime], na.rm = TRUE) * 0.025
+          SDSigmae_x[j, j, r] <- sqrt(abs(Sigmae_x[j, j, r]) * 0.05)
+        }
+      }
+    }
+  }
+
+  list(mean = as.vector(Sigmae_x), sd = as.vector(SDSigmae_x))
+}
+
+#' @importFrom PCMBase PCMTreeNodeTimes
+GuessTheta <- function(
+  o, regimes,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  ...) {
+
+  regimes <- as.character(PCMRegimes(o))
+
+  Theta <- SDTheta <- o$Theta
+
+  if(!(is.null(Theta) || is.Fixed(Theta)) && !is.null(tree) && !is.null(X)) {
+    rootDists <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
+
+    if(is.Global(Theta)) {
+      weights <- rootDists / sum(rootDists)
+
+      meanTips <- colSums(weights * t(X[, , drop=FALSE]), na.rm = TRUE)
+      varTips <- colSums(weights * t(X[, , drop=FALSE] - meanTips)^2, na.rm = TRUE)
+
+      Theta[] <- meanTips
+      SDTheta[] <- sqrt(varTips)
+    } else {
+      # Sigma_x has a local scope for each regime in the model
+      for(r in seq_len(PCMNumRegimes(o))) {
+        reg <- regimes[r]
+
+        tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
         weightsTipsInRegime <- rootDists[tipsInRegime]
         weightsTipsInRegime <- weightsTipsInRegime / sum(weightsTipsInRegime)
 
         meanTipsInRegime <- colSums(
-          weightsTipsInRegime * t(X[, tipsInRegime, drop = FALSE]), na.rm = TRUE)
+          weightsTipsInRegime * t(X[, tipsInRegime, drop=FALSE]),
+          na.rm = TRUE)
         varTipsInRegime <- colSums(
-          weightsTipsInRegime * t(X[, tipsInRegime, drop = FALSE] - meanTipsInRegime)^2,
+          weightsTipsInRegime * t(X[, tipsInRegime, drop=FALSE] - meanTipsInRegime)^2,
           na.rm = TRUE)
 
-        maskNum <- 8108.20 + rnorm(1)
-
-        meanTipsInRegimeMask <- meanTipsInRegime + maskNum
-
-        o.along.o[[reg]]$Theta[] <- meanTipsInRegimeMask
-        v.along.o <- PCMParamGetShortVector(o.along.o)
-        idxTheta <- match(meanTipsInRegimeMask, v.along.o)
-        idxTheta <- idxTheta[!is.na(idxTheta)]
-        vec.along.o[idxTheta] <- v.along.o[idxTheta] - maskNum
-
-        o.along.o[[reg]]$Theta[] <- sqrt(varTipsInRegime)
-        s.along.o <- PCMParamGetShortVector(o.along.o)
-        sd.along.o[idxTheta] <- s.along.o[idxTheta]
-
-        idxsThetas <- c(idxsThetas, idxTheta)
+        Theta[, r] <- meanTipsInRegime
+        SDTheta[, r] <- sqrt(varTipsInRegime)
       }
     }
-
-    if(varyTheta) {
-      res[, idxsThetas] <- do.call(
-        cbind,
-        lapply(idxsThetas, function(i) {
-          rnorm(n, vec.along.o[i], sd.along.o[i])
-        }))
-    } else {
-      res[, idxsThetas] <- matrix(
-        vec.along.o[idxsThetas],
-        nrow = n,
-        ncol = length(idxsThetas),
-        byrow = TRUE)
-    }
-
-    if(returnWithinBoundsOnly) {
-      # need to remove the parameters that go out of the lower-upper bound
-      lowerModel <- do.call(PCMParamLowerLimit, c(list(o), argsPCMParamLowerLimit))
-      lowerVecParams <- PCMParamGetShortVector(lowerModel)
-
-      upperModel <- do.call(PCMParamUpperLimit, c(list(o), argsPCMParamUpperLimit))
-      upperVecParams <- PCMParamGetShortVector(upperModel)
-
-      withinBounds <- as.logical(sapply(seq_len(nrow(res)), function(i) {
-        isTRUE(all(res[i,] >= lowerVecParams)) &&
-          isTRUE(all(res[i,] <= upperVecParams))
-      }))
-      res <- res[withinBounds, , drop = FALSE]
-    }
   }
-  res
+
+  list(mean = as.vector(Theta), sd = as.vector(SDTheta))
 }
 
+GuessDefault <- function(
+  name,
+  value,
+  sdValue,
+  o, regimes,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  ...) {
+
+  P <- SDP <- o[[name]]
+
+  if(!(is.null(P) || is.Fixed(P)) && !is.null(X)) {
+    P[] <- value
+    SDP[] <- sdValue
+  }
+
+  list(mean = as.vector(P), sd = as.vector(SDP))
+}
+
+GuessParameters <- function(
+  o, regimes, oParent = o, accessExpr = "",
+  res,
+  paramNames, paramDefaultValues = list(), paramSDValues = list(),
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  varyParams = FALSE,
+  returnWithinBoundsOnly = TRUE,
+  ...) {
+
+  for(name in paramNames) {
+    if(name == "X0") {
+      P <- GuessX0(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+    } else if(name == "Sigma_x") {
+      P <- GuessSigma_x(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+    } else if(name == "Sigmae_x") {
+      P <- GuessSigmae_x(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+    } else if(name == "Theta") {
+      P <- GuessTheta(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+    } else {
+      P <- GuessDefault(
+        name, paramDefaultValues[[name]], paramSDValues[[name]],
+        o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+    }
+
+    if(length(P$mean) > 0L) {
+      i <- PCMParamLocateInShortVector(oParent, paste0(accessExpr, "$", name))
+      iP <- which(!is.na(i))
+      res[, iP] <- matrix(
+        P$mean[i[iP]], nrow = n, ncol = length(iP), byrow = TRUE)
+      if(varyParams) {
+        res[, iP] <- do.call(
+          cbind, lapply(iP, function(j) rnorm(n, P$mean[i[j]], P$sd[i[j]]) ) )
+      }
+    }
+  }
+
+  res
+}
