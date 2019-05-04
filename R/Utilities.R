@@ -450,6 +450,93 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   res
 }
 
+#' @importFrom PCMBase PCMDefaultObject PCMParamSetByName
+#' @export
+LearnFromSubmodels <- function(
+  tableFits,
+  modelTypes,
+  subModels,
+  argsMixedGaussian,
+  metaIFun = PCMInfo,
+  scoreFun,
+  X, tree, SE,
+  verbose = FALSE) {
+  tableFits <- copy(tableFits)
+  count <- 0L
+  for(modelType in names(subModels)) {
+    for(edExpr in unique(tableFits[, treeEDExpression])) {
+      subModelType <- subModels[modelType]
+
+      tableFits2 <- tableFits[treeEDExpression == edExpr][
+        unlist(mapping) %in% modelTypes[c(modelType, subModelType)]]
+
+      tableFits2[, modelTypeName:=names(modelTypes)[match(unlist(mapping), modelTypes)]]
+      setkey(tableFits2, modelTypeName)
+
+      if(nrow(tableFits2) == 2L &&
+         nrow(tableFits2[list(modelType)]) == 1L &&
+         nrow(tableFits2[list(subModelType)]) == 1L &&
+         tableFits2[list(modelType), logLik] < tableFits2[list(subModelType), logLik]) {
+        count <- count+1
+        if(verbose) {
+          cat(
+            count, ". ",
+            'treeEDExpr=', edExpr,
+            ': Learning modelType=', modelType,
+            ' from subModelType=', subModelType, '\n')
+        }
+
+        tableFits2Models <- RetrieveFittedModelsFromFitVectors(
+          fitMappings = NULL,
+          tableFits = tableFits2,
+          modelTypes = modelTypes,
+          modelTypesNew = NULL,
+          argsMixedGaussian = argsMixedGaussian,
+
+          X = X,
+          tree = tree,
+          SE = SE,
+
+          setAttributes = TRUE)
+
+        model <- tableFits2Models[list(modelType), fittedModel[[1]]]
+        subModel <- tableFits2Models[list(subModelType), fittedModel[[1]]]
+        model2 <- PCMDefaultObject(spec = attr(model, 'spec'), model = model)
+        attributes(model2) <- attributes(model)
+        attr(model2, "PCMInfoFun") <- metaIFun(
+          X = attr(model2, "X", exact = TRUE),
+          tree = attr(model2, "tree", exact = TRUE),
+          model = model2,
+          SE = attr(model2, "SE", exact = TRUE))
+        PCMParamSetByName(model2, subModel, inplace = TRUE, deepCopySubPCMs = TRUE)
+
+        vecModel <- tableFits2Models[list(modelType)]$fitVector[[1]]
+        idxParams <- seq_len(PCMParamCount(model))
+        idxLogLik <- length(vecModel) - 3
+        idxScore <- length(vecModel)
+        vecModel[idxParams] <- unname(PCMParamGetShortVector(model2))
+        vecModel[idxLogLik] <- unname(logLik(model2))
+        vecModel[idxScore] <- unname(scoreFun(model2))
+
+        tableFits[
+          treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+            sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
+          fitVector:=list(list(vecModel))]
+        tableFits[
+          treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+            sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
+          logLik:=vecModel[[idxLogLik]]]
+        tableFits[
+          treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+            sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
+          score:=vecModel[[idxScore]]]
+      }
+
+    }
+  }
+  tableFits
+}
+
 #' @importFrom PCMBase PCMTreeGetPartition PCMTreeGetLabels
 #' @importFrom digest digest
 #' @export

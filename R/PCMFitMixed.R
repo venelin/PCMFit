@@ -145,6 +145,18 @@ PCMFitMixed <- function(
     fitsToClades <- do.call(
       PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
 
+    # Fix suboptimal fits, in which a sub-model of the fitted model got a higher
+    # likelihood value.
+    try(fitsToClades <- LearnFromSubmodels(
+      tableFits = fitsToClades,
+      modelTypes = modelTypes,
+      subModels = subModels,
+      argsMixedGaussian = argsMixedGaussian,
+      metaIFun = metaIFun,
+      scoreFun = scoreFun,
+      X = X, tree = tree, SE = SE,
+      verbose = verbose), silent = TRUE)
+
     # update tableFits with the entries in fitsToClades
     tableFits <- UpdateTableFits(tableFits, fitsToClades)
 
@@ -175,7 +187,9 @@ PCMFitMixed <- function(
 
     resultStep2 <- do.call(PCMFitRecursiveCladePartition, argumentsStep2)
 
-    fitsToTree <- resultStep2$fitsToTree
+    fitsToTree <- rbindlist(list(
+      fitsToClades[list(list(hashCodeTree = resultStep2$hashCodeEntireTree))],
+      resultStep2$fitsToTree))
 
     # update tableFits with the entries in fitsToTree
     tableFits <- UpdateTableFits(tableFits, fitsToTree)
@@ -184,8 +198,8 @@ PCMFitMixed <- function(
 
     # A table with the best fit for each of the top
     # maxNumPartitionsInRoundRobins partitions in resultStep2$fitsToTree
-    tableFitsRRInit <- resultStep2$fitsToTree[
-      list(hashCodeTree = resultStep2$hashCodeEntireTree),
+    tableFitsRRInit <- fitsToTree[
+      ,
       .SD[which.min(score)],
       keyby = hashCodeStartingNodesRegimesLabels][
         order(score)][
@@ -369,7 +383,7 @@ PCMFitMixed <- function(
       }
     }
   } else {
-    stop("ERR:04131:PCMFit:PCMFitMixed:PCMFitMixed:: the tree is has fewer tips than than the min clade-size in minCladeSizes (",
+    stop("ERR:04131:PCMFit:PCMFitMixed:PCMFitMixed:: the tree has fewer tips than the min clade-size in minCladeSizes (",
          MIN_CLADE_SIZE,
          "). Try with smaller minCladeSizes.")
   }
