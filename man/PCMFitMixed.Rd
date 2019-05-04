@@ -6,6 +6,7 @@
 types to each regime.}
 \usage{
 PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
+  subModels = c(B = "A", C = "A", D = "B", E = "D", F = "E"),
   argsMixedGaussian = Args_MixedGaussian_MGPMDefaultModelTypes(),
   SE = matrix(0, nrow(X), PCMTreeNumTips(tree)),
   generatePCMModelsFun = PCMGenerateModelTypes, metaIFun = PCMInfo,

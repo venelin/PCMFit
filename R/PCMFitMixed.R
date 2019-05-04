@@ -190,7 +190,7 @@ PCMFitMixed <- function(
     resultStep2 <- do.call(PCMFitRecursiveCladePartition, argumentsStep2)
 
     fitsToTree <- rbindlist(list(
-      fitsToClades[list(list(hashCodeTree = resultStep2$hashCodeEntireTree))],
+      fitsToClades[list(hashCodeTree = resultStep2$hashCodeEntireTree)],
       resultStep2$fitsToTree))
 
     # update tableFits with the entries in fitsToTree
