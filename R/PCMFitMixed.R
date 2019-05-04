@@ -16,6 +16,8 @@ PCMFitMixed <- function(
   X, tree,
 
   modelTypes = MGPMDefaultModelTypes(),
+  subModels = c(B = 'A', C = 'A', D = 'B', E = 'D', F = 'E'),
+
   argsMixedGaussian = Args_MixedGaussian_MGPMDefaultModelTypes(),
 
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
