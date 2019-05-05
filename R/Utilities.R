@@ -482,8 +482,10 @@ LearnFromSubmodels <- function(
           cat(
             count, ". ",
             'treeEDExpr=', edExpr,
-            ': Learning modelType=', modelType,
-            ' from subModelType=', subModelType, '\n')
+            ': substituting parameters for modelType=', modelType,
+            '(ll=', round(tableFits2[list(modelType), logLik], 2), ')',
+            ' with parameters from subModelType=', subModelType,
+            '(ll=', round(tableFits2[list(subModelType), logLik], 2), ')', '\n')
         }
 
         tableFits2Models <- RetrieveFittedModelsFromFitVectors(
