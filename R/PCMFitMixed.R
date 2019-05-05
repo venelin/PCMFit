@@ -212,6 +212,9 @@ PCMFitMixed <- function(
       fitsToClades[list(hashCodeTree = resultStep2$hashCodeEntireTree)],
       resultStep2$fitsToTree))
 
+    cat('5. key(fitsToTree:)')
+    print(key(fitsToClades))
+
     # update tableFits with the entries in fitsToTree
     tableFits <- UpdateTableFits(tableFits, fitsToTree)
 

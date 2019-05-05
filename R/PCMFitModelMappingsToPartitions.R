@@ -414,5 +414,7 @@ PCMFitModelMappingsToCladePartitions <- function(
       } # end of nested foreach body
 
   CleanTemporaryFitFiles(filePrefix = prefixFiles)
+  setkey(
+    fits, hashCodeTree, hashCodeStartingNodesRegimesLabels, hashCodeMapping)
   fits
 }
