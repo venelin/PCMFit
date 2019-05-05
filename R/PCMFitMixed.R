@@ -154,9 +154,6 @@ PCMFitMixed <- function(
         "super-model was lower than the one of its sub-model...\n")
     }
 
-    cat('1. key(fitsToClades:)')
-    print(key(fitsToClades))
-
     # Fix suboptimal fits, in which a sub-model of the fitted model got a higher
     # likelihood value.
     fitsToClades <- LearnFromSubmodels(
@@ -169,19 +166,10 @@ PCMFitMixed <- function(
       X = X, tree = tree, SE = SE,
       verbose = verbose)
 
-    cat('2. key(fitsToClades:)')
-    print(key(fitsToClades))
-
     # update tableFits with the entries in fitsToClades
     tableFits <- UpdateTableFits(tableFits, fitsToClades)
 
-    cat('3. key(fitsToClades:)')
-    print(key(fitsToClades))
-
     SaveCurrentResults(list(tableFits = fitsToClades), filePrefix = prefixFiles)
-
-    cat('4. key(fitsToClades:)')
-    print(key(fitsToClades))
 
     # 2. Perform fits to clade-partitions with different model mappings
     # we need these variables throughout this step
@@ -211,9 +199,6 @@ PCMFitMixed <- function(
     fitsToTree <- rbindlist(list(
       fitsToClades[list(hashCodeTree = resultStep2$hashCodeEntireTree)],
       resultStep2$fitsToTree))
-
-    cat('5. key(fitsToTree:)')
-    print(key(fitsToClades))
 
     # update tableFits with the entries in fitsToTree
     tableFits <- UpdateTableFits(tableFits, fitsToTree)
