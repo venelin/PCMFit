@@ -175,6 +175,9 @@ PCMFitMixed <- function(
 
       if(nrow(betterSubmodelFits$cladeFitsNew) > 0L) {
 
+        fitsToClades <- UpdateTableFits(
+          fitsToClades, betterSubmodelFits$cladeFitsNew)
+
         argumentsFitsToClades$listPartitions <-
           betterSubmodelFits$listPartitions
         argumentsFitsToClades$listAllowedModelTypesIndices <-
