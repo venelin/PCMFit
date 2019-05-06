@@ -180,9 +180,6 @@ PCMFitMixed <- function(
         cat("before update fitsToClades[betterSubmodelFits$cladeFitsNew]:\n")
         print(fitsToClades[betterSubmodelFits$cladeFitsNew])
 
-        cat("before update betterSubmodelFits$cladeFitsNew:\n")
-        print(betterSubmodelFits$cladeFitsNew)
-
         fitsToClades <- UpdateTableFits(
           fitsToClades, betterSubmodelFits$cladeFitsNew)
 
@@ -203,9 +200,6 @@ PCMFitMixed <- function(
 
         fitsToCladesRerun <- do.call(
           PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
-
-        cat("after update fitsToCladesRerun:\n")
-        print(fitsToCladesRerun)
 
         fitsToClades <- UpdateTableFits(fitsToClades, fitsToCladesRerun)
 

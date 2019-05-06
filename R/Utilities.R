@@ -481,17 +481,8 @@ LearnCladeFitsFromSubmodels <- function(
       if(nrow(cladeFits2) == 2L &&
          nrow(cladeFits2[list(modelType)]) == 1L &&
          nrow(cladeFits2[list(subModelType)]) == 1L &&
-         cladeFits2[list(modelType), logLik] < cladeFits2[list(subModelType), logLik]) {
-        count <- count+1
-        if(verbose) {
-          cat(
-            count, ". ",
-            'treeEDExpr=', edExpr,
-            ': substituting parameters for modelType=', modelType,
-            '(ll=', round(cladeFits2[list(modelType), logLik], 2), ')',
-            ' with parameters from subModelType=', subModelType,
-            '(ll=', round(cladeFits2[list(subModelType), logLik], 2), ')', '\n')
-        }
+         cladeFits2[list(modelType), logLik] + 0.1 <
+           cladeFits2[list(subModelType), logLik]) {
 
         cladeFits2Models <- RetrieveFittedModelsFromFitVectors(
           fitMappings = NULL,
@@ -525,20 +516,34 @@ LearnCladeFitsFromSubmodels <- function(
         vecModel[idxLogLik] <- unname(logLik(model2))
         vecModel[idxScore] <- unname(scoreFun(model2))
 
-        cladeFitsNewEntry <- cladeFits2[list(modelType)]
-        cladeFitsNewEntry[, modelTypeName:=NULL]
+        if(vecModel[idxLogLik] <= cladeFits2[list(subModelType), logLik]) {
+          count <- count+1
+          if(verbose) {
+            cat(
+              count, ". ",
+              'treeEDExpr=', edExpr,
+              ': substituting parameters for modelType=', modelType,
+              '(ll=', round(cladeFits2[list(modelType), logLik], 2), ')',
+              ' with parameters from subModelType=', subModelType,
+              '(ll=', round(cladeFits2[list(subModelType), logLik], 2), ')', '\n')
+          }
 
-        cladeFitsNewEntry[,fitVector:=list(list(vecModel))]
-        cladeFitsNewEntry[,logLik:=vecModel[[idxLogLik]]]
-        cladeFitsNewEntry[,score:=vecModel[[idxScore]]]
+          cladeFitsNewEntry <- cladeFits2[list(modelType)]
+          cladeFitsNewEntry[, modelTypeName:=NULL]
 
-        cladeFitsNew <- rbindlist(list(cladeFitsNew, cladeFitsNewEntry))
+          cladeFitsNewEntry[,fitVector:=list(list(vecModel))]
+          cladeFitsNewEntry[,logLik:=vecModel[[idxLogLik]]]
+          cladeFitsNewEntry[,score:=vecModel[[idxScore]]]
 
-        cladeRoot <- cladeFitsNewEntry$startingNodesRegimesLabels[[1L]]
-        cladeRoots <- c(cladeRoots, cladeRoot)
-        listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
-          listAllowedModelTypesIndices[[as.character(cladeRoot)]],
-          match(modelTypes[modelType], modelTypes))
+          cladeFitsNew <- rbindlist(list(cladeFitsNew, cladeFitsNewEntry))
+
+          cladeRoot <- cladeFitsNewEntry$startingNodesRegimesLabels[[1L]]
+          cladeRoots <- c(cladeRoots, cladeRoot)
+          listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
+            listAllowedModelTypesIndices[[as.character(cladeRoot)]],
+            match(modelTypes[modelType], modelTypes))
+        }
+
       }
     }
   }
