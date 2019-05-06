@@ -549,7 +549,7 @@ LearnCladeFitsFromSubmodels <- function(
   list(
     cladeFitsNew = cladeFitsNew,
     listPartitions = as.list(unique(cladeRoots)),
-    listAllowedModelTypesIndices)
+    listAllowedModelTypesIndices = listAllowedModelTypesIndices)
 }
 
 #' @importFrom PCMBase PCMTreeGetPartition PCMTreeGetLabels

@@ -175,11 +175,11 @@ PCMFitMixed <- function(
 
       if(nrow(betterSubmodelFits$cladeFitsNew) > 0L) {
 
-        cat('betterSubmodelFits$listPartitions:\n')
-        print(betterSubmodelFits$listPartitions)
-
-        cat('betterSubmodelFits$listAllowedModelTypesIndices')
-        print(betterSubmodelFits$listAllowedModelTypesIndices)
+        # cat('betterSubmodelFits$listPartitions:\n')
+        # print(betterSubmodelFits$listPartitions)
+        #
+        # cat('betterSubmodelFits$listAllowedModelTypesIndices')
+        # print(betterSubmodelFits$listAllowedModelTypesIndices)
 
         argumentsFitsToClades$listPartitions <-
           betterSubmodelFits$listPartitions
