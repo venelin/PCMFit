@@ -71,6 +71,10 @@ PCMFitMixed <- function(
   # original argument value.
   arguments <- as.list(environment())
 
+  optionsBeforeCall <- PCMOptions()
+
+  do.call(options, listPCMOptions)
+
   tree <- PCMTree(tree)
   PCMTreeSetLabels(tree)
   PCMTreeSetPartition(tree)
@@ -465,6 +469,8 @@ PCMFitMixed <- function(
     tableFitsRR = tableFitsRR
   )
   class(resFitMappings) <- "PCMFitModelMappings"
+
+  do.call(options, optionsBeforeCall)
 
   resFitMappings
 }
