@@ -177,10 +177,10 @@ PCMFitMixed <- function(
 
         options(digits = 10)
 
-        cat("fitsToClades[betterSubmodelFits$cladeFitsNew]:\n")
+        cat("before update fitsToClades[betterSubmodelFits$cladeFitsNew]:\n")
         print(fitsToClades[betterSubmodelFits$cladeFitsNew])
 
-        cat("betterSubmodelFits$cladeFitsNew:\n")
+        cat("before update betterSubmodelFits$cladeFitsNew:\n")
         print(betterSubmodelFits$cladeFitsNew)
 
         fitsToClades <- UpdateTableFits(
@@ -204,10 +204,14 @@ PCMFitMixed <- function(
         fitsToCladesRerun <- do.call(
           PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
 
-        cat("fitsToCladesRerun:\n")
+        cat("after update fitsToCladesRerun:\n")
         print(fitsToCladesRerun)
 
         fitsToClades <- UpdateTableFits(fitsToClades, fitsToCladesRerun)
+
+        cat("after update fitsToClade[fitsToCladesRerun]:\n")
+        print(fitsToClade[fitsToCladesRerun])
+
       } else {
         checkForBetterSubmodels <- FALSE
       }
