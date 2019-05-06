@@ -516,7 +516,7 @@ LearnCladeFitsFromSubmodels <- function(
         vecModel[idxLogLik] <- unname(logLik(model2))
         vecModel[idxScore] <- unname(scoreFun(model2))
 
-        if(vecModel[idxLogLik] <= cladeFits2[list(subModelType), logLik]) {
+        if(vecModel[idxLogLik] >= cladeFits2[list(subModelType), logLik]) {
           count <- count+1
           if(verbose) {
             cat(
