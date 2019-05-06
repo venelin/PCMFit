@@ -464,7 +464,7 @@ LearnCladeFitsFromSubmodels <- function(
 
   cladeFitsNew <- cladeFits[integer(0L)]
   count <- 0L
-  listPartitions <- list()
+  cladeRoots <- c()
   listAllowedModelTypesIndices <- list()
 
   for(modelType in names(subModels)) {
@@ -534,7 +534,7 @@ LearnCladeFitsFromSubmodels <- function(
         cladeFitsNew <- rbindlist(list(cladeFitsNew, cladeFitsNewEntry))
 
         cladeRoot <- cladeFitsNewEntry$startingNodesRegimesLabels[[1L]]
-        listPartitions <- c(listPartitions, cladeRoot)
+        cladeRoots <- c(cladeRoots, cladeRoot)
         listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
           listAllowedModelTypesIndices[[as.character(cladeRoot)]],
           match(modelTypes[modelType], modelTypes))
@@ -548,7 +548,7 @@ LearnCladeFitsFromSubmodels <- function(
   }
   list(
     cladeFitsNew = cladeFitsNew,
-    listPartitions = listPartitions,
+    listPartitions = as.list(unique(cladeRoots)),
     listAllowedModelTypesIndices)
 }
 
