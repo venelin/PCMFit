@@ -543,6 +543,17 @@ LearnCladeFitsFromSubmodels <- function(
           listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
             listAllowedModelTypesIndices[[as.character(cladeRoot)]],
             match(modelTypes[modelType], modelTypes))
+        } else {
+          if(verbose) {
+            cat(
+              count + 1L, ". ",
+              'treeEDExpr=', edExpr,
+              ': rejected candidate for substitution modelType=', modelType,
+              '(ll=', cladeFits2[list(modelType), logLik], ')',
+              ' with parameters from subModelType=', subModelType,
+              '(ll=', cladeFits2[list(subModelType), logLik], ')',
+              '; after substitution ll=', vecModel[idxLogLik], '\n')
+          }
         }
 
       }
