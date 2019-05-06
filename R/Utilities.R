@@ -494,7 +494,7 @@ LearnCladeFitsFromSubmodels <- function(
 
         cladeFits2Models <- RetrieveFittedModelsFromFitVectors(
           fitMappings = NULL,
-          cladeFits = cladeFits2,
+          tableFits = cladeFits2,
           modelTypes = modelTypes,
           modelTypesNew = NULL,
           argsMixedGaussian = argsMixedGaussian,
