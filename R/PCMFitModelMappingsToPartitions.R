@@ -1,3 +1,4 @@
+#' @importFrom utils tail
 PCMFitModelMappingsToCladePartitions <- function(
   X, tree, modelTypes,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
@@ -9,10 +10,6 @@ PCMFitModelMappingsToCladePartitions <- function(
   listNamesInHintModels = rep(list(character(0)), length(listPartitions)),
 
   listAllowedModelTypesIndices = NULL,
-
-
-
-
 
   fitClades = FALSE,
 
@@ -227,8 +224,6 @@ PCMFitModelMappingsToCladePartitions <- function(
             startingNodesRegimesLabels = cladePartition,
             modelMapping = modelMapping)
           fit <- LookupFit(tableFits = tableFits, hashCodes = hashCodes)
-          # fit <- LookupFit2(
-          #   tree = treeForFit, model = modelForFit, tableFits = tableFits)
 
           if(nrow(fit) == 1 && skipFitWhenFoundInTableFits) {
             dt.row <- fit
@@ -275,6 +270,12 @@ PCMFitModelMappingsToCladePartitions <- function(
               matParInit <- rbind(matParInitRunif,
                                   matParInitGuess,
                                   matParInitGuessVaryParams)
+              if(nrow(fit) == 1L) {
+                cat("Completing matParInit with a vector from previous fit.\n")
+                matParInit <- rbind(
+                  matParInit, fit$fitVector[[1]][seq_len(ncol(matParInit))])
+                print(matParInit[tail(nrow(matParInit)),])
+              }
 
               fit <- PCMFit(
                 X = XForFit, tree = treeForFit, model = modelForFit,
@@ -323,6 +324,13 @@ PCMFitModelMappingsToCladePartitions <- function(
                                   matParInitGuessVaryParams,
                                   matParInitJitter)
 
+              if(nrow(fit) == 1L) {
+                cat("Completing matParInit with vector from previous fit.\n")
+                matParInit <- rbind(
+                  matParInit, fit$fitVector[[1]][seq_len(ncol(matParInit))])
+                print(matParInit[tail(nrow(matParInit)),])
+              }
+
               fit <- PCMFit(
                 X = XForFit, tree = treeForFit, model = modelForFit,
                 SE = SEForFit,
@@ -357,45 +365,6 @@ PCMFitModelMappingsToCladePartitions <- function(
               nobs = attr(ll, "nobs"),
               score = v_score,
               duplicated = FALSE)
-
-            # CreateFitRecord <- function(fit, scoreFun) {
-            #   ll <- unname(logLik(fit))
-            #   v_score = unname(scoreFun(fit))
-            #   vec <- c(
-            #     coef(fit),
-            #     logLik = ll,
-            #     df = attr(ll, "df"),
-            #     nobs = attr(ll, "nobs"),
-            #     score = v_score)
-            #
-            #
-            #   tree <- PCMTree(fit$tree)
-            #   partRegimes <- PCMTreeGetPartRegimes(tree)
-            #   modelMapping <-
-            #
-            #   data.table(
-            #     hashCodeTree = hashCodes$hashCodeTree,
-            #     hashCodeStartingNodesRegimesLabels =
-            #       hashCodes$hashCodeStartingNodesRegimesLabels,
-            #     hashCodeMapping = hashCodes$hashCodeMapping,
-            #     treeEDExpression = EDExpression,
-            #     startingNodesRegimesLabels = list(cladePartition),
-            #     mapping = list(MatchModelMapping(modelMapping, modelTypes)),
-            #     fitVector = list(unname(vec)),
-            #     logLik = ll,
-            #     df = attr(ll, "df"),
-            #     nobs = attr(ll, "nobs"),
-            #     score = v_score,
-            #     duplicated = FALSE)
-            # }
-            # dt.row <- CreateFitRecord(
-            #   treeEDExpression = EDExpression, fit = fit, scoreFun = scoreFun)
-            #
-            #   tree = treeForFit,
-            #   treeEDExpression = EDExpression,
-            #
-            #   partitionN
-            # )
           }
 
           if(printFitVectorsToConsole) {

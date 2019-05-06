@@ -452,8 +452,8 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
 
 #' @importFrom PCMBase PCMDefaultObject PCMParamSetByName
 #' @export
-LearnFromSubmodels <- function(
-  tableFits,
+LearnCladeFitsFromSubmodels <- function(
+  cladeFits,
   modelTypes,
   subModels,
   argsMixedGaussian,
@@ -461,36 +461,40 @@ LearnFromSubmodels <- function(
   scoreFun,
   X, tree, SE,
   verbose = FALSE) {
-  tableFits <- copy(tableFits)
+
+  cladeFitsNew <- cladeFits[integer(0L)]
   count <- 0L
+  listPartitions <- list()
+  listAllowedModelTypesIndices <- list()
+
   for(modelType in names(subModels)) {
-    for(edExpr in unique(tableFits[, treeEDExpression])) {
+    for(edExpr in unique(cladeFits[, treeEDExpression])) {
       subModelType <- subModels[modelType]
 
-      tableFits2 <- tableFits[treeEDExpression == edExpr][
+      cladeFits2 <- cladeFits[treeEDExpression == edExpr][
         unlist(mapping) %in% modelTypes[c(modelType, subModelType)]]
 
-      tableFits2[, modelTypeName:=names(modelTypes)[match(unlist(mapping), modelTypes)]]
-      setkey(tableFits2, modelTypeName)
+      cladeFits2[, modelTypeName:=names(modelTypes)[match(unlist(mapping), modelTypes)]]
+      setkey(cladeFits2, modelTypeName)
 
-      if(nrow(tableFits2) == 2L &&
-         nrow(tableFits2[list(modelType)]) == 1L &&
-         nrow(tableFits2[list(subModelType)]) == 1L &&
-         tableFits2[list(modelType), logLik] < tableFits2[list(subModelType), logLik]) {
+      if(nrow(cladeFits2) == 2L &&
+         nrow(cladeFits2[list(modelType)]) == 1L &&
+         nrow(cladeFits2[list(subModelType)]) == 1L &&
+         cladeFits2[list(modelType), logLik] < cladeFits2[list(subModelType), logLik]) {
         count <- count+1
         if(verbose) {
           cat(
             count, ". ",
             'treeEDExpr=', edExpr,
             ': substituting parameters for modelType=', modelType,
-            '(ll=', round(tableFits2[list(modelType), logLik], 2), ')',
+            '(ll=', round(cladeFits2[list(modelType), logLik], 2), ')',
             ' with parameters from subModelType=', subModelType,
-            '(ll=', round(tableFits2[list(subModelType), logLik], 2), ')', '\n')
+            '(ll=', round(cladeFits2[list(subModelType), logLik], 2), ')', '\n')
         }
 
-        tableFits2Models <- RetrieveFittedModelsFromFitVectors(
+        cladeFits2Models <- RetrieveFittedModelsFromFitVectors(
           fitMappings = NULL,
-          tableFits = tableFits2,
+          cladeFits = cladeFits2,
           modelTypes = modelTypes,
           modelTypesNew = NULL,
           argsMixedGaussian = argsMixedGaussian,
@@ -501,8 +505,8 @@ LearnFromSubmodels <- function(
 
           setAttributes = TRUE)
 
-        model <- tableFits2Models[list(modelType), fittedModel[[1]]]
-        subModel <- tableFits2Models[list(subModelType), fittedModel[[1]]]
+        model <- cladeFits2Models[list(modelType), fittedModel[[1]]]
+        subModel <- cladeFits2Models[list(subModelType), fittedModel[[1]]]
         model2 <- PCMDefaultObject(spec = attr(model, 'spec'), model = model)
         attributes(model2) <- attributes(model)
         attr(model2, "PCMInfoFun") <- metaIFun(
@@ -512,7 +516,7 @@ LearnFromSubmodels <- function(
           SE = attr(model2, "SE", exact = TRUE))
         PCMParamSetByName(model2, subModel, inplace = TRUE, deepCopySubPCMs = TRUE)
 
-        vecModel <- tableFits2Models[list(modelType)]$fitVector[[1]]
+        vecModel <- cladeFits2Models[list(modelType)]$fitVector[[1]]
         idxParams <- seq_len(PCMParamCount(model))
         idxLogLik <- length(vecModel) - 3
         idxScore <- length(vecModel)
@@ -520,23 +524,31 @@ LearnFromSubmodels <- function(
         vecModel[idxLogLik] <- unname(logLik(model2))
         vecModel[idxScore] <- unname(scoreFun(model2))
 
-        tableFits[
-          treeEDExpression == edExpr & sapply(mapping, length) == 1L &
-            sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
-          fitVector:=list(list(vecModel))]
-        tableFits[
-          treeEDExpression == edExpr & sapply(mapping, length) == 1L &
-            sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
-          logLik:=vecModel[[idxLogLik]]]
-        tableFits[
-          treeEDExpression == edExpr & sapply(mapping, length) == 1L &
-            sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
-          score:=vecModel[[idxScore]]]
-      }
+        cladeFitsNewEntry <- cladeFits2[list(modelType)]
 
+        cladeFitsNewEntry[,fitVector:=list(list(vecModel))]
+        cladeFitsNewEntry[,logLik:=vecModel[[idxLogLik]]]
+        cladeFitsNewEntry[,score:=vecModel[[idxScore]]]
+
+        cladeFitsNew <- rbindlist(list(cladeFitsNew, cladeFitsNewEntry))
+
+        cladeRoot <- cladeFitsNewEntry$startingNodesRegimesLabels[[1L]]
+        listPartitions <- c(listPartitions, cladeRoot)
+        listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
+          listAllowedModelTypesIndices[[as.character(cladeRoot)]],
+          match(modelTypes[modelType], modelTypes))
+      }
     }
   }
-  tableFits
+  if(!is.null(cladeFitsNew)) {
+    setkey(
+      cladeFitsNew,
+      hashCodeTree, hashCodeStartingNodesRegimesLabels, hashCodeMapping)
+  }
+  list(
+    cladeFitsNew = cladeFitsNew,
+    listPartitions = listPartitions,
+    listAllowedModelTypesIndices)
 }
 
 #' @importFrom PCMBase PCMTreeGetPartition PCMTreeGetLabels

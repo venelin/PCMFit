@@ -119,7 +119,9 @@ PCMFitMixed <- function(
       cat("Step 1 (", Sys.time() ,"): Performing fits on", length(cladeRoots),
           " clades; ",
           sum(sapply(listAllowedModelTypesIndicesFTC[as.character(cladeRoots)],
-                     length)), " model mappings altogether...\n")
+                     length)), " model mappings altogether...\n",
+          "Step 1.1 (", Sys.time() ,
+          "): Fitting models independently from random starting locations...\n")
     }
 
     argumentsFitsToClades <-
@@ -147,24 +149,55 @@ PCMFitMixed <- function(
     fitsToClades <- do.call(
       PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
 
-    if(verbose) {
-      cat(
-        "Step 1.1 (", Sys.time() ,"):",
-        "Learning from sub-models, where the found max log-likelihood of a",
-        "super-model was lower than the one of its sub-model...\n")
-    }
-
     # Fix suboptimal fits, in which a sub-model of the fitted model got a higher
     # likelihood value.
-    fitsToClades <- LearnFromSubmodels(
-      tableFits = fitsToClades,
-      modelTypes = modelTypes,
-      subModels = subModels,
-      argsMixedGaussian = argsMixedGaussian,
-      metaIFun = metaIFun,
-      scoreFun = scoreFun,
-      X = X, tree = tree, SE = SE,
-      verbose = verbose)
+    checkForBetterSubmodels <- TRUE
+    checkForBetterSubmodelsIteration <- 0L
+    while(checkForBetterSubmodels) {
+      checkForBetterSubmodelsIteration <- checkForBetterSubmodelsIteration + 1L
+      if(verbose) {
+        cat(
+          "Step 1.2, Iteration ", checkForBetterSubmodelsIteration,
+          "(", Sys.time() ,"):",
+          "Learning from sub-models, where the found max log-likelihood of a",
+          "super-model was lower than the one of its sub-model...\n")
+      }
+
+      betterSubmodelFits <- LearnCladeFitsFromSubmodels(
+        cladeFits = fitsToClades,
+        modelTypes = modelTypes,
+        subModels = subModels,
+        argsMixedGaussian = argsMixedGaussian,
+        metaIFun = metaIFun,
+        scoreFun = scoreFun,
+        X = X, tree = tree, SE = SE,
+        verbose = verbose)
+
+      if(nrow(betterSubmodelFits$cladeFitsNew) > 0L) {
+        argumentsFitsToClades$listPartitions <-
+          betterSubmodelFits$listPartitions
+        argumentsFitsToClades$listAllowedModelTypesIndices <-
+          betterSubmodelFits$listAllowedModelTypesIndices
+        argumentsFitsToClades$skipFitWhenFoundInTableFits <- FALSE
+        argumentsFitsToClades$argsConfigOptim <-
+          DefaultArgsConfigOptim(
+            numRunifInitVecParams = 2L,
+            numGuessInitVecParams = 2L,
+            numJitterRootRegimeFit = 2L,
+            numJitterAllRegimeFits = 2L,
+            numCallsOptim = 1L)
+        argumentsFitsToClades$tableFitsPrev <-
+          betterSubmodelFits$cladeFitsNew
+
+        fitsToCladesRerun <- do.call(
+          PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
+
+        fitsToClades <- UpdateTableFits(fitsToClades, fitsToCladesRerun)
+      } else {
+        checkForBetterSubmodels <- FALSE
+      }
+    }
+
 
     # update tableFits with the entries in fitsToClades
     tableFits <- UpdateTableFits(tableFits, fitsToClades)
