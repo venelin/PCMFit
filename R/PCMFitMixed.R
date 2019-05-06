@@ -175,6 +175,14 @@ PCMFitMixed <- function(
 
       if(nrow(betterSubmodelFits$cladeFitsNew) > 0L) {
 
+        options(digits = 10)
+
+        cat("fitsToClades[betterSubmodelFits$cladeFitsNew]:\n")
+        print(fitsToClades[betterSubmodelFits$cladeFitsNew])
+
+        cat("betterSubmodelFits$cladeFitsNew:\n")
+        print(betterSubmodelFits$cladeFitsNew)
+
         fitsToClades <- UpdateTableFits(
           fitsToClades, betterSubmodelFits$cladeFitsNew)
 
@@ -195,6 +203,9 @@ PCMFitMixed <- function(
 
         fitsToCladesRerun <- do.call(
           PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
+
+        cat("fitsToCladesRerun:\n")
+        print(fitsToCladesRerun)
 
         fitsToClades <- UpdateTableFits(fitsToClades, fitsToCladesRerun)
       } else {
