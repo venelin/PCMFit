@@ -523,9 +523,10 @@ LearnCladeFitsFromSubmodels <- function(
               count, ". ",
               'treeEDExpr=', edExpr,
               ': substituting parameters for modelType=', modelType,
-              '(ll=', round(cladeFits2[list(modelType), logLik], 2), ')',
+              '(ll=', cladeFits2[list(modelType), logLik], ')',
               ' with parameters from subModelType=', subModelType,
-              '(ll=', round(cladeFits2[list(subModelType), logLik], 2), ')', '\n')
+              '(ll=', cladeFits2[list(subModelType), logLik], ')',
+              '; after substitution ll=', vecModel[idxLogLik], '\n')
           }
 
           cladeFitsNewEntry <- cladeFits2[list(modelType)]
