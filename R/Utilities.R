@@ -427,11 +427,12 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
     # was named aic.
     setnames(fitMappings$tableFits, old = "aic", new = "score")
   }
+
   tableFits <- RetrieveFittedModelsFromFitVectors(
     fitMappings = fitMappings,
-    tableFits = fitMappings$tableFits[treeEDExpression=="tree"][order(score)][rank],
+    tableFits = fitMappings$tableFits[
+      hashCodeTree==fitMappings$fitMappings][order(score)][rank],
     setAttributes = TRUE)
-
 
   res <- list(
     tree = PCMTree(fitMappings$tree),
