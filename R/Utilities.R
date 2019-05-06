@@ -431,7 +431,7 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   tableFits <- RetrieveFittedModelsFromFitVectors(
     fitMappings = fitMappings,
     tableFits = fitMappings$tableFits[
-      hashCodeTree==fitMappings$fitMappings][order(score)][rank],
+      hashCodeTree==fitMappings$hashCodeTree][order(score)][rank],
     setAttributes = TRUE)
 
   res <- list(
