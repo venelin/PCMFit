@@ -525,6 +525,7 @@ LearnCladeFitsFromSubmodels <- function(
         vecModel[idxScore] <- unname(scoreFun(model2))
 
         cladeFitsNewEntry <- cladeFits2[list(modelType)]
+        cladeFitsNewEntry[, modelTypeName:=NULL]
 
         cladeFitsNewEntry[,fitVector:=list(list(vecModel))]
         cladeFitsNewEntry[,logLik:=vecModel[[idxLogLik]]]
