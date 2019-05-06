@@ -210,7 +210,7 @@ PCMFitMixed <- function(
         fitsToClades <- UpdateTableFits(fitsToClades, fitsToCladesRerun)
 
         cat("after update fitsToClade[fitsToCladesRerun]:\n")
-        print(fitsToClade[fitsToCladesRerun])
+        print(fitsToClades[fitsToCladesRerun])
 
       } else {
         checkForBetterSubmodels <- FALSE
