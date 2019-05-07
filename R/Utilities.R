@@ -525,10 +525,10 @@ LearnCladeFitsFromSubmodels <- function(
               count, ". ",
               'treeEDExpr=', edExpr,
               ': substituting parameters for modelType=', modelType,
-              '(ll=', cladeFits2[list(modelType), logLik], ')',
+              '(ll=', toString(cladeFits2[list(modelType), logLik]), ')',
               ' with parameters from subModelType=', subModelType,
-              '(ll=', cladeFits2[list(subModelType), logLik], ')',
-              '; after substitution ll=', vecModel[idxLogLik], '\n')
+              '(ll=', toString(cladeFits2[list(subModelType), logLik]), ')',
+              '; after substitution ll=', toString(vecModel[idxLogLik]), '\n')
           }
 
           cladeFitsNewEntry <- cladeFits2[list(modelType)]
@@ -559,11 +559,13 @@ LearnCladeFitsFromSubmodels <- function(
               count + 1L, ". ",
               'treeEDExpr=', edExpr,
               ': rejected candidate for substitution modelType=', modelType,
-              '(ll=', cladeFits2[list(modelType), logLik], ')',
+              '(ll=', toString(cladeFits2[list(modelType), logLik]), ')',
               ' with parameters from subModelType=', subModelType,
-              '(ll=', cladeFits2[list(subModelType), logLik], ')',
-              '; after substitution ll(', modelType, ')=', vecModel[idxLogLik],
-              '; ll(', subModelType, 'local)=',  unname(logLik(subModel)), '\n')
+              '(ll=', toString(cladeFits2[list(subModelType), logLik]), ')',
+              ';\n after substitution ll(', modelType, ')=',
+              toString(vecModel[idxLogLik]),
+              '; ll(', subModelType, ')=',
+              toString(logLik(subModel)), '\n')
           }
         }
 
