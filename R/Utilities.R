@@ -478,6 +478,8 @@ LearnCladeFitsFromSubmodels <- function(
       cladeFits2[, modelTypeName:=names(modelTypes)[match(unlist(mapping), modelTypes)]]
       setkey(cladeFits2, modelTypeName)
 
+      cladeRoot <- cladeFits2$startingNodesRegimesLabels[[1L]]
+
       if(nrow(cladeFits2) == 2L &&
          nrow(cladeFits2[list(modelType)]) == 1L &&
          nrow(cladeFits2[list(subModelType)]) == 1L &&
@@ -538,7 +540,6 @@ LearnCladeFitsFromSubmodels <- function(
 
           cladeFitsNew <- rbindlist(list(cladeFitsNew, cladeFitsNewEntry))
 
-          cladeRoot <- cladeFitsNewEntry$startingNodesRegimesLabels[[1L]]
           cladeRoots <- c(cladeRoots, cladeRoot)
           listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
             listAllowedModelTypesIndices[[as.character(cladeRoot)]],
