@@ -157,7 +157,9 @@ PCMFitMixed <- function(
     # likelihood value.
     checkForBetterSubmodels <- TRUE
     checkForBetterSubmodelsIteration <- 0L
-    while(checkForBetterSubmodels) {
+    while(checkForBetterSubmodels &&
+          checkForBetterSubmodelsIteration <= length(subModels)) {
+
       checkForBetterSubmodelsIteration <- checkForBetterSubmodelsIteration + 1L
       if(verbose) {
         cat(
