@@ -517,7 +517,7 @@ LearnCladeFitsFromSubmodels <- function(
         vecModel[idxScore] <- unname(scoreFun(model2))
 
         if(vecModel[idxLogLik] >= cladeFits2[list(subModelType), logLik]) {
-          count <- count+1
+          count <- count+1L
           if(verbose) {
             cat(
               count, ". ",
@@ -544,6 +544,15 @@ LearnCladeFitsFromSubmodels <- function(
             listAllowedModelTypesIndices[[as.character(cladeRoot)]],
             match(modelTypes[modelType], modelTypes))
         } else {
+          attr(subModel, "PCMInfoFun") <- metaIFun(
+            X = attr(subModel, "X", exact = TRUE),
+            tree = attr(subModel, "tree", exact = TRUE),
+            model = subModel,
+            SE = attr(subModel, "SE", exact = TRUE))
+          save(
+            model2, subModel,
+            file=paste0(
+              'ModelSubModel', cladeRoot, modelType, subModelType, '.RData'))
           if(verbose) {
             cat(
               count + 1L, ". ",
@@ -552,7 +561,8 @@ LearnCladeFitsFromSubmodels <- function(
               '(ll=', cladeFits2[list(modelType), logLik], ')',
               ' with parameters from subModelType=', subModelType,
               '(ll=', cladeFits2[list(subModelType), logLik], ')',
-              '; after substitution ll=', vecModel[idxLogLik], '\n')
+              '; after substitution ll(', modelType, ')=', vecModel[idxLogLik],
+              '; ll(', subModelType, 'local)=',  unname(logLik(subModel)), '\n')
           }
         }
 
