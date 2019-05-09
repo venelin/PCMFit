@@ -71,7 +71,7 @@ PCMFitMixed <- function(
   # original argument value.
   arguments <- as.list(environment())
 
-  optionsBeforeCall <- PCMOptions()
+  optionsBeforeCall <- options()
 
   do.call(options, listPCMOptions)
 
@@ -169,7 +169,7 @@ PCMFitMixed <- function(
           "super-model was lower than the one of its sub-model...\n")
       }
 
-      betterSubmodelFits <- LearnCladeFitsFromSubmodels(
+      betterSubmodelFits <- UpdateCladeFitsUsingSubModels(
         cladeFits = fitsToClades,
         modelTypes = modelTypes,
         subModels = subModels,
@@ -180,13 +180,6 @@ PCMFitMixed <- function(
         verbose = verbose)
 
       if(nrow(betterSubmodelFits$cladeFitsNew) > 0L) {
-
-        # options(digits = 10)
-        # cat("before update fitsToClades[betterSubmodelFits$cladeFitsNew]:\n")
-        # print(fitsToClades[betterSubmodelFits$cladeFitsNew])
-
-        fitsToClades <- UpdateTableFits(
-          fitsToClades, betterSubmodelFits$cladeFitsNew)
 
         argumentsFitsToClades$listPartitions <-
           betterSubmodelFits$listPartitions
@@ -207,9 +200,6 @@ PCMFitMixed <- function(
           PCMFitModelMappingsToCladePartitions, argumentsFitsToClades)
 
         fitsToClades <- UpdateTableFits(fitsToClades, fitsToCladesRerun)
-
-        # cat("after update fitsToClade[fitsToCladesRerun]:\n")
-        # print(fitsToClades[fitsToCladesRerun])
 
       } else {
         checkForBetterSubmodels <- FALSE
@@ -457,7 +447,7 @@ PCMFitMixed <- function(
 
   resFitMappings <- list(
     arguments = arguments,
-    options = PCMOptions(),
+    options = listPCMOptions,
     tree = tree,
     X = X,
     SE = SE,

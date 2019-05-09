@@ -451,9 +451,9 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   res
 }
 
+#' Update with parameters from submodels where the fit of a submodel is better
 #' @importFrom PCMBase PCMDefaultObject PCMParamSetByName
-#' @export
-LearnCladeFitsFromSubmodels <- function(
+UpdateCladeFitsUsingSubModels <- function(
   cladeFits,
   modelTypes,
   subModels,
@@ -518,7 +518,12 @@ LearnCladeFitsFromSubmodels <- function(
         vecModel[idxLogLik] <- unname(logLik(model2))
         vecModel[idxScore] <- unname(scoreFun(model2))
 
-        if(vecModel[idxLogLik] + 0.1 >= cladeFits2[list(subModelType), logLik]) {
+        # this check is needed because numerical error can cause different
+        # likeklihood values on the worker nodes and on the master node. This
+        # has been observed in simulations with some extreme cases where
+        # the logLik on the master node was much lower than the calculated
+        # logLik on the worker node.
+        if(vecModel[idxLogLik] > cladeFits2[list(modelType), logLik]) {
           count <- count+1L
           if(verbose) {
             cat(
@@ -530,6 +535,19 @@ LearnCladeFitsFromSubmodels <- function(
               '(ll=', toString(cladeFits2[list(subModelType), logLik]), ')',
               '; after substitution ll=', toString(vecModel[idxLogLik]), '\n')
           }
+
+          cladeFits[
+            treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+              sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
+            fitVector:=list(list(vecModel))]
+          cladeFits[
+            treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+              sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
+            logLik:=vecModel[[idxLogLik]]]
+          cladeFits[
+            treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+              sapply(mapping, function(.) .[[1]]) == modelTypes[modelType],
+            score:=vecModel[[idxScore]]]
 
           cladeFitsNewEntry <- cladeFits2[list(modelType)]
           cladeFitsNewEntry[, modelTypeName:=NULL]
@@ -544,16 +562,46 @@ LearnCladeFitsFromSubmodels <- function(
           listAllowedModelTypesIndices[[as.character(cladeRoot)]] <- c(
             listAllowedModelTypesIndices[[as.character(cladeRoot)]],
             match(modelTypes[modelType], modelTypes))
+
+          if(vecModel[idxLogLik] < cladeFits2[list(subModelType), logLik]) {
+            attr(subModel, "PCMInfoFun") <- metaIFun(
+              X = attr(subModel, "X", exact = TRUE),
+              tree = attr(subModel, "tree", exact = TRUE),
+              model = subModel,
+              SE = attr(subModel, "SE", exact = TRUE))
+
+            logLikSubModelNew <- unname(logLik(subModel))
+            scoreSubModelNew <- unname(scoreFun(subModel))
+
+            if(verbose) {
+              cat(
+                count, ". ",
+                'treeEDExpr=', edExpr,
+                ': updating logLikelihood and score value for subModelType=', subModelType,
+                ': old ll=', toString(cladeFits2[list(subModelType), logLik]), '',
+                ' new ll=', toString(logLikSubModelNew), '\n')
+            }
+
+            cladeFits[
+              treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+              sapply(mapping, function(.) .[[1]]) == modelTypes[subModelType],
+              logLik:=logLikSubModelNew]
+            cladeFits[
+              treeEDExpression == edExpr & sapply(mapping, length) == 1L &
+              sapply(mapping, function(.) .[[1]]) == modelTypes[subModelType],
+              score:=scoreSubModelNew]
+
+          }
         } else {
           attr(subModel, "PCMInfoFun") <- metaIFun(
             X = attr(subModel, "X", exact = TRUE),
             tree = attr(subModel, "tree", exact = TRUE),
             model = subModel,
             SE = attr(subModel, "SE", exact = TRUE))
-          save(
-            model2, subModel,
-            file=paste0(
-              'ModelSubModel', cladeRoot, modelType, subModelType, '.RData'))
+          # save(
+          #   model2, subModel,
+          #   file=paste0(
+          #     'ModelSubModel', cladeRoot, modelType, subModelType, '.RData'))
           if(verbose) {
             cat(
               count + 1L, ". ",
@@ -568,7 +616,6 @@ LearnCladeFitsFromSubmodels <- function(
               toString(logLik(subModel)), '\n')
           }
         }
-
       }
     }
   }
