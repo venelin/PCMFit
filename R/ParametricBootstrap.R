@@ -797,7 +797,8 @@ ExtractBSDataTprWithinParts <- function(
 ExtractBSDataTprFprGlobal <- function(
   tableBSFits,
   inferredModel,
-  inferredBackboneTree) {
+  inferredBackboneTree,
+  epochs) {
 
 
   dtNodesBackboneTree <- PCMTreeDtNodes(inferredBackboneTree)

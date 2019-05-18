@@ -62,6 +62,10 @@ PCMFit <- function(
   upperVecParams <- PCMParamGetShortVector(upperModel)
 
 
+  matParamsModel <- matrix(
+    PCMParamGetShortVector(
+      model, k = PCMNumTraits(model), R = PCMNumRegimes(model)), nrow = 1L)
+
   matParInitRunif <- PCMParamRandomVecParams(
     o = model,
     k = PCMNumTraits(model),
@@ -74,24 +78,27 @@ PCMFit <- function(
     o = model,
     k = PCMNumTraits(model),
     R = PCMNumRegimes(model),
-    n = numGuessInitVecParams,
+    n = 2L,
     argsPCMParamLowerLimit = argsPCMParamLowerLimit,
     argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-    X = X, tree = tree, SE = SE, varyTheta = FALSE)
-  matParInitGuessVaryTheta <- GuessInitVecParams(
+    X = X, tree = tree, SE = SE, varyParams = FALSE)
+  matParInitGuessVaryParams <- GuessInitVecParams(
     o = model,
     k = PCMNumTraits(model),
     R = PCMNumRegimes(model),
     n = numGuessInitVecParams,
     argsPCMParamLowerLimit = argsPCMParamLowerLimit,
     argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-    X = X, tree = tree, SE = SE, varyTheta = TRUE)
+    X = X, tree = tree, SE = SE, varyParams = TRUE)
 
   matParInit <- rbind(
     matParInit,
+    matParamsModel,
     matParInitRunif,
     matParInitGuess,
-    matParInitGuessVaryTheta)
+    matParInitGuessVaryParams)
+
+  EnforceBounds(matParInit, lowerVecParams, upperVecParams)
 
   if(nrow(matParInit) == 0L) {
     stop(
@@ -123,7 +130,7 @@ PCMFit <- function(
   # can be recreated.
   res$lik <- res$metaI <- res$matParInit <-
     res$matParInitRunif <- res$matParInitGuess <-
-    res$matParInitGuessVaryTheta <- NULL
+    res$matParInitGuessVaryParams <- NULL
 
   res$PCMOptions <- PCMOptions()
 
