@@ -34,6 +34,7 @@ PCMFitMixed <- function(
 
   listPartitions = NULL,
   minCladeSizes = 20L,
+  skipNodes = character(),
 
   maxCladePartitionLevel = if(is.null(listPartitions)) 8L else 1L,
   maxNumNodesPerCladePartition = 1L,
@@ -75,11 +76,17 @@ PCMFitMixed <- function(
 
   do.call(options, listPCMOptions)
 
+
   tree <- PCMTree(tree)
   PCMTreeSetLabels(tree)
   PCMTreeSetPartition(tree)
 
-  colnames(X) <- colnames(SE) <- as.character(seq_len(PCMTreeNumTips(tree)))
+  if(is.character(skipNodes) & length(skipNodes) > 0) {
+    skipNodes <-
+      PCMTreeGetLabels(tree)[PCMTreeMatchLabels(arguments$tree, skipNodes)]
+  }
+
+  colnames(X) <- dimnames(SE)[[length(dim(SE))]] <- as.character(seq_len(PCMTreeNumTips(tree)))
 
   tableFits <- InitTableFits(modelTypes,
                              fitMappingsPrev,
@@ -108,10 +115,13 @@ PCMFitMixed <- function(
                         tree = tree,
                         nNodes = 1,
                         minCladeSize = MIN_CLADE_SIZE,
+                        skipNodes = skipNodes,
                         tableAncestors = tableAncestors)))
     } else {
-      cladeRoots = unique(c(PCMTreeNumTips(tree) + 1,
-                            unlist(listPartitions)))
+      cladeRoots = setdiff(
+        unique(c(PCMTreeNumTips(tree) + 1,
+                 unlist(arguments$listPartitions))),
+        as.integer(skipNodes))
     }
 
     # prepare a list of allowed model type index vectors for the Fits To Clades
@@ -228,6 +238,7 @@ PCMFitMixed <- function(
     argumentsStep2$tree <- tree
     argumentsStep2$modelTypes <- modelTypes
     argumentsStep2$SE <- SE
+    argumentsStep2$skipNodes <- skipNodes
     argumentsStep2$fitMappingsPrev <- NULL
     argumentsStep2$tableFitsPrev <- tableFits
     argumentsStep2$modelTypesInTableFitsPrev <- modelTypesInTableFitsPrev
@@ -433,7 +444,7 @@ PCMFitMixed <- function(
       }
     }
   } else {
-    stop("ERR:04131:PCMFit:PCMFitMixed:PCMFitMixed:: the tree has fewer tips than the min clade-size in minCladeSizes (",
+    stop("PCMFitMixed: the tree has fewer tips than the min clade-size in minCladeSizes (",
          MIN_CLADE_SIZE,
          "). Try with smaller minCladeSizes.")
   }

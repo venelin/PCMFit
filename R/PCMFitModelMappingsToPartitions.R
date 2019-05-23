@@ -180,12 +180,18 @@ PCMFitModelMappingsToCladePartitions <- function(
 
           if(fitClades) {
             k <- nrow(X)
-            XSE <- rbind(X, SE)
+            XInd <- rbind(X, as.double(seq_len(ncol(X))))
             treeSplit <- PCMTreeSplitAtNode(
-              tree, as.integer(cladePartition[1]), tableAncestorsTree, XSE)
+              tree, as.integer(cladePartition[1]), tableAncestorsTree, XInd)
             treeForFit <- treeSplit$clade
             XForFit <- treeSplit$Xclade[1:k, , drop = FALSE]
-            SEForFit <- treeSplit$Xclade[(k+1):(2*k), , drop = FALSE]
+            SEForFit <- if(is.matrix(SE)) {
+              # SE is k x N matrix
+              SE[, treeSplit$Xclade[k+1L, ], drop = FALSE]
+            } else {
+              # SE is a k x k x N cube
+              SE[, , as.integer(treeSplit$Xclade[k+1L, ]), drop = FALSE]
+            }
             PCMTreeSetPartition(treeForFit)
 
             # create an MixedGaussian model

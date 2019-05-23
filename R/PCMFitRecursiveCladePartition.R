@@ -4,6 +4,7 @@ PCMFitRecursiveCladePartition <- function(
               dimnames=list(NULL, as.character(1:PCMTreeNumTips(tree)))),
 
   listPartitions = NULL,
+  skipNodes = character(),
   listAllowedModelTypesIndices = NULL,
 
   scoreFun = AIC,
@@ -230,6 +231,7 @@ PCMFitRecursiveCladePartition <- function(
           tree = subtree,
           nNodes = numPartNodes,
           minCladeSize = minCladeSizeLevel,
+          skipNodes = skipNodes,
           tableAncestors = tableAncestors[labelsSubtree, labelsSubtree])
 
         # cat("Step 2.4.2: numPartNodes=", numPartNodes, " listNew:\n")
@@ -259,13 +261,15 @@ PCMFitRecursiveCladePartition <- function(
       listPartitions <- PCMTreeListAllPartitions(
         tree,
         minCladeSize = minCladeSizeLevel,
+        skipNodes = skipNodes,
         tableAncestors = tableAncestors,
         verbose = FALSE)
       cladeRootsSubtree <- unique(
         c(cladeRootsSubtree, nodeLabelsTree[as.integer(unlist(listPartitions))]))
     } else {
-      cladeRootsSubtree <- unique(
-        c(cladeRootsSubtree, nodeLabelsTree[as.integer(unlist(listPartitions))]))
+      cladeRootsSubtree <- setdiff(unique(
+        c(cladeRootsSubtree, nodeLabelsTree[as.integer(unlist(listPartitions))])),
+        skipNodes)
     }
 
     # at this point the elements in listPartitions have to be integers
@@ -273,22 +277,27 @@ PCMFitRecursiveCladePartition <- function(
     listPartitions <- lapply(
       listPartitions,
       function(partNodes) {
+        # TODO return NULL if partNodes has nodes to be skipped
         PCMTreeSetPartition(tree, partNodes)
         partNodes2 <- PCMTreeGetPartition(tree)
 
         dtTipsPerRegime <- data.table(
           regime = PCMTreeGetPartRegimes(tree)[PCMTreeGetPartsForNodes(
-            tree, tree$edge[, 2])], #tree$edge.regime,
+            tree, tree$edge[, 2])],
           edge2 = tree$edge[,2])[edge2 <= PCMTreeNumTips(tree),
                                  list(N=.N), keyby=regime]
         dtTipsPerRegime[, node:=nodeLabelsTree[partNodes2[regime]]]
 
-        if(length(partNodes) > length(partNodes2) ||
+        labelsPartNodes2 <- nodeLabelsTree[partNodes2]
+
+        if(any(labelsPartNodes2 %in% skipNodes) ||
+           length(partNodes) > length(partNodes2) ||
            length(partNodes2) > nrow(dtTipsPerRegime) ||
            minCladeSizeLevel > dtTipsPerRegime[, min(N)]) {
           NULL
         } else {
-          nodeLabelsTree[partNodes2]
+          # nodeLabelsTree[partNodes2]
+          labelsPartNodes2
         }
       })
     # remove NULL partitions
