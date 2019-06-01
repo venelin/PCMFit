@@ -409,7 +409,8 @@ GuessInitVecParams.MixedGaussian <- function(
 
 EnforceBounds <- function(vecs, lowerVecParams, upperVecParams) {
   hasNAs <- apply(vecs, 1, function(v) any(is.na(v)))
-  vecs <- vecs[!hasNAs,]
+  vecs <- vecs[!hasNAs,, drop=FALSE]
+
   for(i in seq_len(nrow(vecs))) {
     tooSmall <- (vecs[i, ] < lowerVecParams)
     tooBig <- (vecs[i, ] > upperVecParams)
