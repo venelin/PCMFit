@@ -408,6 +408,8 @@ GuessInitVecParams.MixedGaussian <- function(
 }
 
 EnforceBounds <- function(vecs, lowerVecParams, upperVecParams) {
+  hasNAs <- apply(vecs, 1, function(v) any(is.na(v)))
+  vecs <- vecs[!hasNAs,]
   for(i in seq_len(nrow(vecs))) {
     tooSmall <- (vecs[i, ] < lowerVecParams)
     tooBig <- (vecs[i, ] > upperVecParams)
@@ -552,7 +554,7 @@ GuessSigma_x <- function(
         X[, idxTips, drop=FALSE],
         CovMat[idxTips, idxTips, drop = FALSE],
         rootDists[idxTips])
-      SDSigma_x[,, r] <- sqrt(abs(Sigma_x[,, r]) * 0.01)
+      SDSigma_x[,] <- sqrt(abs(Sigma_x[,]) * 0.01)
     } else {
       # Sigma_x has a local scope for each regime in the model
       for(r in seq_len(PCMNumRegimes(o))) {

@@ -66,6 +66,9 @@ PCMFit <- function(
     PCMParamGetShortVector(
       model, k = PCMNumTraits(model), R = PCMNumRegimes(model)), nrow = 1L)
 
+  if(verbose) {
+    cat("Generating", numRunifInitVecParams, "random init vectors...\n")
+  }
   matParInitRunif <- PCMParamRandomVecParams(
     o = model,
     k = PCMNumTraits(model),
@@ -74,6 +77,9 @@ PCMFit <- function(
     argsPCMParamLowerLimit = argsPCMParamLowerLimit,
     argsPCMParamUpperLimit = argsPCMParamUpperLimit
   )
+  if(verbose) {
+    cat("Guessing a fixed init parameter vector...\n")
+  }
   matParInitGuess <- GuessInitVecParams(
     o = model,
     k = PCMNumTraits(model),
@@ -82,6 +88,9 @@ PCMFit <- function(
     argsPCMParamLowerLimit = argsPCMParamLowerLimit,
     argsPCMParamUpperLimit = argsPCMParamUpperLimit,
     X = X, tree = tree, SE = SE, varyParams = FALSE)
+  if(verbose) {
+    cat("Guessing", numGuessInitVecParams, "random init parameter vectors...\n")
+  }
   matParInitGuessVaryParams <- GuessInitVecParams(
     o = model,
     k = PCMNumTraits(model),
@@ -98,6 +107,9 @@ PCMFit <- function(
     matParInitGuess,
     matParInitGuessVaryParams)
 
+  if(verbose) {
+    cat("Enforcing boundaries on init parameter vectors...\n")
+  }
   EnforceBounds(matParInit, lowerVecParams, upperVecParams)
 
   if(nrow(matParInit) == 0L) {
@@ -111,7 +123,8 @@ PCMFit <- function(
 
   if(nrow(matParInit) > numCallsOptim) {
     if(verbose) {
-      cat("Evaluating likelihood at ", nrow(matParInit), " parameter vectors...")
+      cat(
+        "Evaluating likelihood at", nrow(matParInit), "parameter vectors...\n")
     }
     valParInitOptim <- apply(matParInit, 1, lik)
 
