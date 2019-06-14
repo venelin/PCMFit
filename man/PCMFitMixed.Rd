@@ -2,8 +2,8 @@
 % Please edit documentation in R/PCMFitMixed.R
 \name{PCMFitMixed}
 \alias{PCMFitMixed}
-\title{Fit regime-assignments to (sub-)trees in a tree with different assigned model
-types to each regime.}
+\title{Maximum likelihood based search for an optimal mixed Gaussian phylogenetic
+model, given  a tree, trait measurements at its tips and a score function.}
 \usage{
 PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
   subModels = c(B = "A", C = "A", D = "B", E = "D", F = "E"),
@@ -26,11 +26,39 @@ PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
   saveTempWorkerResults = TRUE, printFitVectorsToConsole = FALSE,
   verbose = TRUE, debug = FALSE)
 }
+\arguments{
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
+Thse two values have are treated differently when calculating
+likelihoods: see \code{\link{PCMPresentCoordinates}}.}
+
+\item{tree}{a phylo object with N tips.}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Cholesky factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+
+\item{positiveValueGuard}{a real number (not necessarily positive) used during
+the fit as a threshold for highly positive but likely incorrect log-likelihood
+values. This argument is set to \code{Inf} by default and should be used only
+as a last escape. The recommended way to of preventing such numerical errors
+is by setting more stringent values for the runtime options
+\code{PCMBase.Threshold.EV} and \code{PCMBase.Threshold.SV} (see
+\code{\link{PCMOptions}}).}
+
+\item{verbose}{logical indicating if information messages should be printed
+to the console while running. Default: FALSE.}
+}
 \value{
 an S3 object of class PCMFitModelMappings.
 }
 \description{
-This function performs multiple model fits of mixed regime models
+A mixed Gaussian phylogenetic model (MGPM) represents
+Fit regime-assignments to (sub-)trees in a tree with different assigned model
+types to each regime.This function performs multiple model fits of mixed regime models
 (MixedGaussian) mapping different model-types (e.g. BM and OU) to different
 regimes (colors) in a tree and testing different regime assignments to the
 branches in the tree.
