@@ -445,11 +445,25 @@ PCMFitRecursiveCladePartition <- function(
     # add new entry to the main loop history
     mainLoopHistory[[length(mainLoopHistory) + 1]] <- mainLoopHistoryEntry
 
+    resFitMappings <- list(
+      arguments = arguments,
+      options = listPCMOptions,
+      tree = tree,
+      X = X,
+      SE = SE,
+      hashCodeTree = hashCodeEntireTree,
+      tableFits = tableFits,
+      tableFitsThisSearchOnly = fitsToTree,
+      queuePartitionRoots = queuePartitionRoots,
+      mainLoopHistory = mainLoopHistory,
+      tableFitsRRInit = NULL,
+      tableFitsRR = NULL
+    )
+    class(resFitMappings) <- "PCMFitModelMappings"
+
+
     # Save the current results to a file "CurrentResults<filePrefix>.RData"
-    SaveCurrentResults(list(tableFits = tableFits,
-                            mainLoopHistory = mainLoopHistory,
-                            queuePartitionRoots = queuePartitionRoots),
-                       filePrefix = prefixFiles)
+    SaveCurrentResults(resFitMappings, filePrefix = prefixFiles)
 
     # 2.8 Identify the best partition and mapping after the partitioning using
     # fitsToTree
