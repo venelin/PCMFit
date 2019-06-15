@@ -190,7 +190,7 @@ PCMFit <- function(
   res <- c(
     res,
     runOptim(
-      X = X, tree = tree, model = model,
+      X = X, tree = tree, model = model, SE = SE,
       metaI = metaI,
       positiveValueGuard = positiveValueGuard,
       parLower = lowerVecParams,
