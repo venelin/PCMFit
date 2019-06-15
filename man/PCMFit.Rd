@@ -10,7 +10,8 @@ PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   argsPCMParamUpperLimit = NULL, matParInit = NULL,
   numRunifInitVecParams = if (is.null(matParInit)) 1000L else 0L,
   numGuessInitVecParams = if (is.null(matParInit)) 100L else 0L,
-  numCallsOptim = 10L, control = NULL, verbose = FALSE)
+  numCallsOptim = 10L, control = NULL, doParallel = FALSE,
+  verbose = FALSE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
@@ -76,6 +77,9 @@ satisfy the parameter limits (see also the arguments
 
 \item{control}{a list passed as control argument to \code{\link{optim}}.
 Default: NULL.}
+
+\item{doParallel}{logical indicating if optim calls should be executed in
+parallel using the \code{foreach() \%dopar\% \{\}} construct. Default: FALSE.}
 
 \item{verbose}{logical indicating if information messages should be printed
 to the console while running. Default: FALSE.}

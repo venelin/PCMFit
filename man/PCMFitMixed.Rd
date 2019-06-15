@@ -49,6 +49,9 @@ is by setting more stringent values for the runtime options
 \code{PCMBase.Threshold.EV} and \code{PCMBase.Threshold.SV} (see
 \code{\link{PCMOptions}}).}
 
+\item{doParallel}{logical indicating if optim calls should be executed in
+parallel using the \code{foreach() \%dopar\% \{\}} construct. Default: FALSE.}
+
 \item{verbose}{logical indicating if information messages should be printed
 to the console while running. Default: FALSE.}
 }

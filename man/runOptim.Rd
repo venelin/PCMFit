@@ -4,13 +4,42 @@
 \alias{runOptim}
 \title{Calling optim a number of times}
 \usage{
-runOptim(lik, parLower, parUpper, matParInit, control = NULL,
-  verbose = TRUE)
+runOptim(X, tree, model, SE = matrix(0, PCMNumTraits(model),
+  PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE),
+  positiveValueGuard = Inf, parLower, parUpper, matParInit,
+  control = NULL, doParallel = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{lik}{a function of numeric vector argument. Possible signatures are
-function(par) {} or function(par, input) {}. This argument is mandatory and
-doesn't have a  default value.}
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
+Thse two values have are treated differently when calculating
+likelihoods: see \code{\link{PCMPresentCoordinates}}.}
+
+\item{tree}{a phylo object with N tips.}
+
+\item{model}{an S3 object specifying both, the model type (class, e.g. "OU") as
+well as the concrete model parameter values at which the likelihood is to be
+calculated (see also Details).}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Cholesky factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+
+\item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
+containing meta-data such as N, M and k. Alternatively, this can be a
+function object that returns such a list, e.g. the function\code{PCMInfo}
+or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.}
+
+\item{positiveValueGuard}{a real number (not necessarily positive) used during
+the fit as a threshold for highly positive but likely incorrect log-likelihood
+values. This argument is set to \code{Inf} by default and should be used only
+as a last escape. The recommended way to of preventing such numerical errors
+is by setting more stringent values for the runtime options
+\code{PCMBase.Threshold.EV} and \code{PCMBase.Threshold.SV} (see
+\code{\link{PCMOptions}}).}
 
 \item{parLower, parUpper}{numeric vectors of equal length p: the number of
 parameters of the function lik;}
@@ -18,6 +47,9 @@ parameters of the function lik;}
 \item{matParInit}{a numeric matrix of p columns.}
 
 \item{control}{a list passed to optim().}
+
+\item{doParallel}{logical indicating if optim calls should be executed in
+parallel using the \code{foreach() \%dopar\% {}} construct. Default: FALSE.}
 
 \item{verbose}{logical indicating whether informative messages should be
 printed on the console during the run.}

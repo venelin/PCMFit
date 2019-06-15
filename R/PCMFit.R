@@ -52,10 +52,13 @@
 #' \code{argsPCMParamLowerLimit}, \code{argsPCMParamUpperLimit}).
 #' @param control a list passed as control argument to \code{\link{optim}}.
 #' Default: NULL.
+#' @param doParallel logical indicating if optim calls should be executed in
+#' parallel using the \code{foreach() \%dopar\% \{\}} construct. Default: FALSE.
 #' @param verbose logical indicating if information messages should be printed
 #' to the console while running. Default: FALSE.
 #' @return an object of class PCMFit
 #' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMParamRandomVecParams PCMOptions
+#' @importFrom foreach foreach %do% %dopar%
 #' @seealso \code{\link{PCMOptions}}
 #' @export
 PCMFit <- function(
@@ -70,15 +73,8 @@ PCMFit <- function(
   numGuessInitVecParams = if( is.null(matParInit) ) 100L else 0L,
   numCallsOptim = 10L,
   control = NULL,
+  doParallel = FALSE,
   verbose = FALSE) {
-
-  if(is.function(metaI)) {
-    metaI <- metaI(X = X, tree = tree, model = model, SE = SE)
-  }
-
-  lik <- PCMCreateLikelihood(
-    X = X, tree = tree, model = model, SE = SE, metaI = metaI,
-    positiveValueGuard = positiveValueGuard)
 
   lowerModel <- do.call(PCMParamLowerLimit, c(list(model), argsPCMParamLowerLimit))
   lowerVecParams <- PCMParamGetShortVector(lowerModel)
@@ -151,7 +147,26 @@ PCMFit <- function(
       cat(
         "Evaluating likelihood at", nrow(matParInit), "parameter vectors...\n")
     }
-    valParInitOptim <- apply(matParInit, 1, lik)
+
+    `%op%` <- if(isTRUE(doParallel) ||
+                 (is.numeric(doParallel) && doParallel > 1)) `%dopar%` else `%do%`
+
+    chunk <- function(x,n) split(x, factor(sort(rank(x)%%n)))
+
+    valParInitOptim <- foreach(
+      is = chunk(seq_len(nrow(matParInit)), 8L), .combine = c) %op% {
+
+        lik <- PCMCreateLikelihood(
+          X = X, tree = tree, model = model, SE = SE,
+          metaI = if(is.function(metaI)) {
+            metaI(X = X, tree = tree, model = model, SE = SE)
+          } else {
+            metaI
+          },
+          positiveValueGuard = positiveValueGuard)
+
+        sapply(is, function(i) lik(matParInit[i,]))
+      }
 
     if(verbose) {
       cat(
@@ -166,7 +181,7 @@ PCMFit <- function(
   res <- as.list(environment())
   # These objects tend to be very big. the lik function and the metaI object
   # can be recreated.
-  res$lik <- res$metaI <- res$matParInit <-
+  res$lik <- res$matParInit <-
     res$matParInitRunif <- res$matParInitGuess <-
     res$matParInitGuessVaryParams <- NULL
 
@@ -175,11 +190,14 @@ PCMFit <- function(
   res <- c(
     res,
     runOptim(
-      lik = lik,
+      X = X, tree = tree, model = model,
+      metaI = metaI,
+      positiveValueGuard = positiveValueGuard,
       parLower = lowerVecParams,
       parUpper = upperVecParams,
       matParInit = matParInit,
       control = control,
+      doParallel = doParallel,
       verbose = verbose))
 
   if(!is.null(res$Optim)) {
@@ -287,13 +305,13 @@ memoiseMax <- function(f, par, memo, verbose) {
 
 
 #' Calling optim a number of times
-#' @param lik a function of numeric vector argument. Possible signatures are
-#' function(par) {} or function(par, input) {}. This argument is mandatory and
-#' doesn't have a  default value.
+#' @inheritParams PCMFit
 #' @param parLower,parUpper numeric vectors of equal length p: the number of
 #' parameters of the function lik;
 #' @param matParInit a numeric matrix of p columns.
 #' @param control a list passed to optim().
+#' @param doParallel logical indicating if optim calls should be executed in
+#' parallel using the \code{foreach() \%dopar\% {}} construct. Default: FALSE.
 #' @param verbose logical indicating whether informative messages should be
 #' printed on the console during the run.
 #'
@@ -304,63 +322,83 @@ memoiseMax <- function(f, par, memo, verbose) {
 #' @importFrom foreach foreach %do% %dopar%
 #' @import data.table
 runOptim <- function(
-  lik,
+  X, tree, model,
+  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE),
+  positiveValueGuard = Inf,
   parLower,
   parUpper,
   matParInit,
   control = NULL,
+  doParallel = FALSE,
   verbose = TRUE) {
 
   res <- list(Optim = NULL)
   class(res) <- "ResultOptim"
 
-  tryCatch({
+  if(!(is.vector(parLower) && is.vector(parUpper) &&
+       length(parLower) == length(parUpper) &&
+       length(parLower) > 0 &&
+       ncol(matParInit) == length(parLower))) {
+    stop(
+      paste(
+        "parLower, parUpper should be numeric vectors of non-zero length, p;",
+        " matParInit should be a numeric columns with p columns."))
+  }
 
-    if(!(is.vector(parLower) && is.vector(parUpper) &&
-         length(parLower) == length(parUpper) &&
-         length(parLower) > 0 &&
-         ncol(matParInit) == length(parLower))) {
-      stop(
-        paste(
-          "parLower, parUpper should be numeric vectors of non-zero length, p;",
-          " matParInit should be a numeric columns with p columns."))
-    }
+  if(!isTRUE(all(parLower < parUpper))) {
+    stop("All elements of parLower should be smaller than the corresponding elements in parUpper.")
+  }
 
-    if(!isTRUE(all(parLower < parUpper))) {
-      stop("All elements of parLower should be smaller than the corresponding elements in parUpper.")
-    }
-
-    if(!is.function(lik)) {
-      stop("Expecting lik to be a function(par).")
-    }
-
+  if(isTRUE(doParallel) ||
+     (is.numeric(doParallel) && doParallel > 1)) {
+    memoMaxLoglik <- NULL
+    `%op%` <- `%dopar%`
+  } else {
     memoMaxLoglik <- new.env()
+    `%op%` <- `%do%`
+  }
+
+  listCallsOptim <- foreach(iOptimTry = seq_len(nrow(matParInit))) %op% {
+
+    if(is.null(memoMaxLoglik)) {
+      memoMaxLoglik <- new.env()
+    }
+
+    if(is.function(metaI)) {
+      metaI <- metaI(X = X, tree = tree, model = model, SE = SE)
+    }
+
+    lik <- PCMCreateLikelihood(
+      X = X, tree = tree, model = model, SE = SE, metaI = metaI,
+      positiveValueGuard = positiveValueGuard)
+
     fnForOptim <- function(par) {
       memoiseMax(lik, par = par, memoMaxLoglik, verbose)
     }
 
-    listCallsOptim <- list()
+    resIter <- list()
 
-    for(iOptimTry in seq_len(nrow(matParInit))) {
+    resIter$parStart <- parInit <- matParInit[iOptimTry, ]
+    resIter$valueStart <- fnForOptim(parInit)
 
-      listCallsOptim[[iOptimTry]] <- list()
-
-      listCallsOptim[[iOptimTry]]$parStart <- parInit <- matParInit[iOptimTry, ]
-      listCallsOptim[[iOptimTry]]$valueStart <- fnForOptim(parInit)
-
-      if(!(isTRUE(all(parInit >= parLower) &&
-                  all(parInit <= parUpper)))) {
-        # this should in principle never happen, because parInit is not user-specified.
-        #
-        warning(
-          paste("Skipping optim try #", iOptimTry, ":",
-                "All parameters in parInit should be between \n parLower=c(",
-                toString(parLower), ") # and \n parUpper=c(",
-                toString(parUpper), ") #, but were \n parInit = c(",
-                toString(parInit), ")"))
-        next
+    if(!(isTRUE(all(parInit >= parLower) &&
+                all(parInit <= parUpper)))) {
+      # this should in principle never happen, because parInit is not user-specified.
+      #
+      if(verbose) {
+        cat(
+        paste("Skipping optim try #", iOptimTry, ":",
+              "All parameters in parInit should be between \n parLower=c(",
+              toString(parLower), ") # and \n parUpper=c(",
+              toString(parUpper), ") #, but were \n parInit = c(",
+              toString(parInit), ")"))
       }
+      resIter$maxPar <- parInit
+      resIter$maxValue <- getOption("PCMBase.Value.NA", default = -1e+20)
+      resIter$callCount <- 0L
 
+    } else {
       if(is.null(control)) {
         control <- list()
       } else {
@@ -376,16 +414,16 @@ runOptim <- function(
                 par = parInit, lower = parLower, upper = parUpper,
                 method = 'L-BFGS-B', control = control)
 
-        listCallsOptim[[iOptimTry]]$parEnd <- res.optim.call$par
-        listCallsOptim[[iOptimTry]]$valueEnd <- res.optim.call$value
-        listCallsOptim[[iOptimTry]]$counts <- res.optim.call$counts
-        listCallsOptim[[iOptimTry]]$convergence <- res.optim.call$convergence
+        resIter$parEnd <- res.optim.call$par
+        resIter$valueEnd <- res.optim.call$value
+        resIter$counts <- res.optim.call$counts
+        resIter$convergence <- res.optim.call$convergence
 
         if(verbose) {
           cat("\nCall to optim no.", iOptimTry,
               ": starting from ",
               toString(round(parInit, 4)), ": ",
-              round(listCallsOptim[[iOptimTry]]$valueStart, 4), "\n",
+              round(resIter$valueStart, 4), "\n",
               "parLower = c(", toString(round(parLower, 4)), ")\n",
               "parUpper = c(", toString(round(parUpper, 4)), ")\n",
               "value: ", round(res.optim.call$value, 4), "\n",
@@ -397,26 +435,34 @@ runOptim <- function(
       } else {
         stop("optim: parameter vector has zero length.")
       }
+
+      resIter$maxPar <- get("par", pos = memoMaxLoglik)
+      resIter$maxValue <- get("val", pos = memoMaxLoglik)
+      resIter$callCount <- get("count", pos = memoMaxLoglik)
     }
 
-    maxPar <- get("par", pos = memoMaxLoglik)
-    maxValue <- get("val", pos = memoMaxLoglik)
-    callCount <- get("count", pos = memoMaxLoglik)
+    resIter
+  }
 
-    res.optim <- list(par = maxPar, value = maxValue, count = callCount,
-                      listCallsOptim = listCallsOptim)
+  iBestCallOptim <- which.max(sapply(listCallsOptim, function(.) .$maxValue))
+  res.optim <- list(
+    par = listCallsOptim[[iBestCallOptim]]$maxPar,
+    value = listCallsOptim[[iBestCallOptim]]$maxValue,
+    count = listCallsOptim[[iBestCallOptim]]$callCount,
+    listCallsOptim = listCallsOptim)
 
-    res$Optim <- res.optim
+  res$Optim <- res.optim
 
-  },
-  interrupt = function() {
-    return(res)
-  },
-  error = function(e) {
-    cat("Error in runOptim:", toString(e), "trace:")
-    traceback()
-    stop(e)
-  })
+  # tryCatch({
+  # },
+  # interrupt = function() {
+  #   return(res)
+  # },
+  # error = function(e) {
+  #   cat("Error in runOptim:", toString(e), "trace:")
+  #   traceback()
+  #   stop(e)
+  # })
 
   res
 }
