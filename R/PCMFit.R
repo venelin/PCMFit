@@ -110,7 +110,7 @@ PCMFit <- function(
     argsPCMParamUpperLimit = argsPCMParamUpperLimit,
     X = X, tree = tree, SE = SE, varyParams = FALSE)
   if(verbose) {
-    cat("Guessing", numGuessInitVecParams, "random init parameter vectors...\n")
+    cat("Generating", numGuessInitVecParams, "guessed init parameter vectors with random jittering...\n")
   }
   matParInitGuessVaryParams <- GuessInitVecParams(
     o = model,
@@ -151,7 +151,7 @@ PCMFit <- function(
     `%op%` <- if(isTRUE(doParallel) ||
                  (is.numeric(doParallel) && doParallel > 1)) `%dopar%` else `%do%`
 
-    chunk <- function(x,n) split(x, factor(sort(rank(x)%%n)))
+    chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE))
 
     valParInitOptim <- foreach(
       is = chunk(seq_len(nrow(matParInit)), 8L), .combine = c) %op% {
@@ -168,14 +168,15 @@ PCMFit <- function(
         sapply(is, function(i) lik(matParInit[i,]))
       }
 
+    topVal <- order(valParInitOptim, decreasing = TRUE)[seq_len(numCallsOptim)]
+    matParInit <- matParInit[topVal,, drop=FALSE]
+
     if(verbose) {
       cat(
         "Taking the top-", numCallsOptim,
-        " parameter combinations sorted by decreasing log-likelihood value...")
+        " parameter combinations sorted by decreasing log-likelihood value: ",
+        toString(round(valParInitOptim[topVal], 2)), ".\n")
     }
-
-    topVal <- order(valParInitOptim, decreasing = TRUE)[seq_len(numCallsOptim)]
-    matParInit <- matParInit[topVal,, drop=FALSE]
   }
 
   res <- as.list(environment())
@@ -322,10 +323,7 @@ memoiseMax <- function(f, par, memo, verbose) {
 #' @importFrom foreach foreach %do% %dopar%
 #' @import data.table
 runOptim <- function(
-  X, tree, model,
-  SE = matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree)),
-  metaI = PCMInfo(X, tree, model, SE),
-  positiveValueGuard = Inf,
+  X, tree, model, SE, metaI, positiveValueGuard,
   parLower,
   parUpper,
   matParInit,
@@ -365,12 +363,13 @@ runOptim <- function(
       memoMaxLoglik <- new.env()
     }
 
-    if(is.function(metaI)) {
-      metaI <- metaI(X = X, tree = tree, model = model, SE = SE)
-    }
-
     lik <- PCMCreateLikelihood(
-      X = X, tree = tree, model = model, SE = SE, metaI = metaI,
+      X = X, tree = tree, model = model, SE = SE,
+      metaI = if(is.function(metaI)) {
+        metaI(X = X, tree = tree, model = model, SE = SE)
+      } else {
+        metaI
+      },
       positiveValueGuard = positiveValueGuard)
 
     fnForOptim <- function(par) {

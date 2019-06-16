@@ -4,10 +4,8 @@
 \alias{runOptim}
 \title{Calling optim a number of times}
 \usage{
-runOptim(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE),
-  positiveValueGuard = Inf, parLower, parUpper, matParInit,
-  control = NULL, doParallel = FALSE, verbose = TRUE)
+runOptim(X, tree, model, SE, metaI, positiveValueGuard, parLower, parUpper,
+  matParInit, control = NULL, doParallel = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
