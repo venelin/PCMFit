@@ -103,7 +103,7 @@ PCMFit <- function(
         "guessed init vectors with random jittering for ",
         numGuessInitVecParams - 1L, "of them...\n")
   }
-  matParInitGuessVaryParams <- GuessInitVecParams(
+  matParInitGuess <- GuessInitVecParams(
     o = model,
     k = PCMNumTraits(model),
     R = PCMNumRegimes(model),
@@ -116,8 +116,7 @@ PCMFit <- function(
     matParInit,
     matParamsModel,
     matParInitRunif,
-    matParInitGuess,
-    matParInitGuessVaryParams)
+    matParInitGuess)
 
   if(verbose) {
     cat("Enforcing boundaries on init parameter vectors...\n")
