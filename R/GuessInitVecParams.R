@@ -722,9 +722,9 @@ GuessParameters <- function(
       iP <- which(!is.na(i))
       res[, iP] <- matrix(
         P$mean[i[iP]], nrow = n, ncol = length(iP), byrow = TRUE)
-      if(varyParams) {
-        res[, iP] <- do.call(
-          cbind, lapply(iP, function(j) rnorm(n, P$mean[i[j]], P$sd[i[j]]) ) )
+      if(varyParams && n > 1L) {
+        res[-1L, iP] <- do.call(
+          cbind, lapply(iP, function(j) rnorm(n-1L, P$mean[i[j]], P$sd[i[j]]) ) )
       }
     }
   }

@@ -99,18 +99,9 @@ PCMFit <- function(
     argsPCMParamUpperLimit = argsPCMParamUpperLimit
   )
   if(verbose) {
-    cat("Guessing a fixed init parameter vector...\n")
-  }
-  matParInitGuess <- GuessInitVecParams(
-    o = model,
-    k = PCMNumTraits(model),
-    R = PCMNumRegimes(model),
-    n = 2L,
-    argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-    argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-    X = X, tree = tree, SE = SE, varyParams = FALSE)
-  if(verbose) {
-    cat("Generating", numGuessInitVecParams, "guessed init parameter vectors with random jittering...\n")
+    cat("Generating", numGuessInitVecParams,
+        "guessed init vectors with random jittering for ",
+        numGuessInitVecParams - 1L, "of them...\n")
   }
   matParInitGuessVaryParams <- GuessInitVecParams(
     o = model,
@@ -348,20 +339,15 @@ runOptim <- function(
     stop("All elements of parLower should be smaller than the corresponding elements in parUpper.")
   }
 
-  if(isTRUE(doParallel) ||
+  `%op%` <- if(isTRUE(doParallel) ||
      (is.numeric(doParallel) && doParallel > 1)) {
-    memoMaxLoglik <- NULL
-    `%op%` <- `%dopar%`
+    `%dopar%`
   } else {
-    memoMaxLoglik <- new.env()
-    `%op%` <- `%do%`
+    `%do%`
   }
 
   listCallsOptim <- foreach(iOptimTry = seq_len(nrow(matParInit))) %op% {
-
-    if(is.null(memoMaxLoglik)) {
-      memoMaxLoglik <- new.env()
-    }
+    memoMaxLoglik <- new.env()
 
     lik <- PCMCreateLikelihood(
       X = X, tree = tree, model = model, SE = SE,
