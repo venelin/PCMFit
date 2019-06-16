@@ -333,7 +333,7 @@ GuessInitVecParams.DOU <- function(
 }
 
 
-#' @importFrom PCMBase is.PCM
+#' @importFrom PCMBase is.PCM is.Fixed
 #' @export
 GuessInitVecParams.MixedGaussian <- function(
   o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
@@ -353,7 +353,7 @@ GuessInitVecParams.MixedGaussian <- function(
   ...) {
 
   # 1. first we guess all global parameters
-  paramNames <- names(o)[!sapply(o, is.PCM)]
+  paramNames <- names(o)[!sapply(o, is.PCM) & !sapply(o, is.Fixed)]
   paramDefaultValues <- list(H = 0.0, H1 = 0.0, H2 = 0.0)
   paramSDValues <- list(H = 0.02, H1 = 0.02, H2 = 0.02)
 
@@ -368,26 +368,28 @@ GuessInitVecParams.MixedGaussian <- function(
     res <- res2
   }
 
-  # 2. next, we call GuessInitVecParams for all submodels (i.e. regimes)
+  # 2. next, we call GuessInitVecParams for all submodels, which are not fixed
   for(reg in regimes) {
-    res2 <- try(
-      GuessInitVecParams(
-        o = o[[reg]], regimes = reg,
-        oParent = o,
-        accessExpr = paste0('[["', reg, '"]]'),
-        n = n,
-        argsPCMParamLowerLimit = argsPCMParamLowerLimit,
-        argsPCMParamUpperLimit = argsPCMParamUpperLimit,
-        X = X,
-        tree = tree,
-        SE = SE,
-        tableAnc = tableAnc,
-        varyParams = varyParams,
-        returnWithinBoundsOnly = returnWithinBoundsOnly,
-        res = res, ...),
-      silent = TRUE)
-    if(!inherits(res2, "try-error")) {
-      res <- res2
+    if(!is.Fixed(o[[reg]])) {
+      res2 <- try(
+        GuessInitVecParams(
+          o = o[[reg]], regimes = reg,
+          oParent = o,
+          accessExpr = paste0('[["', reg, '"]]'),
+          n = n,
+          argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+          argsPCMParamUpperLimit = argsPCMParamUpperLimit,
+          X = X,
+          tree = tree,
+          SE = SE,
+          tableAnc = tableAnc,
+          varyParams = varyParams,
+          returnWithinBoundsOnly = returnWithinBoundsOnly,
+          res = res, ...),
+        silent = TRUE)
+      if(!inherits(res2, "try-error")) {
+        res <- res2
+      }
     }
   }
 
