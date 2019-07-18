@@ -1,0 +1,19 @@
+citHeader("To cite PCMFit in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models",
+  author   = "Venelin Mitov, Krzysztof Bartoszek, Tanja Stadler",
+  journal  = "Proceedings of the National Academy of Sciences of the United States of America",
+  year     = 2019,
+  volume   = "",
+  number   = "",
+  pages    = "",
+  url      = "https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116",
+  textVersion = paste(
+"Mitov, V., Bartoszek, K., & Stadler, T. (2019). Automatic generation of evolutionary",
+"hypotheses using mixed Gaussian phylogenetic models. Proceedings of the National",
+"Academy of Sciences of the United States of America,",
+"http://doi.org/10.1073/pnas.1813823116"
+  )
+)

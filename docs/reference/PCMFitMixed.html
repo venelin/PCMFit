@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Fit regime-assignments to (sub-)trees in a tree with different assigned model
-types to each regime. — PCMFitMixed • PCMFit</title>
+<title>Optimal information score search for a mixed Gaussian phylogenetic
+model, given a tree, trait measurements at its tips and a score function. — PCMFitMixed • PCMFit</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -31,13 +31,17 @@ types to each regime. — PCMFitMixed • PCMFit</title>
 
 
 
-<meta property="og:title" content="Fit regime-assignments to (sub-)trees in a tree with different assigned model
-types to each regime. — PCMFitMixed" />
+<meta property="og:title" content="Optimal information score search for a mixed Gaussian phylogenetic
+model, given a tree, trait measurements at its tips and a score function. — PCMFitMixed" />
 
-<meta property="og:description" content="This function performs multiple model fits of mixed regime models
-(MixedGaussian) mapping different model-types (e.g. BM and OU) to different
-regimes (colors) in a tree and testing different regime assignments to the
-branches in the tree." />
+<meta property="og:description" content="A mixed Gaussian phylogenetic model (MGPM) represents a Gaussian
+phylogenetic model with shifts in the underlying parameters and, optionally,
+type of Gaussian stochastic process (e.g. shifts from a BM to an OU model of
+evolution). Formally, an MGPM consists of the following components:
+A shift-point configuration: this is a subset of the nodes in the tree
+including at least the root node
+b
+" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -78,7 +82,7 @@ branches in the tree." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -130,30 +134,35 @@ branches in the tree." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Fit regime-assignments to (sub-)trees in a tree with different assigned model
-types to each regime.</h1>
+    <h1>Optimal information score search for a mixed Gaussian phylogenetic
+model, given a tree, trait measurements at its tips and a score function.</h1>
     <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/PCMFitMixed.R'><code>R/PCMFitMixed.R</code></a></small>
     <div class="hidden name"><code>PCMFitMixed.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function performs multiple model fits of mixed regime models
-(MixedGaussian) mapping different model-types (e.g. BM and OU) to different
-regimes (colors) in a tree and testing different regime assignments to the
-branches in the tree.</p>
+    <p>A mixed Gaussian phylogenetic model (MGPM) represents a Gaussian
+phylogenetic model with shifts in the underlying parameters and, optionally,
+type of Gaussian stochastic process (e.g. shifts from a BM to an OU model of
+evolution). Formally, an MGPM consists of the following components:</p><ul>
+<li><p>A shift-point configuration: this is a subset of the nodes in the tree
+including at least the root node</p></li>
+<li><p>b</p></li>
+</ul>
     
     </div>
 
     <pre class="usage"><span class='fu'>PCMFitMixed</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='fu'>MGPMDefaultModelTypes</span>(),
+  <span class='kw'>subModels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>B</span> <span class='kw'>=</span> <span class='st'>"A"</span>, <span class='kw'>C</span> <span class='kw'>=</span> <span class='st'>"A"</span>, <span class='kw'>D</span> <span class='kw'>=</span> <span class='st'>"B"</span>, <span class='kw'>E</span> <span class='kw'>=</span> <span class='st'>"D"</span>, <span class='kw'>F</span> <span class='kw'>=</span> <span class='st'>"E"</span>),
   <span class='kw'>argsMixedGaussian</span> <span class='kw'>=</span> <span class='fu'>Args_MixedGaussian_MGPMDefaultModelTypes</span>(),
   <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>X</span>), <span class='fu'>PCMTreeNumTips</span>(<span class='no'>tree</span>)),
   <span class='kw'>generatePCMModelsFun</span> <span class='kw'>=</span> <span class='no'>PCMGenerateModelTypes</span>, <span class='kw'>metaIFun</span> <span class='kw'>=</span> <span class='no'>PCMInfo</span>,
   <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>scoreFun</span> <span class='kw'>=</span> <span class='no'>AIC</span>, <span class='kw'>fitMappingsPrev</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>tableFitsPrev</span> <span class='kw'>=</span> <span class='no'>fitMappingsPrev</span>$<span class='no'>tableFits</span>,
   <span class='kw'>modelTypesInTableFitsPrev</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>listPartitions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>minCladeSizes</span> <span class='kw'>=</span> <span class='fl'>20L</span>, <span class='kw'>maxCladePartitionLevel</span> <span class='kw'>=</span> <span class='kw'>if</span>
-  (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/NULL'>is.null</a></span>(<span class='no'>listPartitions</span>)) <span class='fl'>8L</span> <span class='kw'>else</span> <span class='fl'>1L</span>,
+  <span class='kw'>minCladeSizes</span> <span class='kw'>=</span> <span class='fl'>20L</span>, <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>character</a></span>(),
+  <span class='kw'>maxCladePartitionLevel</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/NULL'>is.null</a></span>(<span class='no'>listPartitions</span>)) <span class='fl'>8L</span> <span class='kw'>else</span> <span class='fl'>1L</span>,
   <span class='kw'>maxNumNodesPerCladePartition</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
   <span class='kw'>listAllowedModelTypesIndices</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"best-clade-2"</span>, <span class='st'>"best-clade"</span>, <span class='st'>"all"</span>),
   <span class='kw'>argsConfigOptim1</span> <span class='kw'>=</span> <span class='fu'>DefaultArgsConfigOptim</span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
@@ -164,7 +173,52 @@ branches in the tree.</p>
   <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>prefixFiles</span> <span class='kw'>=</span> <span class='st'>"fits_"</span>,
   <span class='kw'>saveTempWorkerResults</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>printFitVectorsToConsole</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>debug</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
-        
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>X</th>
+      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
+Thse two values have are treated differently when calculating
+likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
+    </tr>
+    <tr>
+      <th>tree</th>
+      <td><p>a phylo object with N tips.</p></td>
+    </tr>
+    <tr>
+      <th>SE</th>
+      <td><p>a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+Cholesky factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>positiveValueGuard</th>
+      <td><p>a real number (not necessarily positive) used during
+the fit as a threshold for highly positive but likely incorrect log-likelihood
+values. This argument is set to <code>Inf</code> by default and should be used only
+as a last escape. The recommended way to of preventing such numerical errors
+is by setting more stringent values for the runtime options
+<code>PCMBase.Threshold.EV</code> and <code>PCMBase.Threshold.SV</code> (see
+<code>PCMOptions</code>).</p></td>
+    </tr>
+    <tr>
+      <th>doParallel</th>
+      <td><p>logical indicating if optim calls should be executed in
+parallel using the <code>foreach() %dopar% {}</code> construct. Default: FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical indicating if information messages should be printed
+to the console while running. Default: FALSE.</p></td>
+    </tr>
+    </table>
+    
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>an S3 object of class PCMFitModelMappings.</p>
@@ -174,6 +228,7 @@ branches in the tree.</p>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
           </ul>

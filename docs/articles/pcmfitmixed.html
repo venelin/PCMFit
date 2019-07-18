@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
       <h1>Inferring an MGPM with Unknown Shifts</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-04-02</h4>
+            <h4 class="date">2019-07-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/pcmfitmixed.Rmd"><code>vignettes/pcmfitmixed.Rmd</code></a></small>
       <div class="hidden name"><code>pcmfitmixed.Rmd</code></div>
@@ -101,100 +101,100 @@
 <div id="setting-up-the-computing-cluster" class="section level1">
 <h1 class="hasAnchor">
 <a href="#setting-up-the-computing-cluster" class="anchor"></a>Setting up the computing cluster</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBaseCpp)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)
-<span class="co"># other needed packages, e.g. ape, data.table etc...</span>
-
-<span class="co"># extract dataset identifier and possibly other parameters from the command line:</span>
-args &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/commandArgs">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)
-<span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {
-  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(args[<span class="dv">1</span>])
-} <span class="cf">else</span> {
-  data_id &lt;-<span class="st"> </span>1L
-}
-
-<span class="co"># A character string used in filenames for a model inference on a given data:</span>
-prefixFiles =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_DATAID_"</span>, data_id)
-
-
-<span class="co"># creating the cluster for this PCMFit run:</span>
-<span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"cluster"</span>) <span class="op">||</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(cluster)) {
-  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(doMPI)) {
-    <span class="co"># using MPI cluster as distributed node cluster (possibly running on a </span>
-    <span class="co"># cluster of multiple nodes)</span>
-    <span class="co"># Get the number of cores. Assume this is run in a batch job.</span>
-    p =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/strtoi">strtoi</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">'LSB_DJOB_NUMPROC'</span>))
-    cluster &lt;-<span class="st"> </span><span class="kw">startMPIcluster</span>(<span class="dt">count =</span> p<span class="op">-</span><span class="dv">1</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)
-    doMPI<span class="op">::</span><span class="kw">registerDoMPI</span>(cluster)
-  } <span class="cf">else</span> {
-    <span class="co"># possibly running on personal computer without mpi installation</span>
-    cluster &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/makeCluster">makeCluster</a></span>(
-      parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>(<span class="dt">logical =</span> <span class="ot">TRUE</span>),
-      <span class="dt">outfile =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))
-    doParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/doParallel/topics/registerDoParallel">registerDoParallel</a></span>(cluster)
-  }
-}</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This function is going to be executed on each worker node.</span>
-generatePCMModelsFunction &lt;-<span class="st"> </span><span class="cf">function</span>() {
-  <span class="co"># make results reproducible</span>
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)
-
-  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMGenerateModelTypes.html">PCMGenerateModelTypes</a></span>()
-  fileName &lt;-<span class="st"> 'DefineParameterLimits.R'</span>
-  codeDefineLimits &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/readChar">readChar</a></span>(fileName, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.info">file.info</a></span>(fileName)<span class="op">$</span>size)
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eval">eval</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/parse">parse</a></span>(<span class="dt">text =</span> codeDefineLimits), .GlobalEnv)
-}</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBaseCpp)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># other needed packages, e.g. ape, data.table etc...</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co"># extract dataset identifier and possibly other parameters from the command line:</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">args &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/commandArgs">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(args[<span class="dv">1</span>])</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">} <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">  data_id &lt;-<span class="st"> </span>1L</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">}</a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># A character string used in filenames for a model inference on a given data:</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">prefixFiles =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_DATAID_"</span>, data_id)</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb1-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb1-21" data-line-number="21"><span class="co"># creating the cluster for this PCMFit run:</span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"cluster"</span>) <span class="op">||</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(cluster)) {</a>
+<a class="sourceLine" id="cb1-23" data-line-number="23">  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(doMPI)) {</a>
+<a class="sourceLine" id="cb1-24" data-line-number="24">    <span class="co"># using MPI cluster as distributed node cluster (possibly running on a </span></a>
+<a class="sourceLine" id="cb1-25" data-line-number="25">    <span class="co"># cluster of multiple nodes)</span></a>
+<a class="sourceLine" id="cb1-26" data-line-number="26">    <span class="co"># Get the number of cores. Assume this is run in a batch job.</span></a>
+<a class="sourceLine" id="cb1-27" data-line-number="27">    p =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/strtoi">strtoi</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">'LSB_DJOB_NUMPROC'</span>))</a>
+<a class="sourceLine" id="cb1-28" data-line-number="28">    cluster &lt;-<span class="st"> </span><span class="kw">startMPIcluster</span>(<span class="dt">count =</span> p<span class="dv">-1</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-29" data-line-number="29">    doMPI<span class="op">::</span><span class="kw">registerDoMPI</span>(cluster)</a>
+<a class="sourceLine" id="cb1-30" data-line-number="30">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb1-31" data-line-number="31">    <span class="co"># possibly running on personal computer without mpi installation</span></a>
+<a class="sourceLine" id="cb1-32" data-line-number="32">    cluster &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/makeCluster">makeCluster</a></span>(</a>
+<a class="sourceLine" id="cb1-33" data-line-number="33">      parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>(<span class="dt">logical =</span> <span class="ot">TRUE</span>),</a>
+<a class="sourceLine" id="cb1-34" data-line-number="34">      <span class="dt">outfile =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))</a>
+<a class="sourceLine" id="cb1-35" data-line-number="35">    doParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/doParallel/topics/registerDoParallel">registerDoParallel</a></span>(cluster)</a>
+<a class="sourceLine" id="cb1-36" data-line-number="36">  }</a>
+<a class="sourceLine" id="cb1-37" data-line-number="37">}</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># This function is going to be executed on each worker node.</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">generatePCMModelsFunction &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="co"># make results reproducible</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMGenerateModelTypes.html">PCMGenerateModelTypes</a></span>()</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">  fileName &lt;-<span class="st"> 'DefineParameterLimits.R'</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">  codeDefineLimits &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/readChar">readChar</a></span>(fileName, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.info">file.info</a></span>(fileName)<span class="op">$</span>size)</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eval">eval</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/parse">parse</a></span>(<span class="dt">text =</span> codeDefineLimits), .GlobalEnv)</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">}</a></code></pre></div>
 </div>
 <div id="running-the-mgpm-inference" class="section level1">
 <h1 class="hasAnchor">
 <a href="#running-the-mgpm-inference" class="anchor"></a>Running the MGPM Inference</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])
-X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>X[[<span class="dv">1</span>]][, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">currentResultFile &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"CurrentResults_fits_"</span>, prefixFiles, <span class="st">".RData"</span>)
-<span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(currentResultFile)) {
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/load">load</a></span>(currentResultFile)
-  tableFitsPrev &lt;-<span class="st"> </span>listResults<span class="op">$</span>tableFits
-} <span class="cf">else</span> {
-  tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span>
-}
-
-fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(
-    <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,
-    <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, 
-    <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,
-    <span class="dt">tableFitsPrev =</span> tableFitsPrev,
-    <span class="dt">prefixFiles =</span> prefixFiles,
-    <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>X[[<span class="dv">1</span>]][, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">currentResultFile &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"CurrentResults_fits_"</span>, prefixFiles, <span class="st">".RData"</span>)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(currentResultFile)) {</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/load">load</a></span>(currentResultFile)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  tableFitsPrev &lt;-<span class="st"> </span>listResults<span class="op">$</span>tableFits</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">} <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">}</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">    <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">    <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, </a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">    <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">    <span class="dt">tableFitsPrev =</span> tableFitsPrev,</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">    <span class="dt">prefixFiles =</span> prefixFiles,</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15">    <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 </div>
 <div id="retrieving-and-analyzing-the-best-scoring-model-fit" class="section level1">
 <h1 class="hasAnchor">
 <a href="#retrieving-and-analyzing-the-best-scoring-model-fit" class="anchor"></a>Retrieving and analyzing the best scoring model fit</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">bestFit &lt;-<span class="st"> </span><span class="kw">RetrieveBestFitScore</span>(fitMGPM_A_F_BC2_RR)
-
-listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitBM), 
-  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitOU),
-  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMapping), 
-  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMappingCheat), 
-  modelTrue,
-  bestFit<span class="op">$</span>inferredModel)
-
-dtSummary &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
-  <span class="dt">model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(
-    <span class="st">"Global BM"</span>, 
-    <span class="st">"Global OU"</span>, 
-    <span class="st">"True MGPM, unknown parameters"</span>, 
-    <span class="st">"True MGPM, known true parameters"</span>, 
-    <span class="st">"True MGPM, true parameters"</span>,
-    <span class="st">"Inferred MGPM, unknown shift-points and parameters"</span>),
-  <span class="dt">p =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, PCMParamCount),
-  <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, logLik), 
-  <span class="dt">AIC =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, AIC))
-knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>(dtSummary)</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">bestFit &lt;-<span class="st"> </span><span class="kw">RetrieveBestFitScore</span>(fitMGPM_A_F_BC2_RR)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitBM), </a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitOU),</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMapping), </a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">  <span class="kw">RetrieveBestModel</span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMappingCheat), </a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">  modelTrue,</a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">  bestFit<span class="op">$</span>inferredModel)</a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11">dtSummary &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(</a>
+<a class="sourceLine" id="cb5-12" data-line-number="12">  <span class="dt">model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
+<a class="sourceLine" id="cb5-13" data-line-number="13">    <span class="st">"Global BM"</span>, </a>
+<a class="sourceLine" id="cb5-14" data-line-number="14">    <span class="st">"Global OU"</span>, </a>
+<a class="sourceLine" id="cb5-15" data-line-number="15">    <span class="st">"True MGPM, unknown parameters"</span>, </a>
+<a class="sourceLine" id="cb5-16" data-line-number="16">    <span class="st">"True MGPM, known true parameters"</span>, </a>
+<a class="sourceLine" id="cb5-17" data-line-number="17">    <span class="st">"True MGPM, true parameters"</span>,</a>
+<a class="sourceLine" id="cb5-18" data-line-number="18">    <span class="st">"Inferred MGPM, unknown shift-points and parameters"</span>),</a>
+<a class="sourceLine" id="cb5-19" data-line-number="19">  <span class="dt">p =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, PCMParamCount),</a>
+<a class="sourceLine" id="cb5-20" data-line-number="20">  <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, logLik), </a>
+<a class="sourceLine" id="cb5-21" data-line-number="21">  <span class="dt">AIC =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, AIC))</a>
+<a class="sourceLine" id="cb5-22" data-line-number="22">knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>(dtSummary)</a></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">model</th>
@@ -241,13 +241,13 @@ knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentat
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMMapModelTypesToRegimes.html">PCMMapModelTypesToRegimes</a></span>(modelTrue, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"tree"</span>))
-<span class="co">#&gt;  81 105 125 </span>
-<span class="co">#&gt;   4   3   2</span></code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMMapModelTypesToRegimes.html">PCMMapModelTypesToRegimes</a></span>(
-  bestFit<span class="op">$</span>inferredModel, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestFit<span class="op">$</span>inferredModel, <span class="st">"tree"</span>))
-<span class="co">#&gt;  81  83 126 </span>
-<span class="co">#&gt;   3   3   2</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMMapModelTypesToRegimes.html">PCMMapModelTypesToRegimes</a></span>(modelTrue, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"tree"</span>))</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#&gt;  81 105 125 </span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co">#&gt;   4   3   2</span></a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMMapModelTypesToRegimes.html">PCMMapModelTypesToRegimes</a></span>(</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  bestFit<span class="op">$</span>inferredModel, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestFit<span class="op">$</span>inferredModel, <span class="st">"tree"</span>))</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="co">#&gt;  81  83 126 </span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co">#&gt;   3   3   2</span></a></code></pre></div>
 <div class="figure">
 <img src="pcmfitmixed_files/figure-html/unnamed-chunk-10-1.png" alt="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. **C** and **D**: Analogical to **A** and **B** according to the MGPM found using the AIC score as a criterion." width="672"><p class="caption">
 <strong>Example phylogenetic comparative data.</strong> <strong>A</strong>: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, …, F). <strong>B</strong>: bivariate trait values at the tips of the tree. <strong>C</strong> and <strong>D</strong>: Analogical to <strong>A</strong> and <strong>B</strong> according to the MGPM found using the AIC score as a criterion.

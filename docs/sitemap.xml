@@ -7,6 +7,9 @@
     <loc>http://venelin.github.io/PCMFit/reference/ComposeMixedGaussianFromFits.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMFit/reference/GuessInitVecParams.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMFit/reference/LookupFit.html</loc>
   </url>
   <url>
@@ -37,7 +40,7 @@
     <loc>http://venelin.github.io/PCMFit/reference/RetrieveFittedModelsFromFitVectors.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMFit/reference/hello.html</loc>
+    <loc>http://venelin.github.io/PCMFit/reference/UpdateCladeFitsUsingSubModels.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/runOptim.html</loc>

@@ -2,8 +2,8 @@
 % Please edit documentation in R/PCMFitMixed.R
 \name{PCMFitMixed}
 \alias{PCMFitMixed}
-\title{Maximum likelihood based search for an optimal mixed Gaussian phylogenetic
-model, given  a tree, trait measurements at its tips and a score function.}
+\title{Optimal information score search for a mixed Gaussian phylogenetic
+model, given a tree, trait measurements at its tips and a score function.}
 \usage{
 PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
   subModels = c(B = "A", C = "A", D = "B", E = "D", F = "E"),
@@ -59,10 +59,13 @@ to the console while running. Default: FALSE.}
 an S3 object of class PCMFitModelMappings.
 }
 \description{
-A mixed Gaussian phylogenetic model (MGPM) represents
-Fit regime-assignments to (sub-)trees in a tree with different assigned model
-types to each regime.This function performs multiple model fits of mixed regime models
-(MixedGaussian) mapping different model-types (e.g. BM and OU) to different
-regimes (colors) in a tree and testing different regime assignments to the
-branches in the tree.
+A mixed Gaussian phylogenetic model (MGPM) represents a Gaussian
+phylogenetic model with shifts in the underlying parameters and, optionally,
+type of Gaussian stochastic process (e.g. shifts from a BM to an OU model of
+evolution). Formally, an MGPM consists of the following components:
+\itemize{
+\item A shift-point configuration: this is a subset of the nodes in the tree
+including at least the root node
+\item b
+}
 }

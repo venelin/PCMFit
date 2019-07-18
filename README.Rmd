@@ -43,8 +43,7 @@ The goal of PCMFit is to provide a generic tool for inference and
   perform model selection of the best MGPM for a given tree and data according 
   to an information loss function such as the Akaike information criterion 
   (AIC). The package has been thoroughly tested and applied to real data in the 
-  related research article entitled "Automatic Generation of Evolutionary 
-  Hypotheses using Mixed Gaussian Phylogenetic Models" (currently in review). 
+  related research article [@Mitov:2019agh] <doi:10.1073/pnas.1813823116>.
   Currently, the package is available from <https://github.com/venelin/PCMFit>. 
   The web-page <https://venelin.github.io/PCMFit/> provides access to 
   documentation and related resources.
@@ -68,6 +67,9 @@ module load interconnect/ethernet
 module load new gcc/6.3.0 open_mpi/1.6.5 r/3.4.0 intel/2017.5
 ```
  
+```{sh, eval = FALSE}
+xcode-select --install
+```
 Upon validating the availability of a C++ compiler, PCMBaseCpp can be installed using the commands:
 ```{r, eval=FALSE}
 # These two packages are available on CRAN
@@ -182,55 +184,16 @@ PCMFit builds on top of a stack of three tools enabling fast likelihood calculat
 
 # Citing PCMFit
 
-To acknowledge the PCMFit package in a publication or other presentation, please cite one of the following:
+To acknowledge the PCMFit package in a publication or other presentation, please cite:
 
-* Mitov, V. (2018). Phylogenetic Comparative Methods in the Era of Big Data, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
-```
-@phdthesis{Mitov:2018hh,
-author = {Mitov, Venelin},
-title = {{Phylogenetic Comparative Methods in the Era of Big Data}},
-school = {ETH Zurich},
-year = {2018},
-address = {Zurich},
-url = {https://doi.org/10.3929/ethz-b-000315296},
-}
-```
-Mitov, V., Bartoszek, K., & Stadler, T. (2018). Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models. Article in Review, preprint available in Chapter 7, Doctoral Thesis No. [25428](https://doi.org/10.3929/ethz-b-000315296) ETH Zurich.
+Mitov, V., Bartoszek, K., & Stadler, T. (2019). Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models. Proceedings of the National Academy of Sciences of the United States of America, http://doi.org/10.1073/pnas.1813823116.
 ```
 @article{Mitov:2019agh,
-author = {Mitov, Venelin and Bartoszek, Krzysztof and Stadler, Tanja},
-title = {{Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models}},
-journal = {article in review, preprint in Ch. 7 of Thesis No. 25428, ETH Zurich},
-year = {2019},
-pages = {},
-month = mai,
-url = {https://doi.org/10.3929/ethz-b-000315296}
-}
-```
-* Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2018, September 24). Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package. arXiv.org. https://arxiv.org/abs/1809.09014.
-```
-@article{Mitov:2018fl,
-author = {Mitov, Venelin and Bartoszek, Krzysztof and Asimomitis, Georgios and Stadler, Tanja},
-title = {{Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package}},
-journal = {arXiv.org},
-year = {2018},
-eprint = {1809.09014},
-eprinttype = {arxiv},
-eprintclass = {q-bio.PE},
-pages = {arXiv:1809.09014},
-month = sep,
-annote = {34 pages, 6 figures}
-}
-```
-* Mitov, V., & Stadler, T. (2018). Parallel Likelihood Calculation for Phylogenetic Comparative Models: the SPLITT C++ Library. Methods in Ecology and Evolution, 2041--210X.13136. http://doi.org/10.1101/235739
-```
-@article{Mitov:2018dqa,
-author = {Mitov, Venelin and Stadler, Tanja},
-title = {{Parallel likelihood calculation for phylogenetic comparative models: The SPLITT C++ library}},
-journal = {Methods in Ecology and Evolution},
-year = {2018},
-pages = {2041--210X.13136},
-month = dec
+title = {Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models},
+    author = {Venelin Mitov and Krzysztof Bartoszek and Tanja Stadler},
+    journal = {Proceedings of the National Academy of Sciences of the United States of America},
+    year = {2019},
+    url = {https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116},
 }
 ```
 

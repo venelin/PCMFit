@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
       <h1>Getting started with the PCMFit R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-04-02</h4>
+            <h4 class="date">2019-07-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/pcmfit.Rmd"><code>vignettes/pcmfit.Rmd</code></a></small>
       <div class="hidden name"><code>pcmfit.Rmd</code></div>
@@ -107,15 +107,15 @@
 <li>Evaluating the inferred model.</li>
 </ol>
 <p>Before we start, let’s load the packages needed for this tutorial:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(cowplot)
-
-<span class="co"># make results reproducible</span>
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(ggtree)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(cowplot)</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># make results reproducible</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</a></code></pre></div>
 <p>In the next sections, we go through each of the above steps:</p>
 <div id="step-1--an-example-dataset" class="section level1">
 <h1 class="hasAnchor">
@@ -124,42 +124,42 @@
 <div id="the-tree" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-tree" class="anchor"></a>The tree</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])
-tree
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Phylogenetic tree with 80 tips and 79 internal nodes.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Tip labels:</span>
-<span class="co">#&gt;  1, 2, 3, 4, 5, 6, ...</span>
-<span class="co">#&gt; Node labels:</span>
-<span class="co">#&gt;  81, 82, 83, 84, 85, 86, ...</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Rooted; includes branch lengths.</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">tree</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt; Phylogenetic tree with 80 tips and 79 internal nodes.</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; Tip labels:</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;  1, 2, 3, 4, 5, 6, ...</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; Node labels:</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt;  81, 82, 83, 84, 85, 86, ...</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt; Rooted; includes branch lengths.</span></a></code></pre></div>
 </div>
 <div id="the-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-data" class="anchor"></a>The data</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>X[[<span class="dv">1</span>]][, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(X)
-<span class="co">#&gt; [1]  2 80</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>X[[<span class="dv">1</span>]][, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/dim">dim</a></span>(X)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co">#&gt; [1]  2 80</span></a></code></pre></div>
 <p>We use the <code><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMBase::PCMTreePlot()</a></code> and <code><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMBase::PCMPlotTraitData2D()</a></code> functions to generate plots of the tree and the data (note that <code><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMBase::PCMTreePlot()</a></code> requires the <code>ggtree</code> R-package which is currently not on CRAN - see the <a href="https://guangchuangyu.github.io/software/ggtree/">ggtree home page</a> for instructions how to install this package):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(<span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(tree)), <span class="dt">x =</span> <span class="dv">0</span>, <span class="dt">linesize =</span> .<span class="dv">25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)
-
-plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMPlotTraitData2D</a></span>(
-  X[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))], 
-  tree, 
-  <span class="dt">scaleSizeWithTime =</span> <span class="ot">FALSE</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_text">geom_text</a></span>(
-    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), 
-    <span class="dt">size=</span><span class="dv">2</span>, 
-    <span class="dt">position =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/position_jitter">position_jitter</a></span>(.<span class="dv">4</span>, .<span class="dv">4</span>)) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggtheme">theme_bw</a></span>() <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)
-
-cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(tree, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(<span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(tree)), <span class="dt">x =</span> <span class="dv">0</span>, <span class="dt">linesize =</span> <span class="fl">.25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMPlotTraitData2D</a></span>(</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">  X[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))], </a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">  tree, </a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  <span class="dt">scaleSizeWithTime =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span>(</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), </a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">    <span class="dt">size=</span><span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">    <span class="dt">position =</span> <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/position_jitter.html">position_jitter</a></span>(.<span class="dv">4</span>, <span class="fl">.4</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17">cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</a></code></pre></div>
 <div class="figure">
 <img src="pcmfit_files/figure-html/unnamed-chunk-3-1.png" alt="**Example phylogenetic comparative data.** **A**: a tree of 80 tips. **B**:  bivariate trait values at the tips of the tree. " width="672"><p class="caption">
 <strong>Example phylogenetic comparative data.</strong> <strong>A</strong>: a tree of 80 tips. <strong>B</strong>: bivariate trait values at the tips of the tree.
@@ -171,21 +171,21 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <h1 class="hasAnchor">
 <a href="#step-2--gaussian-model-types" class="anchor"></a>Step 2. Gaussian model types</h1>
 <p>In this tutorial, we use the six model types <span class="math inline">\(BM_{A}\)</span>, <span class="math inline">\(BM_{B}\)</span>, <span class="math inline">\(OU_{C}\)</span>, <span class="math inline">\(OU_{D}\)</span>, <span class="math inline">\(OU_{E}\)</span>, <span class="math inline">\(OU_{F}\)</span> from the <span class="math inline">\(\mathcal{G}_{LInv}\)</span>-family as defined in <span class="citation">(Mitov, Bartoszek, and Stadler 2019)</span>. These model types are also described in the PCMBase <a href="https://venelin.github.io/PCMBase/articles/PCMBase.html#groups-of-model-types">Getting started guide</a>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># scroll to the right in the following listing to see the aliases for the six </span>
-<span class="co"># default model types:</span>
-<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()
-<span class="co">#&gt;                                                                                                                                                                                A </span>
-<span class="co">#&gt;                                                                                                      "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
-<span class="co">#&gt;                                                                                                                                                                                B </span>
-<span class="co">#&gt;                                                                                   "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
-<span class="co">#&gt;                                                                                                                                                                                C </span>
-<span class="co">#&gt;                                       "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
-<span class="co">#&gt;                                                                                                                                                                                D </span>
-<span class="co">#&gt;                    "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
-<span class="co">#&gt;                                                                                                                                                                                E </span>
-<span class="co">#&gt; "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span>
-<span class="co">#&gt;                                                                                                                                                                                F </span>
-<span class="co">#&gt;                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># scroll to the right in the following listing to see the aliases for the six </span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co"># default model types:</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="co">#&gt;                                                                                                                                                                                A </span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co">#&gt;                                                                                                      "BM__Global_X0__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="co">#&gt;                                                                                                                                                                                B </span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="co">#&gt;                                                                                   "BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co">#&gt;                                                                                                                                                                                C </span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="co">#&gt;                                       "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="co">#&gt;                                                                                                                                                                                D </span></a>
+<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="co">#&gt;                    "OU__Global_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span></a>
+<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="co">#&gt;                                                                                                                                                                                E </span></a>
+<a class="sourceLine" id="cb5-13" data-line-number="13"><span class="co">#&gt; "OU__Global_X0__Schur_UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x" </span></a>
+<a class="sourceLine" id="cb5-14" data-line-number="14"><span class="co">#&gt;                                                                                                                                                                                F </span></a>
+<a class="sourceLine" id="cb5-15" data-line-number="15"><span class="co">#&gt;                             "OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x"</span></a></code></pre></div>
 <p>Our purpose for this tutorial will be to select an optimal model for the data. We will compare “global” models in which one model of one of the above model types is fit to the entire tree and data, versus a mixed Gaussian phylogenetic model where different models of the above model types are assigned to different parts of the tree.</p>
 </div>
 <div id="step-3--creating-model-objects" class="section level1">
@@ -197,57 +197,57 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <div id="a-global-bm_b-model" class="section level3">
 <h3 class="hasAnchor">
 <a href="#a-global-bm_b-model" class="anchor"></a>A global <span class="math inline">\(BM_{B}\)</span> model</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelBM &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCM.html">PCM</a></span>(
-  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"B"</span>], <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>(), <span class="dt">k =</span> <span class="dv">2</span>)
-
-modelBM
-<span class="co">#&gt; Brownian motion model</span>
-<span class="co">#&gt; S3 class: BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=5; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
-<span class="co">#&gt; [1] 0 0</span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,]    0    0</span>
-<span class="co">#&gt; [2,]    0    0</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; </span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">modelBM &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCM.html">PCM</a></span>(</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"B"</span>], <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>(), <span class="dt">k =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">modelBM</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co">#&gt; Brownian motion model</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">#&gt; S3 class: BM__Global_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=5; regimes: 1. Parameters/sub-models:</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">#&gt; [1] 0 0</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):</span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,]    0    0</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,]    0    0</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-16" data-line-number="16"><span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; factor of the non-heritable variance or the variance of the measurement error):</span></a>
+<a class="sourceLine" id="cb6-17" data-line-number="17"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb6-18" data-line-number="18"><span class="co">#&gt; </span></a></code></pre></div>
 </div>
 <div id="a-global-ou_f-model" class="section level3">
 <h3 class="hasAnchor">
 <a href="#a-global-ou_f-model" class="anchor"></a>A global <span class="math inline">\(OU_{F}\)</span> model</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelOU &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCM.html">PCM</a></span>(
-  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"F"</span>], <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>(), <span class="dt">k =</span> <span class="dv">2</span>)
-
-modelOU
-<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
-<span class="co">#&gt; S3 class: OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=11; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
-<span class="co">#&gt; [1] 0 0</span>
-<span class="co">#&gt; H (MatrixParameter, _Schur, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,]    0    0</span>
-<span class="co">#&gt; [2,]    0    0</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
-<span class="co">#&gt;      1</span>
-<span class="co">#&gt; [1,] 0</span>
-<span class="co">#&gt; [2,] 0</span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,]    0    0</span>
-<span class="co">#&gt; [2,]    0    0</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; </span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">modelOU &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCM.html">PCM</a></span>(</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>()[<span class="st">"F"</span>], <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">PCMDefaultModelTypes</a></span>(), <span class="dt">k =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">modelOU</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">#&gt; Ornstein-Uhlenbeck model</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co">#&gt; S3 class: OU__Global_X0__Schur_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=11; regimes: 1. Parameters/sub-models:</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="co">#&gt; [1] 0 0</span></a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"><span class="co">#&gt; H (MatrixParameter, _Schur, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co">#&gt; [1,]    0    0</span></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co">#&gt; [2,]    0    0</span></a>
+<a class="sourceLine" id="cb7-15" data-line-number="15"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16"><span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17"><span class="co">#&gt;      1</span></a>
+<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co">#&gt; [1,] 0</span></a>
+<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="co">#&gt; [2,] 0</span></a>
+<a class="sourceLine" id="cb7-20" data-line-number="20"><span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; factor of the unit-time variance rate):</span></a>
+<a class="sourceLine" id="cb7-21" data-line-number="21"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb7-22" data-line-number="22"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-23" data-line-number="23"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb7-24" data-line-number="24"><span class="co">#&gt; [1,]    0    0</span></a>
+<a class="sourceLine" id="cb7-25" data-line-number="25"><span class="co">#&gt; [2,]    0    0</span></a>
+<a class="sourceLine" id="cb7-26" data-line-number="26"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; factor of the non-heritable variance or the variance of the measurement error):</span></a>
+<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; </span></a></code></pre></div>
 </div>
 </div>
 <div id="mgpm-models" class="section level2">
@@ -256,140 +256,140 @@ modelOU
 <div id="a-mgpm-with-the-true-shift-point-configuration-and-model-type-mapping" class="section level3">
 <h3 class="hasAnchor">
 <a href="#a-mgpm-with-the-true-shift-point-configuration-and-model-type-mapping" class="anchor"></a>A MGPM with the true shift-point configuration and model type mapping</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/MixedGaussian.html">MixedGaussian</a></span>(
-  <span class="dt">k =</span> <span class="dv">2</span>,
-  <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">MGPMDefaultModelTypes</a></span>(),
-  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>),
-  <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(
-    <span class="dv">0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>,
-                 <span class="st">"_Global"</span>), <span class="dt">description =</span> <span class="st">"trait values at the root"</span>), 
-  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(
-    <span class="dv">0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>,
-                 <span class="st">"_Global"</span>),
-    <span class="dt">description =</span>
-      <span class="st">"Upper triangular Choleski factor of the non-phylogenetic variance-covariance"</span>))
-
-treeWithTrueShifts &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])
-<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(
-  treeWithTrueShifts, 
-  <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">81</span><span class="st">`</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">`</span><span class="dt">105</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="st">`</span><span class="dt">125</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>), 
-  <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">modelTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/MixedGaussian.html">MixedGaussian</a></span>(</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="dt">k =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">  <span class="dt">modelTypes =</span> <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html">MGPMDefaultModelTypes</a></span>(),</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">  <span class="dt">mapping =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">  <span class="dt">X0 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">    <span class="dv">0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"VectorParameter"</span>,</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">                 <span class="st">"_Global"</span>), <span class="dt">description =</span> <span class="st">"trait values at the root"</span>), </a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">  <span class="dt">Sigmae_x =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/structure">structure</a></span>(</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9">    <span class="dv">0</span>, <span class="dt">class =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"MatrixParameter"</span>, <span class="st">"_Omitted"</span>,</a>
+<a class="sourceLine" id="cb8-10" data-line-number="10">                 <span class="st">"_Global"</span>),</a>
+<a class="sourceLine" id="cb8-11" data-line-number="11">    <span class="dt">description =</span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12">      <span class="st">"Upper triangular Choleski factor of the non-phylogenetic variance-covariance"</span>))</a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14">treeWithTrueShifts &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])</a>
+<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html">PCMTreeSetPartRegimes</a></span>(</a>
+<a class="sourceLine" id="cb8-16" data-line-number="16">  treeWithTrueShifts, </a>
+<a class="sourceLine" id="cb8-17" data-line-number="17">  <span class="dt">part.regime =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">`</span><span class="dt">81</span><span class="st">`</span> =<span class="st"> </span><span class="dv">1</span>, <span class="st">`</span><span class="dt">105</span><span class="st">`</span> =<span class="st"> </span><span class="dv">2</span>, <span class="st">`</span><span class="dt">125</span><span class="st">`</span> =<span class="st"> </span><span class="dv">3</span>), </a>
+<a class="sourceLine" id="cb8-18" data-line-number="18">  <span class="dt">setPartition =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 </div>
 <div id="a-mgpm-with-the-true-shift-point-configuration-model-type-mapping-and-parameter-values" class="section level3">
 <h3 class="hasAnchor">
 <a href="#a-mgpm-with-the-true-shift-point-configuration-model-type-mapping-and-parameter-values" class="anchor"></a>A MGPM with the true shift-point configuration, model type mapping and parameter values</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">modelTrue &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>model[[<span class="dv">1</span>]]
-modelTrue
-<span class="co">#&gt; Mixed Gaussian model</span>
-<span class="co">#&gt; S3 class: MixedGaussian_432, MixedGaussian, GaussianPCM, PCM, _Transformable; k=2; p=18; regimes: 1, 2, 3. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span>
-<span class="co">#&gt; [1]  1 -1</span>
-<span class="co">#&gt; 1 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span>
-<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
-<span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=7; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 1.39 0.00</span>
-<span class="co">#&gt; [2,] 0.00 0.59</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
-<span class="co">#&gt;         1</span>
-<span class="co">#&gt; [1,] 5.94</span>
-<span class="co">#&gt; [2,] 2.58</span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.29 0.02</span>
-<span class="co">#&gt; [2,] 0.00 0.36</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;  </span>
-<span class="co">#&gt; 2 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span>
-<span class="co">#&gt; Ornstein-Uhlenbeck model</span>
-<span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=6; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.37 0.00</span>
-<span class="co">#&gt; [2,] 0.00 1.06</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span>
-<span class="co">#&gt;         1</span>
-<span class="co">#&gt; [1,] 5.41</span>
-<span class="co">#&gt; [2,] 2.63</span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _Diagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.36  0.0</span>
-<span class="co">#&gt; [2,] 0.00  0.4</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;  </span>
-<span class="co">#&gt; 3 (BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM):</span>
-<span class="co">#&gt; Brownian motion model</span>
-<span class="co">#&gt; S3 class: BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=3; regimes: 1. Parameters/sub-models:</span>
-<span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span>
-<span class="co">#&gt; , , 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;      [,1] [,2]</span>
-<span class="co">#&gt; [1,] 0.17 0.14</span>
-<span class="co">#&gt; [2,] 0.00 0.50</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;  </span>
-<span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; upper triangular Choleski factor of the non-phylogenetic variance-covariance):</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; </span>
-
-<span class="co"># We specify the tree and trait values for the true model in order to easily </span>
-<span class="co"># calculate parameter count likelihood and AIC for it:</span>
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"tree"</span>) &lt;-<span class="st"> </span>treeWithTrueShifts
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X
-<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"SE"</span>) &lt;-<span class="st"> </span>X <span class="op">*</span><span class="st"> </span><span class="fl">0.0</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">modelTrue &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>model[[<span class="dv">1</span>]]</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">modelTrue</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="co">#&gt; Mixed Gaussian model</span></a>
+<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co">#&gt; S3 class: MixedGaussian_432, MixedGaussian, GaussianPCM, PCM, _Transformable; k=2; p=18; regimes: 1, 2, 3. Parameters/sub-models:</span></a>
+<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="co">#&gt; X0 (VectorParameter, _Global, numeric; trait values at the root):</span></a>
+<a class="sourceLine" id="cb9-6" data-line-number="6"><span class="co">#&gt; [1]  1 -1</span></a>
+<a class="sourceLine" id="cb9-7" data-line-number="7"><span class="co">#&gt; 1 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span></a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co">#&gt; Ornstein-Uhlenbeck model</span></a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=7; regimes: 1. Parameters/sub-models:</span></a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span></a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span></a>
+<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt; [1,] 1.39 0.00</span></a>
+<a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co">#&gt; [2,] 0.00 0.59</span></a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span></a>
+<a class="sourceLine" id="cb9-20" data-line-number="20"><span class="co">#&gt;         1</span></a>
+<a class="sourceLine" id="cb9-21" data-line-number="21"><span class="co">#&gt; [1,] 5.94</span></a>
+<a class="sourceLine" id="cb9-22" data-line-number="22"><span class="co">#&gt; [2,] 2.58</span></a>
+<a class="sourceLine" id="cb9-23" data-line-number="23"><span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span></a>
+<a class="sourceLine" id="cb9-24" data-line-number="24"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb9-25" data-line-number="25"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-26" data-line-number="26"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb9-27" data-line-number="27"><span class="co">#&gt; [1,] 0.29 0.02</span></a>
+<a class="sourceLine" id="cb9-28" data-line-number="28"><span class="co">#&gt; [2,] 0.00 0.36</span></a>
+<a class="sourceLine" id="cb9-29" data-line-number="29"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-30" data-line-number="30"><span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span></a>
+<a class="sourceLine" id="cb9-31" data-line-number="31"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-32" data-line-number="32"><span class="co">#&gt;  </span></a>
+<a class="sourceLine" id="cb9-33" data-line-number="33"><span class="co">#&gt; 2 (OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable):</span></a>
+<a class="sourceLine" id="cb9-34" data-line-number="34"><span class="co">#&gt; Ornstein-Uhlenbeck model</span></a>
+<a class="sourceLine" id="cb9-35" data-line-number="35"><span class="co">#&gt; S3 class: OU__Omitted_X0__Schur_Diagonal_WithNonNegativeDiagonal_Transformable_H__Theta__Diagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, OU, GaussianPCM, PCM, _Transformable; k=2; p=6; regimes: 1. Parameters/sub-models:</span></a>
+<a class="sourceLine" id="cb9-36" data-line-number="36"><span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span></a>
+<a class="sourceLine" id="cb9-37" data-line-number="37"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-38" data-line-number="38"><span class="co">#&gt; H (MatrixParameter, _Schur, _Diagonal, _WithNonNegativeDiagonal, _Transformable; adaptation rate matrix):</span></a>
+<a class="sourceLine" id="cb9-39" data-line-number="39"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb9-40" data-line-number="40"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-41" data-line-number="41"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb9-42" data-line-number="42"><span class="co">#&gt; [1,] 0.37 0.00</span></a>
+<a class="sourceLine" id="cb9-43" data-line-number="43"><span class="co">#&gt; [2,] 0.00 1.06</span></a>
+<a class="sourceLine" id="cb9-44" data-line-number="44"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-45" data-line-number="45"><span class="co">#&gt; Theta (VectorParameter, matrix; long-term optimum):</span></a>
+<a class="sourceLine" id="cb9-46" data-line-number="46"><span class="co">#&gt;         1</span></a>
+<a class="sourceLine" id="cb9-47" data-line-number="47"><span class="co">#&gt; [1,] 5.41</span></a>
+<a class="sourceLine" id="cb9-48" data-line-number="48"><span class="co">#&gt; [2,] 2.63</span></a>
+<a class="sourceLine" id="cb9-49" data-line-number="49"><span class="co">#&gt; Sigma_x (MatrixParameter, _Diagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span></a>
+<a class="sourceLine" id="cb9-50" data-line-number="50"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb9-51" data-line-number="51"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-52" data-line-number="52"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb9-53" data-line-number="53"><span class="co">#&gt; [1,] 0.36  0.0</span></a>
+<a class="sourceLine" id="cb9-54" data-line-number="54"><span class="co">#&gt; [2,] 0.00  0.4</span></a>
+<a class="sourceLine" id="cb9-55" data-line-number="55"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-56" data-line-number="56"><span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span></a>
+<a class="sourceLine" id="cb9-57" data-line-number="57"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-58" data-line-number="58"><span class="co">#&gt;  </span></a>
+<a class="sourceLine" id="cb9-59" data-line-number="59"><span class="co">#&gt; 3 (BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM):</span></a>
+<a class="sourceLine" id="cb9-60" data-line-number="60"><span class="co">#&gt; Brownian motion model</span></a>
+<a class="sourceLine" id="cb9-61" data-line-number="61"><span class="co">#&gt; S3 class: BM__Omitted_X0__UpperTriangularWithDiagonal_WithNonNegativeDiagonal_Sigma_x__Omitted_Sigmae_x, BM, GaussianPCM, PCM; k=2; p=3; regimes: 1. Parameters/sub-models:</span></a>
+<a class="sourceLine" id="cb9-62" data-line-number="62"><span class="co">#&gt; X0 (VectorParameter, _Omitted; trait values at the root):</span></a>
+<a class="sourceLine" id="cb9-63" data-line-number="63"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-64" data-line-number="64"><span class="co">#&gt; Sigma_x (MatrixParameter, _UpperTriangularWithDiagonal, _WithNonNegativeDiagonal; Choleski factor of the unit-time variance rate):</span></a>
+<a class="sourceLine" id="cb9-65" data-line-number="65"><span class="co">#&gt; , , 1</span></a>
+<a class="sourceLine" id="cb9-66" data-line-number="66"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-67" data-line-number="67"><span class="co">#&gt;      [,1] [,2]</span></a>
+<a class="sourceLine" id="cb9-68" data-line-number="68"><span class="co">#&gt; [1,] 0.17 0.14</span></a>
+<a class="sourceLine" id="cb9-69" data-line-number="69"><span class="co">#&gt; [2,] 0.00 0.50</span></a>
+<a class="sourceLine" id="cb9-70" data-line-number="70"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-71" data-line-number="71"><span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; Choleski factor of the non-heritable variance or the variance of the measurement error):</span></a>
+<a class="sourceLine" id="cb9-72" data-line-number="72"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-73" data-line-number="73"><span class="co">#&gt;  </span></a>
+<a class="sourceLine" id="cb9-74" data-line-number="74"><span class="co">#&gt; Sigmae_x (MatrixParameter, _Omitted; upper triangular Choleski factor of the non-phylogenetic variance-covariance):</span></a>
+<a class="sourceLine" id="cb9-75" data-line-number="75"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-76" data-line-number="76"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb9-77" data-line-number="77"></a>
+<a class="sourceLine" id="cb9-78" data-line-number="78"><span class="co"># We specify the tree and trait values for the true model in order to easily </span></a>
+<a class="sourceLine" id="cb9-79" data-line-number="79"><span class="co"># calculate parameter count likelihood and AIC for it:</span></a>
+<a class="sourceLine" id="cb9-80" data-line-number="80"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"tree"</span>) &lt;-<span class="st"> </span>treeWithTrueShifts</a>
+<a class="sourceLine" id="cb9-81" data-line-number="81"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X</a>
+<a class="sourceLine" id="cb9-82" data-line-number="82"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(modelTrue, <span class="st">"SE"</span>) &lt;-<span class="st"> </span>X <span class="op">*</span><span class="st"> </span><span class="fl">0.0</span></a></code></pre></div>
 </div>
 </div>
 <div id="a-view-of-the-data-according-to-the-true-shift-point-configuration" class="section level2">
 <h2 class="hasAnchor">
 <a href="#a-view-of-the-data-according-to-the-true-shift-point-configuration" class="anchor"></a>A view of the data according to the true shift-point configuration</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(treeWithTrueShifts, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">%&lt;+%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
-    <span class="dt">node =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">12</span>, <span class="dv">77</span>, <span class="dv">45</span>), 
-    <span class="dt">part.model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">" 1.D "</span>, <span class="st">" 2.C "</span>, <span class="st">" 3.B "</span>),
-    <span class="dt">offset =</span> <span class="dv">5</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">label =</span> part.model), <span class="dt">offset =</span> <span class="dv">16</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(
-    <span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(treeWithTrueShifts)), <span class="dt">x =</span> <span class="dv">0</span>, 
-    <span class="dt">linesize =</span> .<span class="dv">25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)
-
-plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMPlotTraitData2D</a></span>(
-  X[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(treeWithTrueShifts))], 
-  treeWithTrueShifts, 
-  <span class="dt">scaleSizeWithTime =</span> <span class="ot">FALSE</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/geom_text">geom_text</a></span>(
-    <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), 
-    <span class="dt">size=</span><span class="dv">2</span>, 
-    <span class="dt">position =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/position_jitter">position_jitter</a></span>(.<span class="dv">4</span>, .<span class="dv">4</span>)) <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/ggtheme">theme_bw</a></span>() <span class="op">+</span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggplot2/topics/theme">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)
-
-cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">plTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreePlot.html">PCMTreePlot</a></span>(treeWithTrueShifts, <span class="dt">layout=</span><span class="st">"fan"</span>) <span class="op">%&lt;+%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">    <span class="dt">node =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">12</span>, <span class="dv">77</span>, <span class="dv">45</span>), </a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">    <span class="dt">part.model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">" 1.D "</span>, <span class="st">" 2.C "</span>, <span class="st">" 3.B "</span>),</a>
+<a class="sourceLine" id="cb10-6" data-line-number="6">    <span class="dt">offset =</span> <span class="dv">5</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_tiplab2">geom_tiplab2</a></span>(<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">label =</span> part.model), <span class="dt">offset =</span> <span class="dv">16</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_nodelab">geom_nodelab</a></span>(<span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/ggtree/topics/geom_treescale">geom_treescale</a></span>(</a>
+<a class="sourceLine" id="cb10-11" data-line-number="11">    <span class="dt">width =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(treeWithTrueShifts)), <span class="dt">x =</span> <span class="dv">0</span>, </a>
+<a class="sourceLine" id="cb10-12" data-line-number="12">    <span class="dt">linesize =</span> <span class="fl">.25</span>, <span class="dt">fontsize =</span> <span class="dv">2</span>, <span class="dt">offset =</span> <span class="dv">79</span>)</a>
+<a class="sourceLine" id="cb10-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb10-14" data-line-number="14">plX &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMPlotTraitData2D.html">PCMPlotTraitData2D</a></span>(</a>
+<a class="sourceLine" id="cb10-15" data-line-number="15">  X[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(treeWithTrueShifts))], </a>
+<a class="sourceLine" id="cb10-16" data-line-number="16">  treeWithTrueShifts, </a>
+<a class="sourceLine" id="cb10-17" data-line-number="17">  <span class="dt">scaleSizeWithTime =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-18" data-line-number="18"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span>(</a>
+<a class="sourceLine" id="cb10-19" data-line-number="19">    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">label =</span> id, <span class="dt">color =</span> regime), </a>
+<a class="sourceLine" id="cb10-20" data-line-number="20">    <span class="dt">size=</span><span class="dv">2</span>, </a>
+<a class="sourceLine" id="cb10-21" data-line-number="21">    <span class="dt">position =</span> <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/position_jitter.html">position_jitter</a></span>(.<span class="dv">4</span>, <span class="fl">.4</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-22" data-line-number="22"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-23" data-line-number="23"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position =</span> <span class="st">"bottom"</span>)</a>
+<a class="sourceLine" id="cb10-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb10-25" data-line-number="25">cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/cowplot/topics/plot_grid">plot_grid</a></span>(plTree, plX, <span class="dt">labels =</span> LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</a></code></pre></div>
 <div class="figure">
 <img src="pcmfit_files/figure-html/unnamed-chunk-9-1.png" alt="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. " width="672"><p class="caption">
 <strong>Example phylogenetic comparative data.</strong> <strong>A</strong>: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, …, F). <strong>B</strong>: bivariate trait values at the tips of the tree.
@@ -404,155 +404,155 @@ cowplot<span class="op">::</span><span class="kw"><a href="https://www.rdocument
 <h2 class="hasAnchor">
 <a href="#specifying-parameter-limits" class="anchor"></a>Specifying parameter limits</h2>
 <p>An optional but important preliminary step is to explicitly specify the limits for the model parameters. This is needed, because the default settings might not be appropriate for the data in question. Here is an example how the model parameter limits can be set. Note that we specify these limits for the base “BM” and “OU” model types, but they are inherited by their subtypes A, …, F, as specified in the comments.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## File: DefineParameterLimits.R
-<span class="co"># lower limits for models A and B</span>
-PCMParamLowerLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
-  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
-  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
-  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
-
-  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
-    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
-    }
-  } <span class="cf">else</span> {
-    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-      <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
-        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
-      }
-    }
-  }
-  o
-}
-
-<span class="co"># upper limits for models A and B</span>
-PCMParamUpperLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
-  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
-  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
-  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
-
-  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
-    o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-    }
-  } <span class="cf">else</span> {
-    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
-      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>, r] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-      <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-      }
-    }
-  }
-  o
-}
-
-<span class="co"># lower limits for models C, ..., F.</span>
-PCMParamLowerLimit.OU &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
-  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
-  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
-  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
-
-  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Theta)) {
-    o<span class="op">$</span>Theta[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="fl">0.0</span>
-    o<span class="op">$</span>Theta[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="op">-</span><span class="fl">1.2</span>
-  } <span class="cf">else</span> {
-    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
-      o<span class="op">$</span>Theta[<span class="dv">1</span>, r] &lt;-<span class="st"> </span><span class="fl">0.0</span>
-      o<span class="op">$</span>Theta[<span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="op">-</span><span class="fl">1.2</span>
-    }
-  }
-  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
-    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
-    }
-  } <span class="cf">else</span> {
-    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-      <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
-        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="op">-</span>.<span class="dv">0</span>
-      }
-    }
-  }
-  o
-}
-
-<span class="co"># upper limits for models C, ..., F.</span>
-PCMParamUpperLimit.OU &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {
-  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()
-  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)
-  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))
-
-  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Theta)) {
-    o<span class="op">$</span>Theta[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="fl">7.8</span>
-    o<span class="op">$</span>Theta[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">4.2</span>
-  } <span class="cf">else</span> {
-    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
-      o<span class="op">$</span>Theta[<span class="dv">1</span>, r] &lt;-<span class="st"> </span><span class="fl">7.8</span>
-      o<span class="op">$</span>Theta[<span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">4.2</span>
-    }
-  }
-  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {
-    o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-    }
-  } <span class="cf">else</span> {
-    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {
-      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>, r] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-      <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {
-        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span>
-      }
-    }
-  }
-  o
-}</code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">## File: DefineParameterLimits.R</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="co"># lower limits for models A and B</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3">PCMParamLowerLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {</a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()</a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb11-8" data-line-number="8">  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-9" data-line-number="9">    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-10" data-line-number="10">      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">-.0</span></a>
+<a class="sourceLine" id="cb11-11" data-line-number="11">    }</a>
+<a class="sourceLine" id="cb11-12" data-line-number="12">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb11-13" data-line-number="13">    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-14" data-line-number="14">      <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {</a>
+<a class="sourceLine" id="cb11-15" data-line-number="15">        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">-.0</span></a>
+<a class="sourceLine" id="cb11-16" data-line-number="16">      }</a>
+<a class="sourceLine" id="cb11-17" data-line-number="17">    }</a>
+<a class="sourceLine" id="cb11-18" data-line-number="18">  }</a>
+<a class="sourceLine" id="cb11-19" data-line-number="19">  o</a>
+<a class="sourceLine" id="cb11-20" data-line-number="20">}</a>
+<a class="sourceLine" id="cb11-21" data-line-number="21"></a>
+<a class="sourceLine" id="cb11-22" data-line-number="22"><span class="co"># upper limits for models A and B</span></a>
+<a class="sourceLine" id="cb11-23" data-line-number="23">PCMParamUpperLimit.BM &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {</a>
+<a class="sourceLine" id="cb11-24" data-line-number="24">  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()</a>
+<a class="sourceLine" id="cb11-25" data-line-number="25">  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb11-26" data-line-number="26">  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb11-27" data-line-number="27"></a>
+<a class="sourceLine" id="cb11-28" data-line-number="28">  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-29" data-line-number="29">    o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-30" data-line-number="30">    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-31" data-line-number="31">      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-32" data-line-number="32">    }</a>
+<a class="sourceLine" id="cb11-33" data-line-number="33">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb11-34" data-line-number="34">    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {</a>
+<a class="sourceLine" id="cb11-35" data-line-number="35">      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>, r] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-36" data-line-number="36">      <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-37" data-line-number="37">        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-38" data-line-number="38">      }</a>
+<a class="sourceLine" id="cb11-39" data-line-number="39">    }</a>
+<a class="sourceLine" id="cb11-40" data-line-number="40">  }</a>
+<a class="sourceLine" id="cb11-41" data-line-number="41">  o</a>
+<a class="sourceLine" id="cb11-42" data-line-number="42">}</a>
+<a class="sourceLine" id="cb11-43" data-line-number="43"></a>
+<a class="sourceLine" id="cb11-44" data-line-number="44"><span class="co"># lower limits for models C, ..., F.</span></a>
+<a class="sourceLine" id="cb11-45" data-line-number="45">PCMParamLowerLimit.OU &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {</a>
+<a class="sourceLine" id="cb11-46" data-line-number="46">  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()</a>
+<a class="sourceLine" id="cb11-47" data-line-number="47">  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb11-48" data-line-number="48">  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb11-49" data-line-number="49"></a>
+<a class="sourceLine" id="cb11-50" data-line-number="50">  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Theta)) {</a>
+<a class="sourceLine" id="cb11-51" data-line-number="51">    o<span class="op">$</span>Theta[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="fl">0.0</span></a>
+<a class="sourceLine" id="cb11-52" data-line-number="52">    o<span class="op">$</span>Theta[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">-1.2</span></a>
+<a class="sourceLine" id="cb11-53" data-line-number="53">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb11-54" data-line-number="54">    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {</a>
+<a class="sourceLine" id="cb11-55" data-line-number="55">      o<span class="op">$</span>Theta[<span class="dv">1</span>, r] &lt;-<span class="st"> </span><span class="fl">0.0</span></a>
+<a class="sourceLine" id="cb11-56" data-line-number="56">      o<span class="op">$</span>Theta[<span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">-1.2</span></a>
+<a class="sourceLine" id="cb11-57" data-line-number="57">    }</a>
+<a class="sourceLine" id="cb11-58" data-line-number="58">  }</a>
+<a class="sourceLine" id="cb11-59" data-line-number="59">  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-60" data-line-number="60">    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-61" data-line-number="61">      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">-.0</span></a>
+<a class="sourceLine" id="cb11-62" data-line-number="62">    }</a>
+<a class="sourceLine" id="cb11-63" data-line-number="63">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb11-64" data-line-number="64">    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-65" data-line-number="65">      <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {</a>
+<a class="sourceLine" id="cb11-66" data-line-number="66">        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">-.0</span></a>
+<a class="sourceLine" id="cb11-67" data-line-number="67">      }</a>
+<a class="sourceLine" id="cb11-68" data-line-number="68">    }</a>
+<a class="sourceLine" id="cb11-69" data-line-number="69">  }</a>
+<a class="sourceLine" id="cb11-70" data-line-number="70">  o</a>
+<a class="sourceLine" id="cb11-71" data-line-number="71">}</a>
+<a class="sourceLine" id="cb11-72" data-line-number="72"></a>
+<a class="sourceLine" id="cb11-73" data-line-number="73"><span class="co"># upper limits for models C, ..., F.</span></a>
+<a class="sourceLine" id="cb11-74" data-line-number="74">PCMParamUpperLimit.OU &lt;-<span class="st"> </span><span class="cf">function</span>(o, k, R, ...) {</a>
+<a class="sourceLine" id="cb11-75" data-line-number="75">  o &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/UseMethod">NextMethod</a></span>()</a>
+<a class="sourceLine" id="cb11-76" data-line-number="76">  k &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"k"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb11-77" data-line-number="77">  R &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(o, <span class="st">"regimes"</span>, <span class="dt">exact =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb11-78" data-line-number="78"></a>
+<a class="sourceLine" id="cb11-79" data-line-number="79">  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Theta)) {</a>
+<a class="sourceLine" id="cb11-80" data-line-number="80">    o<span class="op">$</span>Theta[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="fl">7.8</span></a>
+<a class="sourceLine" id="cb11-81" data-line-number="81">    o<span class="op">$</span>Theta[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">4.2</span></a>
+<a class="sourceLine" id="cb11-82" data-line-number="82">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb11-83" data-line-number="83">    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {</a>
+<a class="sourceLine" id="cb11-84" data-line-number="84">      o<span class="op">$</span>Theta[<span class="dv">1</span>, r] &lt;-<span class="st"> </span><span class="fl">7.8</span></a>
+<a class="sourceLine" id="cb11-85" data-line-number="85">      o<span class="op">$</span>Theta[<span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">4.2</span></a>
+<a class="sourceLine" id="cb11-86" data-line-number="86">    }</a>
+<a class="sourceLine" id="cb11-87" data-line-number="87">  }</a>
+<a class="sourceLine" id="cb11-88" data-line-number="88">  <span class="cf">if</span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Global</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-89" data-line-number="89">    o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-90" data-line-number="90">    <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-91" data-line-number="91">      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-92" data-line-number="92">    }</a>
+<a class="sourceLine" id="cb11-93" data-line-number="93">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb11-94" data-line-number="94">    <span class="cf">for</span>(r <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(R)) {</a>
+<a class="sourceLine" id="cb11-95" data-line-number="95">      o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">1</span>, r] &lt;-<span class="st"> </span>o<span class="op">$</span>Sigma_x[<span class="dv">2</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-96" data-line-number="96">      <span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamType.html">is.Diagonal</a></span>(o<span class="op">$</span>Sigma_x)) {</a>
+<a class="sourceLine" id="cb11-97" data-line-number="97">        o<span class="op">$</span>Sigma_x[<span class="dv">1</span>, <span class="dv">2</span>, r] &lt;-<span class="st"> </span><span class="fl">1.0</span></a>
+<a class="sourceLine" id="cb11-98" data-line-number="98">      }</a>
+<a class="sourceLine" id="cb11-99" data-line-number="99">    }</a>
+<a class="sourceLine" id="cb11-100" data-line-number="100">  }</a>
+<a class="sourceLine" id="cb11-101" data-line-number="101">  o</a>
+<a class="sourceLine" id="cb11-102" data-line-number="102">}</a></code></pre></div>
 </div>
 <div id="fitting-the-global-models" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-the-global-models" class="anchor"></a>Fitting the global models</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelBM, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)
-fitOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelOU, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">fitBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelBM, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">fitOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelOU, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
 </div>
 <div id="fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># This can take about 5 minutes to finish</span>
-fitMGPMTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(
-  X, treeWithTrueShifts, modelTrueTypeMapping, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># This can take about 5 minutes to finish</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">fitMGPMTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">  X, treeWithTrueShifts, modelTrueTypeMapping, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
 </div>
 <div id="fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fitMGPMTrueTypeMappingCheat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(
-  X, treeWithTrueShifts, modelTrueTypeMapping, 
-    <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L),
-    <span class="dt">numRunifInitVecParams =</span> 1000L,
-    <span class="dt">numGuessInitVecParams =</span> 100L,
-  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp,
-  <span class="dt">matParInit =</span> <span class="kw">jitterModelParams</span>(modelTrue))</code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">fitMGPMTrueTypeMappingCheat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">  X, treeWithTrueShifts, modelTrueTypeMapping, </a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">    <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L),</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">    <span class="dt">numRunifInitVecParams =</span> 1000L,</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">    <span class="dt">numGuessInitVecParams =</span> 100L,</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp,</a>
+<a class="sourceLine" id="cb14-7" data-line-number="7">  <span class="dt">matParInit =</span> <span class="kw">jitterModelParams</span>(modelTrue))</a></code></pre></div>
 </div>
 </div>
 <div id="step-5--evaluating-the-model-fits" class="section level1">
 <h1 class="hasAnchor">
 <a href="#step-5--evaluating-the-model-fits" class="anchor"></a>Step 5. Evaluating the model fits</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-  <span class="kw">RetrieveBestModel</span>(fitBM), 
-  <span class="kw">RetrieveBestModel</span>(fitOU),
-  <span class="kw">RetrieveBestModel</span>(fitMGPMTrueTypeMapping), 
-  <span class="kw">RetrieveBestModel</span>(fitMGPMTrueTypeMappingCheat), 
-  modelTrue)
-
-dtSummary &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(
-  <span class="dt">model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(
-    <span class="st">"Global BM"</span>, 
-    <span class="st">"Global OU"</span>, 
-    <span class="st">"True MGPM, unknown parameters"</span>, 
-    <span class="st">"True MGPM, known true parameters"</span>, 
-    <span class="st">"True MGPM, true parameters"</span>),
-  <span class="dt">p =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, PCMParamCount),
-  <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, logLik), 
-  <span class="dt">AIC =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, AIC))
-knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>(dtSummary)</code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(</a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">  <span class="kw">RetrieveBestModel</span>(fitBM), </a>
+<a class="sourceLine" id="cb15-3" data-line-number="3">  <span class="kw">RetrieveBestModel</span>(fitOU),</a>
+<a class="sourceLine" id="cb15-4" data-line-number="4">  <span class="kw">RetrieveBestModel</span>(fitMGPMTrueTypeMapping), </a>
+<a class="sourceLine" id="cb15-5" data-line-number="5">  <span class="kw">RetrieveBestModel</span>(fitMGPMTrueTypeMappingCheat), </a>
+<a class="sourceLine" id="cb15-6" data-line-number="6">  modelTrue)</a>
+<a class="sourceLine" id="cb15-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8">dtSummary &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/data.table/topics/data.table">data.table</a></span>(</a>
+<a class="sourceLine" id="cb15-9" data-line-number="9">  <span class="dt">model =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(</a>
+<a class="sourceLine" id="cb15-10" data-line-number="10">    <span class="st">"Global BM"</span>, </a>
+<a class="sourceLine" id="cb15-11" data-line-number="11">    <span class="st">"Global OU"</span>, </a>
+<a class="sourceLine" id="cb15-12" data-line-number="12">    <span class="st">"True MGPM, unknown parameters"</span>, </a>
+<a class="sourceLine" id="cb15-13" data-line-number="13">    <span class="st">"True MGPM, known true parameters"</span>, </a>
+<a class="sourceLine" id="cb15-14" data-line-number="14">    <span class="st">"True MGPM, true parameters"</span>),</a>
+<a class="sourceLine" id="cb15-15" data-line-number="15">  <span class="dt">p =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, PCMParamCount),</a>
+<a class="sourceLine" id="cb15-16" data-line-number="16">  <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, logLik), </a>
+<a class="sourceLine" id="cb15-17" data-line-number="17">  <span class="dt">AIC =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(listModels, AIC))</a>
+<a class="sourceLine" id="cb15-18" data-line-number="18">knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/knitr/topics/kable">kable</a></span>(dtSummary)</a></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">model</th>
@@ -599,7 +599,7 @@ knitr<span class="op">::</span><span class="kw"><a href="https://www.rdocumentat
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references">
 <div id="ref-Mitov:2019agh">
-<p>Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models.” <em>Article in Review, Preprint in Ch. 7 of Thesis No. 25428, ETH Zurich</em>, mai. <a href="https://doi.org/10.3929/ethz-b-000315296" class="uri">https://doi.org/10.3929/ethz-b-000315296</a>.</p>
+<p>Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic Generation of Evolutionary Hypotheses Using Mixed Gaussian Phylogenetic Models.” <em>Proceedings of the National Academy of Sciences of the United States of America</em>. <a href="https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116">https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116</a>.</p>
 </div>
 </div>
 </div>
