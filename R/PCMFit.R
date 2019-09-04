@@ -143,8 +143,13 @@ PCMFit <- function(
 
     chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE))
 
+    globalFuns <- unname(unlist(
+      sapply(ls(.GlobalEnv), function(n) if(is.function(.GlobalEnv[[n]])) n else NULL)))
+
     valParInitOptim <- foreach(
-      is = chunk(seq_len(nrow(matParInit)), 8L), .combine = c) %op% {
+      is = chunk(seq_len(nrow(matParInit)), 8L),
+      .combine = c,
+      .export = globalFuns) %op% {
 
         lik <- PCMCreateLikelihood(
           X = X, tree = tree, model = model, SE = SE,
@@ -345,7 +350,11 @@ runOptim <- function(
     `%do%`
   }
 
-  listCallsOptim <- foreach(iOptimTry = seq_len(nrow(matParInit))) %op% {
+  globalFuns <- unname(unlist(
+    sapply(ls(.GlobalEnv), function(n) if(is.function(.GlobalEnv[[n]])) n else NULL)))
+
+  listCallsOptim <- foreach(iOptimTry = seq_len(nrow(matParInit)),
+                            .export = globalFuns) %op% {
     memoMaxLoglik <- new.env()
 
     lik <- PCMCreateLikelihood(

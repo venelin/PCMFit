@@ -16,7 +16,7 @@
 #'
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTree PCMTreeSetLabels PCMTreeSetPartition PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable
+#' @importFrom PCMBase PCMTree PCMTreeSetLabels PCMTreeSetPartition PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable PCMTreeVCV
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
@@ -126,6 +126,7 @@ PCMFitMixed <- function(
 
     preorderTree <- PCMTreePreorder(tree)
     tableAncestors <- PCMTreeTableAncestors(tree, preorder = preorderTree)
+    treeVCVMat <- PCMTreeVCV(tree)
 
     # 1. (fitsToClades) Perform a fit of each model-type to each clade
     if(is.null(arguments$listPartitions) || arguments$listPartitions == "all") {
@@ -166,6 +167,7 @@ PCMFitMixed <- function(
     argumentsFitsToClades$X <- X
     argumentsFitsToClades$tree <- tree
     argumentsFitsToClades$modelTypes <- modelTypes
+    argumentsFitsToClades$treeVCVMat <- treeVCVMat
     argumentsFitsToClades$SE <- SE
     argumentsFitsToClades$listPartitions <- as.list(cladeRoots)
     argumentsFitsToClades$listAllowedModelTypesIndices <-
@@ -256,6 +258,7 @@ PCMFitMixed <- function(
     argumentsStep2$X <- X
     argumentsStep2$tree <- tree
     argumentsStep2$modelTypes <- modelTypes
+    argumentsStep2$treeVCVMat <- treeVCVMat
     argumentsStep2$SE <- SE
     argumentsStep2$skipNodes <- skipNodes
     argumentsStep2$fitMappingsPrev <- NULL

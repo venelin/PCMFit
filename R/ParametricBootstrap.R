@@ -556,9 +556,15 @@ ExtractBSDataForTraitRegression <- function(
           sapply(.I, function(i) {
             if( !is.null(listStatsForEpochs[[i]]) ) {
               matrixSlopes <- matrix(NA_real_, k, k)
-              matrixSlopes[upper.tri(matrixSlopes)] <-
+
+              bsSlopeVals <-
                 listStatsForEpochs[[i]][[as.character(epoch)]]$
                 statsForBackboneNodes[[nodeAtEpochLab]]$slopeMean
+
+              if(sum(upper.tri(matrixSlopes)) == length(bsSlopeVals)) {
+                matrixSlopes[upper.tri(matrixSlopes)] <- bsSlopeVals
+              }
+
               matrixSlopes[traitIndexX, traitIndexY]
             } else {
               NA_real_
@@ -573,9 +579,11 @@ ExtractBSDataForTraitRegression <- function(
           sapply(.I, function(i) {
             if( !is.null(listStatsForEpochs[[i]]) ) {
               matrixIntercepts <- matrix(NA_real_, k, k)
-              matrixIntercepts[upper.tri(matrixIntercepts)] <-
-                listStatsForEpochs[[i]][[as.character(epoch)]]$
+              bsIntercVals <- listStatsForEpochs[[i]][[as.character(epoch)]]$
                 statsForBackboneNodes[[nodeAtEpochLab]]$interceptMean
+              if(sum(upper.tri(matrixIntercepts)) == length(bsIntercVals)) {
+                matrixIntercepts[upper.tri(matrixIntercepts)] <- bsIntercVals
+              }
               matrixIntercepts[traitIndexX, traitIndexY]
             } else {
               NA_real_

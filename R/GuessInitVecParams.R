@@ -15,7 +15,9 @@
 #' vectors should be within the lower and upper bound of the model.
 #' @param res an n x p matrix where p is the number of parameters in o.
 #' Internal use only.
-#' @param ... additional arguments passed to implementations.
+#' @param ... additional arguments passed to implementations. Currently an
+#' N x N matrix argument named treeVCVMat can be passed which is equal to the
+#' phylogenetic covariance matrix for tree.
 #' @return an n x p matrix where p is the number of parameters in o.
 #'
 #' @description This is an S3 generic function that returns a
@@ -161,7 +163,7 @@ GuessInitVecParams.PCM <- function(
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
   # original argument value.
-  arguments <- as.list(environment())
+  arguments <- c(as.list(environment()), list(...))
 
   res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
 
@@ -210,7 +212,7 @@ GuessInitVecParams.BM <- function(
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
   # original argument value.
-  arguments <- as.list(environment())
+  arguments <- c(as.list(environment()), list(...))
 
   res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
 
@@ -259,7 +261,7 @@ GuessInitVecParams.OU <- function(
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
   # original argument value.
-  arguments <- as.list(environment())
+  arguments <- c(as.list(environment()), list(...))
 
   res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
 
@@ -308,7 +310,7 @@ GuessInitVecParams.DOU <- function(
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
   # original argument value.
-  arguments <- as.list(environment())
+  arguments <- c(as.list(environment()), list(...))
 
   res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
 
@@ -360,7 +362,7 @@ GuessInitVecParams.MixedGaussian <- function(
   # Copy all arguments into a list
   # We establish arguments$<argument-name> as a convention for accessing the
   # original argument value.
-  arguments <- as.list(environment())
+  arguments <- c(as.list(environment()), list(...))
 
   res2 <- try(do.call(GuessParameters, arguments), silent = TRUE)
 
@@ -508,7 +510,7 @@ GuessX0 <- function(
   }
 }
 
-#' @importFrom PCMBase is.Global PCMTreeGetTipsInRegime PCM PCMDefaultModelTypes PCMVar PCMTreeGetTipsInRegime
+#' @importFrom PCMBase is.Global PCMTreeGetTipsInRegime PCM PCMDefaultModelTypes PCMVar PCMTreeGetTipsInRegime UpperChol PCMTreeVCV
 GuessSigma_x <- function(
   o, regimes,
   X = NULL,
@@ -518,21 +520,17 @@ GuessSigma_x <- function(
   ...) {
 
   Sigma_x <- SDSigma_x <- o$Sigma_x
+  argsExtra <- list(...)
 
   if(!(is.null(Sigma_x) || is.Fixed(Sigma_x)) && !is.null(X) && !is.null(tree) ) {
 
     rootDists <- PCMTreeNodeTimes(tree, tipsOnly = TRUE)
 
-    # We use this model to build a phylogenetic variance covariance matrix of
-    # the tree. This is a matrix in which element (i,j) is equal to the shared
-    # root-distance of the nodes i and j.
-    modelCov <- PCM(
-      model = PCMDefaultModelTypes()["A"], regimes = PCMRegimes(tree), k = 1L)
-
-    modelCov$Sigma_x[] <- 1.0
-
-    # Phylogenetic variance covariance matrix
-    CovMat <- PCMVar(tree, modelCov, internal = FALSE)
+    if(!is.null(argsExtra$treeVCVMat)) {
+      treeVCVMat <- argsExtra$treeVCVMat
+    } else {
+      treeVCVMat <- PCMTreeVCV(tree)
+    }
 
     CalculateRateMatrixBM <- function(X, C, rootDists) {
       N <- ncol(X)
@@ -546,16 +544,27 @@ GuessSigma_x <- function(
       BetaHat <- solve(t(D) %*% Cinv %*% D) %*% t(D) %*% Cinv %*% Y
       # rate matrix
       R <- t(Y - D%*%BetaHat) %*% Cinv %*% (Y - D%*%BetaHat) / N
-      chol(R)
+      if(getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
+        chol(R)
+      } else {
+        UpperChol(R)
+      }
     }
+
+    NMax <- getOption("PCMBase.MaxNForGuessSigma_x", 1000L)
 
     if(is.Global(Sigma_x)) {
       # Sigma_x has a global scope for the entire tree
       tipsNA <- apply(X, 2, function(x) any(is.na(x)))
       idxTips <- seq_len(PCMTreeNumTips(tree))[!tipsNA]
+
+      if(length(idxTips) > NMax) {
+        idxTips <- sample(idxTips, size = NMax)
+      }
+
       Sigma_x[] <- CalculateRateMatrixBM(
         X[, idxTips, drop=FALSE],
-        CovMat[idxTips, idxTips, drop = FALSE],
+        treeVCVMat[idxTips, idxTips, drop = FALSE],
         rootDists[idxTips])
       SDSigma_x[,] <- sqrt(abs(Sigma_x[,]) * 0.01)
     } else {
@@ -568,9 +577,13 @@ GuessSigma_x <- function(
           X[, tipsInRegime, drop=FALSE], 2, function(x) any(is.na(x)))
         tipsInRegime <- tipsInRegime[!tipsNA]
 
+        if(length(tipsInRegime) > NMax) {
+          tipsInRegime <- sample(tipsInRegime, size = NMax)
+        }
+
         Sigma_x[,, r] <- CalculateRateMatrixBM(
           X[, tipsInRegime, drop=FALSE],
-          CovMat[tipsInRegime, tipsInRegime, drop = FALSE],
+          treeVCVMat[tipsInRegime, tipsInRegime, drop = FALSE],
           rootDists[tipsInRegime])
 
         SDSigma_x[,, r] <- sqrt(abs(Sigma_x[,, r]) * 0.01)
@@ -706,17 +719,17 @@ GuessParameters <- function(
 
   for(name in paramNames) {
     if(name == "X0") {
-      P <- GuessX0(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+      P <- GuessX0(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc, ...)
     } else if(name == "Sigma_x") {
-      P <- GuessSigma_x(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+      P <- GuessSigma_x(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc, ...)
     } else if(name == "Sigmae_x") {
-      P <- GuessSigmae_x(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+      P <- GuessSigmae_x(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc, ...)
     } else if(name == "Theta") {
-      P <- GuessTheta(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+      P <- GuessTheta(o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc, ...)
     } else {
       P <- GuessDefault(
         name, paramDefaultValues[[name]], paramSDValues[[name]],
-        o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc)
+        o = o, regimes = regimes, X = X, tree = tree, SE = SE, tableAnc = tableAnc, ...)
     }
 
     if(length(P$mean) > 0L) {

@@ -1,6 +1,7 @@
 #' @importFrom utils tail
 PCMFitModelMappingsToCladePartitions <- function(
   X, tree, modelTypes,
+  treeVCVMat = NULL,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree)),
 
   scoreFun = AIC,
@@ -263,14 +264,14 @@ PCMFitModelMappingsToCladePartitions <- function(
                 n = 1L,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
-                X = X, tree = tree, SE = SE,
+                X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
                 varyParams = FALSE)
               matParInitGuessVaryParams <- GuessInitVecParams(
                 o = modelForFit,
                 n = argsConfigOptim$numGuessInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
-                X = X, tree = tree, SE = SE,
+                X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
                 varyParams = TRUE)
 
               matParInit <- rbind(matParInitRunif,
@@ -305,14 +306,14 @@ PCMFitModelMappingsToCladePartitions <- function(
                 n = 1L,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
-                X = X, tree = tree, SE = SE,
+                X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
                 varyParams = FALSE)
               matParInitGuessVaryParams <- GuessInitVecParams(
                 o = modelForFit,
                 n = argsConfigOptim$numGuessInitVecParams,
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
-                X = X, tree = tree, SE = SE,
+                X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
                 varyParams = TRUE)
               matParInitJitter <-
                 jitterModelParams(

@@ -1,5 +1,6 @@
 PCMFitRecursiveCladePartition <- function(
   X, tree, modelTypes,
+  treeVCVMat = NULL,
   SE = matrix(0.0, nrow(X), PCMTreeNumTips(tree),
               dimnames=list(NULL, as.character(1:PCMTreeNumTips(tree)))),
 
@@ -419,6 +420,7 @@ PCMFitRecursiveCladePartition <- function(
     argumentsFitsToTree$X <- X
     argumentsFitsToTree$tree <- tree
     argumentsFitsToTree$modelTypes <- modelTypes
+    argumentsFitsToTree$treeVCVMat <- treeVCVMat
     argumentsFitsToTree$SE <- SE
     argumentsFitsToTree$listPartitions = listPartitions
     argumentsFitsToTree$listAllowedModelTypesIndices =

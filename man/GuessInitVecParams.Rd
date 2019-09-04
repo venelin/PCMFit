@@ -35,7 +35,9 @@ vectors should be within the lower and upper bound of the model.}
 \item{res}{an n x p matrix where p is the number of parameters in o.
 Internal use only.}
 
-\item{...}{additional arguments passed to implementations.}
+\item{...}{additional arguments passed to implementations. Currently an
+N x N matrix argument named treeVCVMat can be passed which is equal to the
+phylogenetic covariance matrix for tree.}
 
 \item{k}{integer denoting the number of traits in o.
 Default: \code{PCMNumTraits(o)}.}
