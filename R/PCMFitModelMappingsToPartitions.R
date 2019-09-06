@@ -265,14 +265,22 @@ PCMFitModelMappingsToCladePartitions <- function(
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
                 X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
+                tableAnc = tableAncestorsTree,
                 varyParams = FALSE)
-              matParInitGuessVaryParams <- GuessInitVecParams(
-                o = modelForFit,
-                n = argsConfigOptim$numGuessInitVecParams,
-                argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
-                argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
-                X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
-                varyParams = TRUE)
+              matParInitGuessVaryParams <- do.call(
+                rbind, lapply(
+                  seq_len(argsConfigOptim$numGuessInitVecParams / 100),
+                  function(i) {
+                    GuessInitVecParams(
+                      o = modelForFit,
+                      n = 100,
+                      argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                      argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
+                      X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
+                      tableAnc = tableAncestorsTree,
+                      varyParams = TRUE)
+                  }))
+
 
               matParInit <- rbind(matParInitRunif,
                                   matParInitGuess,
@@ -307,14 +315,21 @@ PCMFitModelMappingsToCladePartitions <- function(
                 argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                 argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
                 X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
+                tableAnc = tableAncestorsTree,
                 varyParams = FALSE)
-              matParInitGuessVaryParams <- GuessInitVecParams(
-                o = modelForFit,
-                n = argsConfigOptim$numGuessInitVecParams,
-                argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
-                argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
-                X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
-                varyParams = TRUE)
+              matParInitGuessVaryParams <- do.call(
+                rbind, lapply(
+                  seq_len(argsConfigOptim$numGuessInitVecParams / 100),
+                  function(i) {
+                    GuessInitVecParams(
+                      o = modelForFit,
+                      n = 100,
+                      argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
+                      argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,
+                      X = X, tree = tree, treeVCVMat = treeVCVMat, SE = SE,
+                      tableAnc = tableAncestorsTree,
+                      varyParams = TRUE)
+                  }))
               matParInitJitter <-
                 jitterModelParams(
                   modelForFit,

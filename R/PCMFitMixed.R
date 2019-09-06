@@ -16,7 +16,7 @@
 #'
 #' @importFrom foreach foreach when %do% %dopar% %:%
 #' @importFrom data.table data.table rbindlist is.data.table setkey :=
-#' @importFrom PCMBase PCMTree PCMTreeSetLabels PCMTreeSetPartition PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable PCMTreeVCV
+#' @importFrom PCMBase PCMTree PCMTreeSetLabels PCMTreeSetPartition PCMTreeEvalNestedEDxOnTree PCMTreeNumTips PCMTreeListCladePartitions PCMTreeListAllPartitions PCMTreeToString MixedGaussian PCMOptions PCMTreeTableAncestors PCMTreeSplitAtNode PCMGetVecParamsRegimesAndModels MGPMDefaultModelTypes PCMGenerateModelTypes is.Transformable PCMTreeVCV Args_MixedGaussian_MGPMDefaultModelTypes PCMTreeMatchLabels PCMTreePreorder
 #' @importFrom stats logLik coef AIC
 #' @return an S3 object of class PCMFitModelMappings.
 #'
@@ -71,6 +71,8 @@ PCMFitMixed <- function(
   verbose = TRUE,
   debug = FALSE
 ) {
+
+  # Prevent no visible binding warnings:
 
   if( !is.null(listPartitions) ) {
     maxCladePartitionLevel = 1L

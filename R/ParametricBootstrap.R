@@ -36,7 +36,7 @@ CollectBootstrapResults <- function(
       }))
 }
 
-#' @importFrom PCMBase TruePositiveRate FalsePositiveRate PCMTreeDtNodes PCMTreeSetLabels PCMMean PCMVar PCMTreeNearestNodesToEpoch PCMTreeGetPartsForNodes PCMTreeGetLabels PCMNumTraits PCMTreeGetPartNames
+#' @importFrom PCMBase TruePositiveRate FalsePositiveRate PCMTreeDtNodes PCMTreeSetLabels PCMMean PCMVar PCMTreeNearestNodesToEpoch PCMTreeGetPartsForNodes PCMTreeGetLabels PCMNumTraits PCMTreeGetPartNames PCMTreeMatrixNodesInSamePart
 CollectBootstrapResultInternal <- function(
   id,
   resultFile,
@@ -46,6 +46,9 @@ CollectBootstrapResultInternal <- function(
   newNodeLabelsInBsInferredTree = NULL,
   minLength = 0.2,
   verbose = FALSE) {
+
+  # Prevent check problems by creating variables with no visible binding:
+  median <- mapping <- regime <- endNode <- SEs <- fitMappings <- NULL
 
   if(file.exists(resultFile)) {
     # this should load an object called fitMappings
@@ -268,6 +271,9 @@ ExtractTimeSeriesForTraitValue <- function(
   traitIndex = 1L,
   traitName = paste0("Trait_", traitIndex)) {
 
+  # prevent no visible binding warnings during check:
+  timeInterval <- timeNode <- partFinal <- NULL
+
   if(is.null(backboneTree)) {
     tree <- attr(model, "tree")
     if(is.null(tree)) {
@@ -343,6 +349,8 @@ ExtractTimeSeriesForTraitRegression <- function(
   traitNameX = paste0("Trait_", traitIndexX),
   traitNameY = paste0("Trait_", traitIndexY) ) {
 
+  # prevent no visible binding warnings during check:
+  timeInterval <- timeNode <- partFinal <- NULL
   if(is.null(backboneTree)) {
     tree <- attr(model, "tree")
     if(is.null(tree)) {
@@ -426,6 +434,11 @@ ExtractBSDataForTraitValue <- function(
   traitIndex = 1L,
   traitName = paste0("Trait_", traitIndex)
 ) {
+
+  # Prevent no visible binding warnings during check.
+  listStatsForEpochs <- Id <- quantile <- timeInterval <- timeNode <-
+    partFinal <- NULL
+
   mI <- PCMInfo(X = NULL, tree = inferredBackboneTree, model = inferredModel)
   inferredMeans <- PCMMean(
     inferredBackboneTree, inferredModel, metaI = mI, internal = TRUE)
@@ -522,6 +535,10 @@ ExtractBSDataForTraitRegression <- function(
   traitIndexY = 2L,
   traitNameX = paste0("Trait_", traitIndexX),
   traitNameY = paste0("Trait_", traitIndexY) ) {
+
+  # prevent no visible binding warnings during check
+  quantile <- Id <- timeInterval <- timeNode <- partFinal <-
+    listStatsForEpochs <- NULL
 
   nodeTimesBackbone <-
     structure(PCMTreeNodeTimes(inferredBackboneTree),
@@ -671,6 +688,10 @@ ExtractBSDataModelTypeFreqs <- function(
   epochs,
   inferredBackboneTree) {
 
+  # prevent no visible binding warnings during check:
+  mapping <- regime <- endNodeLab <- listStatsForEpochs <- Id <-
+    timeInterval <- timeNode <- partFinal <- startTime <- endTime <- NULL
+
   nodeTimesBackbone <-
     structure(PCMTreeNodeTimes(inferredBackboneTree),
               names = PCMTreeGetLabels(inferredBackboneTree))
@@ -749,6 +770,9 @@ ExtractBSDataTprWithinParts <- function(
   epochs,
   inferredBackboneTree) {
 
+  # prevent no visible binding warnings during check:
+  listStatsForEpochs <- Id <- timeInterval <- timeNode <- partFinal <- NULL
+
   nodeTimesBackbone <-
     structure(PCMTreeNodeTimes(inferredBackboneTree),
               names = PCMTreeGetLabels(inferredBackboneTree))
@@ -808,6 +832,8 @@ ExtractBSDataTprFprGlobal <- function(
   inferredBackboneTree,
   epochs) {
 
+  # prevent no visible binding warnings during check:
+  listStatsForEpochs <- Id <- startTime <- endTime <- NULL
 
   dtNodesBackboneTree <- PCMTreeDtNodes(inferredBackboneTree)
   res <- rbindlist(lapply(epochs, function(epoch) {

@@ -115,7 +115,7 @@
 #' # likelihood at completely random parameter values
 #' vecRand <- PCMParamRandomVecParams(modelBM.ab.Guess, k = 2, R = 2)
 #' likFunBM(vecRand)
-#' @importFrom PCMBase PCMLik
+#' @importFrom PCMBase PCMLik PCMNumRegimes PCMRegimes
 #' @export
 GuessInitVecParams <- function(
   o, regimes = as.character(PCMRegimes(o)), oParent = o, accessExpr = "",
@@ -424,6 +424,7 @@ EnforceBounds <- function(vecs, lowerVecParams, upperVecParams) {
   vecs
 }
 
+#' @importFrom PCMBase PCMTreeGetDaughters PCMTreeGetTipsInPart
 GuessX0 <- function(
   o, regimes,
   X = NULL,
@@ -551,16 +552,30 @@ GuessSigma_x <- function(
       }
     }
 
-    NMax <- getOption("PCMBase.MaxNForGuessSigma_x", 1000L)
+    SampleTips <- function(vecTips) {
+      NMax <- getOption("PCMBase.MaxNForGuessSigma_x", 0.25)
+      if(NMax <= 1) {
+        # NMax is specified as a fraction of the number of tips
+        sampSize <- NMax * length(vecTips)
+        if(sampSize < 20 && length(vecTips) > 20) {
+          # forcefully prevent using too few tips for the guess
+          sampSize <- 20
+        } else if(sampSize > 1000) {
+          # forcefully prevent inverting to big matrices
+          sampSize <- 1000
+        }
+        vecTips <- sample(vecTips, size = as.integer(sampSize))
+      } else if(length(vecTips) > NMax) {
+        vecTips <- sample(vecTips, size = NMax)
+      }
+    }
 
     if(is.Global(Sigma_x)) {
       # Sigma_x has a global scope for the entire tree
       tipsNA <- apply(X, 2, function(x) any(is.na(x)))
       idxTips <- seq_len(PCMTreeNumTips(tree))[!tipsNA]
 
-      if(length(idxTips) > NMax) {
-        idxTips <- sample(idxTips, size = NMax)
-      }
+      idxTips <- SampleTips(idxTips)
 
       Sigma_x[] <- CalculateRateMatrixBM(
         X[, idxTips, drop=FALSE],
@@ -577,9 +592,7 @@ GuessSigma_x <- function(
           X[, tipsInRegime, drop=FALSE], 2, function(x) any(is.na(x)))
         tipsInRegime <- tipsInRegime[!tipsNA]
 
-        if(length(tipsInRegime) > NMax) {
-          tipsInRegime <- sample(tipsInRegime, size = NMax)
-        }
+        tipsInRegime <- SampleTips(tipsInRegime)
 
         Sigma_x[,, r] <- CalculateRateMatrixBM(
           X[, tipsInRegime, drop=FALSE],
