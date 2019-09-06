@@ -568,6 +568,7 @@ GuessSigma_x <- function(
       } else if(length(vecTips) > NMax) {
         vecTips <- sample(vecTips, size = NMax)
       }
+      vecTips
     }
 
     if(is.Global(Sigma_x)) {
