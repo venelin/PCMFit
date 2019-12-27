@@ -89,7 +89,7 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
     print(mapping)
     cat("allowedModelTypesIndices: \n")
     print(allowedModelTypesIndices)
-    stop(paste0("ERR:04130:PCMFit:PCMFit.R:PCMNextMapping2:: mapping and allowedModelTypesIndices should
+    stop(paste0("PCMNextMapping2:: mapping and allowedModelTypesIndices should
                 be the same length, ", R, "."))
   }
 

@@ -527,14 +527,14 @@ ExtractBSDataForTraitValue <- function(
 
 #' @export
 ExtractBSDataForTraitRegression <- function(
-  tableBSFits,
+  inferredBackboneTree,
   inferredModel,
   epochs,
-  inferredBackboneTree,
   traitIndexX = 1L,
   traitIndexY = 2L,
   traitNameX = paste0("Trait_", traitIndexX),
-  traitNameY = paste0("Trait_", traitIndexY) ) {
+  traitNameY = paste0("Trait_", traitIndexY),
+  tableBSFits = NULL) {
 
   # prevent no visible binding warnings during check
   quantile <- Id <- timeInterval <- timeNode <- partFinal <-
@@ -568,51 +568,7 @@ ExtractBSDataForTraitRegression <- function(
         slope <- Sigma[traitIndexX, traitIndexY] / Sigma[traitIndexX, traitIndexX]
         intercept <- mu[traitIndexY] - mu[traitIndexX]*slope
 
-        bsSlopes <- tableBSFits[
-          ,
-          sapply(.I, function(i) {
-            if( !is.null(listStatsForEpochs[[i]]) ) {
-              matrixSlopes <- matrix(NA_real_, k, k)
-
-              bsSlopeVals <-
-                listStatsForEpochs[[i]][[as.character(epoch)]]$
-                statsForBackboneNodes[[nodeAtEpochLab]]$slopeMean
-
-              if(sum(upper.tri(matrixSlopes)) == length(bsSlopeVals)) {
-                matrixSlopes[upper.tri(matrixSlopes)] <- bsSlopeVals
-              }
-
-              matrixSlopes[traitIndexX, traitIndexY]
-            } else {
-              NA_real_
-            }
-          })]
-
-        quantileBsSlopes <- quantile(
-          bsSlopes, probs = c(0, 0.025, 0.25, 0.5, 0.75, 0.975, 1),  na.rm = TRUE)
-
-        bsIntercepts <- tableBSFits[
-          ,
-          sapply(.I, function(i) {
-            if( !is.null(listStatsForEpochs[[i]]) ) {
-              matrixIntercepts <- matrix(NA_real_, k, k)
-              bsIntercVals <- listStatsForEpochs[[i]][[as.character(epoch)]]$
-                statsForBackboneNodes[[nodeAtEpochLab]]$interceptMean
-              if(sum(upper.tri(matrixIntercepts)) == length(bsIntercVals)) {
-                matrixIntercepts[upper.tri(matrixIntercepts)] <- bsIntercVals
-              }
-              matrixIntercepts[traitIndexX, traitIndexY]
-            } else {
-              NA_real_
-            }
-          })]
-
-        quantileBsIntercepts <- quantile(
-          bsIntercepts, probs = c(0, 0.025, 0.25, 0.5, 0.75, 0.975, 1),  na.rm = TRUE)
-
-        bsIds <- tableBSFits[, Id]
-
-        data.table(
+        resTable <- data.table(
           partFinal = part,
           regimeFinal = PCMTreeGetPartRegimes(treeBackbonePart)[part],
           node = nodeAtEpoch, nodeLab = nodeAtEpochLab,
@@ -622,51 +578,102 @@ ExtractBSDataForTraitRegression <- function(
           timeNode = nodeTimesBackbone[nodeAtEpochLab],
 
           slope = slope,
-          intercept = intercept,
+          intercept = intercept)
 
-          bs.slope.0 = quantileBsSlopes["0%"],
-          bs.slope.025 = quantileBsSlopes["2.5%"],
-          bs.slope.25 = quantileBsSlopes["25%"],
-          bs.slope.5 = quantileBsSlopes["50%"],
-          bs.slope.75 = quantileBsSlopes["75%"],
-          bs.slope.975 = quantileBsSlopes["97.5%"],
-          bs.slope1 = quantileBsSlopes["100%"],
-          bs.SlopeValues = list(bsSlopes),
+        if(!is.null(tableBSFits)) {
+          bsSlopes <- tableBSFits[
+            ,
+            sapply(.I, function(i) {
+              if( !is.null(listStatsForEpochs[[i]]) ) {
+                matrixSlopes <- matrix(NA_real_, k, k)
 
-          bs.intercept.0 = quantileBsIntercepts["0%"],
-          bs.intercept.025 = quantileBsIntercepts["2.5%"],
-          bs.intercept.25 = quantileBsIntercepts["25%"],
-          bs.intercept.5 = quantileBsIntercepts["50%"],
-          bs.intercept.75 = quantileBsIntercepts["75%"],
-          bs.intercept.975 = quantileBsIntercepts["97.5%"],
-          bs.intercept1 = quantileBsIntercepts["100%"],
-          bs.InterceptValues = list(bsIntercepts),
+                bsSlopeVals <-
+                  listStatsForEpochs[[i]][[as.character(epoch)]]$
+                  statsForBackboneNodes[[nodeAtEpochLab]]$slopeMean
 
-          bs.Ids = list(bsIds) )
+                if(sum(upper.tri(matrixSlopes)) == length(bsSlopeVals)) {
+                  matrixSlopes[upper.tri(matrixSlopes)] <- bsSlopeVals
+                }
+
+                matrixSlopes[traitIndexX, traitIndexY]
+              } else {
+                NA_real_
+              }
+            })]
+
+          quantileBsSlopes <- quantile(
+            bsSlopes, probs = c(0, 0.025, 0.25, 0.5, 0.75, 0.975, 1),  na.rm = TRUE)
+
+          bsIntercepts <- tableBSFits[
+            ,
+            sapply(.I, function(i) {
+              if( !is.null(listStatsForEpochs[[i]]) ) {
+                matrixIntercepts <- matrix(NA_real_, k, k)
+                bsIntercVals <- listStatsForEpochs[[i]][[as.character(epoch)]]$
+                  statsForBackboneNodes[[nodeAtEpochLab]]$interceptMean
+                if(sum(upper.tri(matrixIntercepts)) == length(bsIntercVals)) {
+                  matrixIntercepts[upper.tri(matrixIntercepts)] <- bsIntercVals
+                }
+                matrixIntercepts[traitIndexX, traitIndexY]
+              } else {
+                NA_real_
+              }
+            })]
+
+          quantileBsIntercepts <- quantile(
+            bsIntercepts, probs = c(0, 0.025, 0.25, 0.5, 0.75, 0.975, 1),  na.rm = TRUE)
+
+          bsIds <- tableBSFits[, Id]
+
+          resTable <- cbind(resTable, data.table(
+            bs.slope.0 = quantileBsSlopes["0%"],
+            bs.slope.025 = quantileBsSlopes["2.5%"],
+            bs.slope.25 = quantileBsSlopes["25%"],
+            bs.slope.5 = quantileBsSlopes["50%"],
+            bs.slope.75 = quantileBsSlopes["75%"],
+            bs.slope.975 = quantileBsSlopes["97.5%"],
+            bs.slope1 = quantileBsSlopes["100%"],
+            bs.SlopeValues = list(bsSlopes),
+
+            bs.intercept.0 = quantileBsIntercepts["0%"],
+            bs.intercept.025 = quantileBsIntercepts["2.5%"],
+            bs.intercept.25 = quantileBsIntercepts["25%"],
+            bs.intercept.5 = quantileBsIntercepts["50%"],
+            bs.intercept.75 = quantileBsIntercepts["75%"],
+            bs.intercept.975 = quantileBsIntercepts["97.5%"],
+            bs.intercept1 = quantileBsIntercepts["100%"],
+            bs.InterceptValues = list(bsIntercepts),
+
+            bs.Ids = list(bsIds) ))
+        }
+        resTable
 
       }))
     }))
 
-  columnNamesWithoutTraitName <-
-    c("slope",
-      "intercept",
-      "bs.slope.0",
-      "bs.slope.025",
-      "bs.slope.25",
-      "bs.slope.5",
-      "bs.slope.75",
-      "bs.slope.975",
-      "bs.slope1",
-      "bs.SlopeValues",
-      "bs.intercept.0",
-      "bs.intercept.025",
-      "bs.intercept.25",
-      "bs.intercept.5",
-      "bs.intercept.75",
-      "bs.intercept.975",
-      "bs.intercept1",
-      "bs.InterceptValues",
-      "bs.Ids" )
+  columnNamesWithoutTraitName <- c("slope",
+                                   "intercept")
+
+  if(!is.null(tableBSFits)) {
+    c(columnNamesWithoutTraitName,
+      c("bs.slope.0",
+        "bs.slope.025",
+        "bs.slope.25",
+        "bs.slope.5",
+        "bs.slope.75",
+        "bs.slope.975",
+        "bs.slope1",
+        "bs.SlopeValues",
+        "bs.intercept.0",
+        "bs.intercept.025",
+        "bs.intercept.25",
+        "bs.intercept.5",
+        "bs.intercept.75",
+        "bs.intercept.975",
+        "bs.intercept1",
+        "bs.InterceptValues",
+        "bs.Ids" ))
+  }
 
   setnames(
     res,

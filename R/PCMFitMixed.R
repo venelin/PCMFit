@@ -279,6 +279,10 @@ PCMFitMixed <- function(
     # update tableFits with the entries in fitsToTree
     tableFits <- UpdateTableFits(tableFits, fitsToTree)
 
+    # prevent 'no visible binding notes'
+    score <- hashCodeStartingNodesRegimesLabels <-
+      startingNodesRegimesLabels <- mapping <- df <- oldScore <- NULL
+
     # A table with the best fit for each of the top
     # maxNumPartitionsInRoundRobins partitions in resultStep2$fitsToTree
     tableFitsRRInit <- fitsToTree[

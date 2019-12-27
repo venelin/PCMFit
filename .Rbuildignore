@@ -5,3 +5,5 @@
 ^tests/testthat/.*.RData
 ^tests/testthat/.*.txt
 ^vignettes/.*.pdf
+^docs
+^_pkgdown.yml

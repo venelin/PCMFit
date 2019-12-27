@@ -17,11 +17,35 @@ GuessInitVecParams(o, regimes = as.character(PCMRegimes(o)),
 \arguments{
 \item{o}{a PCM model object.}
 
+\item{regimes}{a vector of character strings denoting regimes in \code{o},
+for which parameters must be guessed. This argument has special usage in
+S3 methods and should be left to its default setting (\code{PCMRegimes(o)}).}
+
+\item{oParent}{a PCM model object. This argument has special usage in
+S3 methods and should be left to its default setting (\code{o}).}
+
+\item{accessExpr}{a character string. This argument has special usage in
+S3 methods and should be left to its default setting (\code{""}).}
+
 \item{n}{integer denoting the number of parameter vectors to generate.}
 
 \item{argsPCMParamLowerLimit, argsPCMParamUpperLimit}{lists of parameters
 passed to \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}
 respectively. (see the argument \code{returnWithinBoundsOnly}).}
+
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
+These two values have are treated differently when calculating
+likelihoods: see \code{\link{PCMPresentCoordinates}}.}
+
+\item{tree}{a phylo object with N tips.}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{tableAnc}{an ancestor table for tree. Default \code{NULL}.}
 
@@ -38,9 +62,6 @@ Internal use only.}
 \item{...}{additional arguments passed to implementations. Currently an
 N x N matrix argument named treeVCVMat can be passed which is equal to the
 phylogenetic covariance matrix for tree.}
-
-\item{k}{integer denoting the number of traits in o.
-Default: \code{PCMNumTraits(o)}.}
 }
 \value{
 an n x p matrix where p is the number of parameters in o.

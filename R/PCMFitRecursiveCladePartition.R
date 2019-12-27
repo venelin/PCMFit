@@ -68,6 +68,14 @@ PCMFitRecursiveCladePartition <- function(
 
   treeRootInt <- PCMTreeNumTips(tree) + 1
   treeRootLabel <- nodeLabelsTree[treeRootInt]
+
+  # prevent 'no visible binding notes'
+  startingNodesRegimesLabels <- hashCodeTree <- score <-
+    hashCodeStartingNodesRegimesLabels <- hashCodeMapping <- node <- level <-
+    hashCodeBestPartitionLevel <- hashCodeBestMappingLevel <- mapping <-
+    partitionParentNode <- hashCodeBestPartitionInitial <-
+    hashCodeBestMappingInitial <- NULL
+
   hashCodeEntireTree <- tableFits[
     sapply(startingNodesRegimesLabels, length) == 1 &
       sapply(startingNodesRegimesLabels,
@@ -281,6 +289,9 @@ PCMFitRecursiveCladePartition <- function(
         # TODO return NULL if partNodes has nodes to be skipped
         PCMTreeSetPartition(tree, partNodes)
         partNodes2 <- PCMTreeGetPartition(tree)
+
+        # Prevent 'no visible binding' notes
+        edge2 <- regime <- node <- N <- NULL
 
         dtTipsPerRegime <- data.table(
           regime = PCMTreeGetPartRegimes(tree)[PCMTreeGetPartsForNodes(

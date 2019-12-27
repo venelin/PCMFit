@@ -1,8 +1,14 @@
 #' A heuristic-based guess of the optimal parameters of a model
 #'
+#' @inheritParams PCMBase::PCMLik
 #' @param o a PCM model object.
-#' @param k integer denoting the number of traits in o.
-#' Default: \code{PCMNumTraits(o)}.
+#' @param regimes a vector of character strings denoting regimes in \code{o},
+#' for which parameters must be guessed. This argument has special usage in
+#' S3 methods and should be left to its default setting (\code{PCMRegimes(o)}).
+#' @param oParent a PCM model object. This argument has special usage in
+#' S3 methods and should be left to its default setting (\code{o}).
+#' @param accessExpr a character string. This argument has special usage in
+#' S3 methods and should be left to its default setting (\code{""}).
 #' @param n integer denoting the number of parameter vectors to generate.
 #' @param argsPCMParamLowerLimit,argsPCMParamUpperLimit lists of parameters
 #' passed to \code{PCMParamLowerLimit} and \code{PCMParamUpperLimit}
@@ -511,7 +517,7 @@ GuessX0 <- function(
   }
 }
 
-#' @importFrom PCMBase is.Global PCMTreeGetTipsInRegime PCM PCMDefaultModelTypes PCMVar PCMTreeGetTipsInRegime UpperChol PCMTreeVCV
+#' @importFrom PCMBase is.Global PCMTreeGetTipsInRegime PCM PCMDefaultModelTypes PCMVar PCMTreeGetTipsInRegime UpperTriFactor PCMTreeVCV
 GuessSigma_x <- function(
   o, regimes,
   X = NULL,
@@ -548,7 +554,7 @@ GuessSigma_x <- function(
       if(getOption("PCMBase.Transpose.Sigma_x", FALSE)) {
         chol(R)
       } else {
-        UpperChol(R)
+        UpperTriFactor(R)
       }
     }
 
@@ -608,6 +614,7 @@ GuessSigma_x <- function(
   list(mean = as.vector(Sigma_x), sd = as.vector(SDSigma_x))
 }
 
+#' @importFrom stats sd
 GuessSigmae_x <- function(
   o, regimes,
   X = NULL,

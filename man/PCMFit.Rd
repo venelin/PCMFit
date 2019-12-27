@@ -17,7 +17,7 @@ PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
 column of X contains the measured trait values for one species (tip in tree).
 Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-Thse two values have are treated differently when calculating
+These two values have are treated differently when calculating
 likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 
 \item{tree}{a phylo object with N tips.}
@@ -28,7 +28,7 @@ calculated (see also Details).}
 
 \item{SE}{a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Cholesky factor of the variance covariance matrix for the measurement error
+factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 

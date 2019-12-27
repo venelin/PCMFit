@@ -146,6 +146,9 @@ PCMFit <- function(
     globalFuns <- unname(unlist(
       sapply(ls(.GlobalEnv), function(n) if(is.function(.GlobalEnv[[n]])) n else NULL)))
 
+    # prevent 'no visible binding' warning
+    is <- NULL
+
     valParInitOptim <- foreach(
       is = chunk(seq_len(nrow(matParInit)), 8L),
       .combine = c,
@@ -312,7 +315,6 @@ memoiseMax <- function(f, par, memo, verbose) {
 #' printed on the console during the run.
 #'
 #' @return a named list
-#' @seealso \code{\link{configOptim}}.
 #'
 #' @importFrom stats optim
 #' @importFrom foreach foreach %do% %dopar%
@@ -325,6 +327,9 @@ runOptim <- function(
   control = NULL,
   doParallel = FALSE,
   verbose = TRUE) {
+
+  # prevent 'no visible binding' notes
+  iOptimTry <- NULL
 
   res <- list(Optim = NULL)
   class(res) <- "ResultOptim"
@@ -352,6 +357,7 @@ runOptim <- function(
 
   globalFuns <- unname(unlist(
     sapply(ls(.GlobalEnv), function(n) if(is.function(.GlobalEnv[[n]])) n else NULL)))
+
 
   listCallsOptim <- foreach(iOptimTry = seq_len(nrow(matParInit)),
                             .export = globalFuns) %op% {

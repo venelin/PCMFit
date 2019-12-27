@@ -1,3 +1,6 @@
+# an environmen.
+cacheEnv <- new.env()
+
 #' @importFrom utils tail
 PCMFitModelMappingsToCladePartitions <- function(
   X, tree, modelTypes,
@@ -99,6 +102,9 @@ PCMFitModelMappingsToCladePartitions <- function(
     }
   }
 
+  cladePartition <- iCladePartition <- hintModel <-
+    namesInHintModel <- EDExpression <- tableAncestorsTree <- NULL
+
   fits <-
     foreach(
       cladePartition = listPartitions,
@@ -151,16 +157,18 @@ PCMFitModelMappingsToCladePartitions <- function(
       .packages = (.packages()) ) %op% {
         try({
           # recreate tableAncestors under a different name, to avoid exporting a
-          # potentially big tableAncestors
-          if(!exists("tableAncestorsTree", .GlobalEnv)) {
+          # potentially big tableAncestors object
+          if(!exists("tableAncestorsTree", cacheEnv)) {
             if(verbose) {
-              cat("Creating tableAncestorsTree in .GlobalEnv during tree-fits\n")
+              cat("Creating tableAncestorsTree to be used during fits\n")
             }
             assign("tableAncestorsTree",
-                   PCMTreeTableAncestors(tree, preorderTree), .GlobalEnv)
+                   PCMTreeTableAncestors(tree, preorderTree), cacheEnv)
           }
 
-          if(!exists("generatedPCMModels", .GlobalEnv) &&
+          tableAncestorsTree <- get("tableAncestorsTree", envir = cacheEnv)
+
+          if(!exists("generatedPCMModels", cacheEnv) &&
              !is.null(generatePCMModelsFun)) {
             if(verbose) {
               cat("Calling generatePCMModelsFun()...\n")
@@ -168,7 +176,7 @@ PCMFitModelMappingsToCladePartitions <- function(
             # this should generate PCMParentClasses and PCMSpecify functions
             # for all models in modelTypes
             generatePCMModelsFun()
-            assign("generatedPCMModels", TRUE, .GlobalEnv)
+            assign("generatedPCMModels", TRUE, cacheEnv)
           }
 
           # don't want the names in modelMapping, the positions correspond to
@@ -372,6 +380,10 @@ PCMFitModelMappingsToCladePartitions <- function(
               df = attr(ll, "df"),
               nobs = attr(ll, "nobs"),
               score = v_score)
+
+            # prevent 'no visible binding' notes
+            hashCodeTree <- hashCodeStartingNodesRegimesLabels <-
+              hashCodeMapping <- NULL
 
             dt.row <- data.table(
               hashCodeTree = hashCodes$hashCodeTree,

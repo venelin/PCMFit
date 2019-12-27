@@ -246,6 +246,10 @@ InitTableFits <- function(
   modelTypesInTableFitsPrev = NULL,
   verbose = FALSE) {
 
+  # prevent 'no visible binding' notes
+  hashCodeTree <- hashCodeStartingNodesRegimesLabels <-
+    hashCodeMapping <- NULL
+
   tableFits <- tableFitsPrev
 
   if(!is.null(fitMappingsPrev)) {
@@ -286,6 +290,11 @@ InitTableFits <- function(
 #' @importFrom data.table is.data.table
 #' @export
 UpdateTableFits <- function(tableFits, newFits) {
+
+  # prevent 'no visible binding' notes
+  score <- hashCodeTree <- hashCodeStartingNodesRegimesLabels <-
+    hashCodeMapping <- NULL
+
   if(!is.data.table(newFits) && !is.data.table(tableFits)) {
     stop("Both newFits and tableFits are not data.table objects!")
   } else if(!is.data.table(newFits)) {
@@ -333,6 +342,10 @@ RetrieveFittedModelsFromFitVectors <- function(
   SE = fitMappings$SE,
 
   setAttributes = FALSE) {
+
+  # prevent 'no visible binding' notes
+  fittedModel <- fitVector <- treeEDExpression <-
+    startingNodesRegimesLabels <- NULL
 
   if(is.null(tableFits$score)) {
     # in previous versions the column score was named aic
@@ -426,11 +439,16 @@ RetrieveFittedModelsFromFitVectors <- function(
 #' @importFrom data.table setnames
 #' @export
 RetrieveBestFitScore <- function(fitMappings, rank = 1) {
+  # prevent 'no visible binding' notes
+  hashCodeTree <- score <- NULL
+
   if(is.null(fitMappings$tableFits$score)) {
     # the fit was produced with a previous version where the score column
     # was named aic.
     setnames(fitMappings$tableFits, old = "aic", new = "score")
   }
+
+
 
   tableFits <- RetrieveFittedModelsFromFitVectors(
     fitMappings = fitMappings,
@@ -466,6 +484,11 @@ UpdateCladeFitsUsingSubModels <- function(
   scoreFun,
   X, tree, SE,
   verbose = FALSE) {
+
+  # prevent 'no visible binding' notes
+  treeEDExpression <- mapping <- modelTypeName <- fittedModel <- fitVector <-
+    score <- hashCodeTree <- hashCodeStartingNodesRegimesLabels <-
+    hashCodeMapping <- NULL
 
   cladeFitsNew <- cladeFits[integer(0L)]
   count <- 0L
@@ -677,107 +700,4 @@ LookupFit <- function(
                         modelMapping = modelMapping )) {
   tableFits[hashCodes, , mult="first", nomatch=0]
 }
-
-
-#' @importFrom data.table data.table
-#' @export
-PlotSearchHistory <- function(
-  fit,
-  sizeGreyNodepoints = 2.2, sizeColorNodepoints = 2.2,
-  sizeBlackAllowedModelTypes = 1.4, sizeColorAllowedModelTypes = 1.4, sizeRankInQueue = 1.4,
-  vjustBlackAllowedModelTypes = -1.6, vjustColorAllowedModelTypes = -1.6,
-  ...) {
-  tree <- PCMTree(fit$tree)
-
-  treeRootInt <- PCMTreeNumTips(tree) + 1L
-  PCMTreeSetLabels(tree)
-
-  plotList <- lapply(1:length(fit$mainLoopHistory), function(i) {
-    #cat("Step ", i, "\n")
-
-    historyEntry <- fit$mainLoopHistory[[i]]
-    rootNodei <- fit$queuePartitionRoots[i, node]
-
-    PCMTreeSetPartition(tree, historyEntry$headQPR_Partition)
-
-    if(length(historyEntry$listPartitions) > 0) {
-      dtCladePartition <- data.table(node=unique(unlist(historyEntry$listPartitions)))
-      #print(dtCladePartition[, node])
-      setkey(dtCladePartition, node)
-
-      dtCladePartition[node%in%historyEntry$headQPR_Partition, selected:=TRUE]
-      dtCladePartition[!(node%in%historyEntry$headQPR_Partition), candidate:=TRUE]
-
-      # trying to reconstruct the remaining queue is hard - better to save it at runtime;
-      remainingQueuei <- fit$queuePartitionRoots[i:historyEntry$lengthQPR, list(node = as.character(node))]
-
-      remainingQueuei[, rankInQueue:=(i + .I - 1)]
-      remainingQueuei <- remainingQueuei[!is.na(node)]
-      setkey(remainingQueuei, node)
-
-
-      dtCladePartition[, allowedModelTypes:=sapply(node, function(n) {
-        iLabel <- as.integer(n)
-        # we need the if(), because PCMTreeGetPartsForNodes returns an empty
-        # vector for the root-node
-        iRegime <- if(iLabel == treeRootInt) {
-          historyEntry$headQPR_MappingIdx[1]
-        } else {
-          historyEntry$headQPR_MappingIdx[
-            PCMTreeGetPartsForNodes(tree, iLabel)]
-        }
-
-        text <- do.call(
-          paste,
-          c(as.list(LETTERS[
-            unique(c(iRegime, historyEntry$listAllowedModelTypesIndices[[n]]))]),
-            list(sep="")))
-        paste0("{",text,"}")
-      })]
-
-      dtCladePartition[
-        node%in%historyEntry$headQPR_Partition,
-        allowedModelTypesSelected:=allowedModelTypes]
-      dtCladePartition[
-        !(node%in%historyEntry$headQPR_Partition),
-        allowedModelTypesCandidate:=allowedModelTypes]
-
-      fitTablei <- RetrieveFittedModelsFromFitVectors(
-        fit,
-        LookupFit(
-          tree = tree,
-          modelTypes = fit$arguments$modelTypes,
-          modelMapping = historyEntry$headQPR_Mapping,
-          tableFits = fit$tableFits), setAttributes = TRUE)
-
-      ploti <- PCMTreePlot(tree, ...) %<+% as.data.frame(dtCladePartition) %<+% as.data.frame(remainingQueuei) +
-        geom_nodepoint(aes(shape=selected), size=sizeColorNodepoints, na.rm = TRUE) +
-        geom_nodepoint(aes(shape=candidate), size=sizeGreyNodepoints, color = "grey", na.rm = TRUE) +
-        geom_text(aes(label=allowedModelTypesSelected), size=sizeColorAllowedModelTypes, vjust=vjustColorAllowedModelTypes) +
-        geom_text(aes(label=allowedModelTypesCandidate), color = "black", size=sizeBlackAllowedModelTypes, vjust=vjustBlackAllowedModelTypes) +
-        geom_text(aes(label=rankInQueue), color="black", size=sizeRankInQueue) +
-        ggtitle(paste0("(",i,") score=", round(fitTablei$score[[1]]), ", logLik=", round(fitTablei$logLik[[1]]), ", p=", fitTablei$df[[1]]))
-
-      ploti
-    } else {
-      NULL
-    }
-  })
-  plotList
-}
-
-#' @export
-PlotTreeRegimesAndMapping <- function(tree, regimeNodes, mappingIdx = NULL) {
-  PCMTreeSetLabels(tree)
-  PCMTreeSetPartition(tree, regimeNodes)
-  pl <- PCMTreePlot(tree) #+ geom_nodelab(size = 2)
-
-  if(!is.null(mappingIdx)) {
-    dtModelMapping <- data.table(node = regimeNodes, mappedModel = LETTERS[mappingIdx])
-    pl <- pl %<+% dtModelMapping +
-      geom_text(aes(label = mappedModel), size=1.6, vjust=-1)
-  }
-  pl
-}
-
 
