@@ -156,25 +156,25 @@ PCMFitModelMappingsToCladePartitions <- function(
       .errorhandling = "pass",
       .packages = (.packages()) ) %op% {
         try({
-          if(!exists("cacheEnv")) {
-            cat("Attaching environment(PCMFit::PCMFit)\n")
-            # making the PCMFit internal objects accessible to the foreach body:
-            eval(parse(text="attach(environment(PCMFit::PCMFit))"))
-          }
+          # if(!exists("cacheEnv")) {
+          #   cat("Attaching environment(PCMFit::PCMFit)\n")
+          #   # making the PCMFit internal objects accessible to the foreach body:
+          #   eval(parse(text="attach(environment(PCMFit::PCMFit))"))
+          # }
 
           # recreate tableAncestors under a different name, to avoid exporting a
           # potentially big tableAncestors object
-          if(!exists("tableAncestorsTree", cacheEnv)) {
+          if(!exists("tableAncestorsTree", PCMFit:::cacheEnv)) {
             if(verbose) {
               cat("Creating tableAncestorsTree to be used during fits\n")
             }
             assign("tableAncestorsTree",
-                   PCMTreeTableAncestors(tree, preorderTree), cacheEnv)
+                   PCMTreeTableAncestors(tree, preorderTree), PCMFit:::cacheEnv)
           }
 
-          tableAncestorsTree <- get("tableAncestorsTree", envir = cacheEnv)
+          tableAncestorsTree <- get("tableAncestorsTree", envir = PCMFit:::cacheEnv)
 
-          if(!exists("generatedPCMModels", cacheEnv) &&
+          if(!exists("generatedPCMModels", PCMFit:::cacheEnv) &&
              !is.null(generatePCMModelsFun)) {
             if(verbose) {
               cat("Calling generatePCMModelsFun()...\n")
@@ -182,7 +182,7 @@ PCMFitModelMappingsToCladePartitions <- function(
             # this should generate PCMParentClasses and PCMSpecify functions
             # for all models in modelTypes
             generatePCMModelsFun()
-            assign("generatedPCMModels", TRUE, cacheEnv)
+            assign("generatedPCMModels", TRUE, PCMFit:::cacheEnv)
           }
 
           # don't want the names in modelMapping, the positions correspond to
@@ -221,7 +221,7 @@ PCMFitModelMappingsToCladePartitions <- function(
             XForFit <- X
             SEForFit <- SE
 
-            modelForFit <- ComposeMixedGaussianFromFits(
+            modelForFit <- PCMFit:::ComposeMixedGaussianFromFits(
               tree = treeForFit,
               startingNodesRegimes = as.integer(cladePartition),
               modelTypes = modelTypes,
@@ -415,14 +415,14 @@ PCMFitModelMappingsToCladePartitions <- function(
           }
 
           if(saveTempWorkerResults) {
-            SaveTempWorkerResults(dt.row, prefixFiles)
+            PCMFit:::SaveTempWorkerResults(dt.row, prefixFiles)
           }
           dt.row
         }, silent=FALSE)
 
       } # end of nested foreach body
 
-  CleanTemporaryFitFiles(filePrefix = prefixFiles)
+  PCMFit:::CleanTemporaryFitFiles(filePrefix = prefixFiles)
   if(is.data.table(fits)) {
     setkey(
       fits, hashCodeTree, hashCodeStartingNodesRegimesLabels, hashCodeMapping)
