@@ -81,7 +81,7 @@ dim(X)
 
 We use the `PCMBase::PCMTreePlot()` and `PCMBase::PCMPlotTraitData2D()` functions to generate plots of the tree and the data (note that `PCMBase::PCMTreePlot()` requires the `ggtree` R-package which is currently not on CRAN - see the [ggtree home page](https://guangchuangyu.github.io/software/ggtree/) for instructions how to install this package):
 
-```{r, fig.width=7, fig.height=3.5, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips. **B**:  bivariate trait values at the tips of the tree. "}
+```{r, fig.width=7, fig.height=7, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips. **B**:  bivariate trait values at the tips of the tree. "}
 plTree <- PCMTreePlot(tree, layout="fan") +
   geom_tiplab2(size = 2) + 
   geom_nodelab(size = 2, color = "black") + 
@@ -90,7 +90,8 @@ plTree <- PCMTreePlot(tree, layout="fan") +
 plX <- PCMPlotTraitData2D(
   X[, seq_len(PCMTreeNumTips(tree))], 
   tree, 
-  scaleSizeWithTime = FALSE) +
+  scaleSizeWithTime = FALSE,
+  numTimeFacets = 4) +
   geom_text(
     aes(x = x, y = y, label = id, color = regime), 
     size=2, 
@@ -98,7 +99,7 @@ plX <- PCMPlotTraitData2D(
   theme_bw() +
   theme(legend.position = "bottom")
 
-cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
+cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2], nrow=2, rel_heights = c(2,1))
 ```
 
 # Step 2. Gaussian model types
@@ -168,7 +169,7 @@ attr(modelTrue, "SE") <- X * 0.0
 
 
 ## A view of the data according to the true shift-point configuration
-```{r, fig.width=7, fig.height=3.5, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. "}
+```{r, fig.width=7, fig.height=7, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. "}
 
 plTree <- PCMTreePlot(treeWithTrueShifts, layout="fan") %<+% 
   data.table(
@@ -185,7 +186,8 @@ plTree <- PCMTreePlot(treeWithTrueShifts, layout="fan") %<+%
 plX <- PCMPlotTraitData2D(
   X[, seq_len(PCMTreeNumTips(treeWithTrueShifts))], 
   treeWithTrueShifts, 
-  scaleSizeWithTime = FALSE) +
+  scaleSizeWithTime = FALSE,
+  numTimeFacets = 4) +
   geom_text(
     aes(x = x, y = y, label = id, color = regime), 
     size=2, 
@@ -193,7 +195,7 @@ plX <- PCMPlotTraitData2D(
   theme_bw() +
   theme(legend.position = "bottom")
 
-cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2])
+cowplot::plot_grid(plTree, plX, labels = LETTERS[1:2], nrow = 2, rel_heights = c(2,1))
 ```
 
 # Step 4. Model inference
@@ -349,7 +351,8 @@ fitMGPMTrueTypeMapping <- PCMFitDemoObjects$fitMGPMTrueTypeMapping
 ```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
 # This can take about 5 minutes to finish
 fitMGPMTrueTypeMapping <- PCMFit(
-  X, treeWithTrueShifts, modelTrueTypeMapping, metaI = PCMBaseCpp::PCMInfoCpp)
+  X, treeWithTrueShifts, modelTrueTypeMapping, 
+  metaI = PCMBaseCpp::PCMInfoCpp)
 ```
 
 
@@ -374,11 +377,10 @@ fitMGPMTrueTypeMappingCheat <- PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat
 ```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
 fitMGPMTrueTypeMappingCheat <- PCMFit(
   X, treeWithTrueShifts, modelTrueTypeMapping, 
-    matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L),
-    numRunifInitVecParams = 1000L,
-    numGuessInitVecParams = 100L,
-  metaI = PCMBaseCpp::PCMInfoCpp,
-  matParInit = jitterModelParams(modelTrue))
+  matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L),
+  numRunifInitVecParams = 1000L,
+  numGuessInitVecParams = 100L,
+  metaI = PCMBaseCpp::PCMInfoCpp)
 ```
 
 # Step 5. Evaluating the model fits

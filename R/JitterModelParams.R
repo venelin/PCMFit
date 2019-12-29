@@ -1,7 +1,7 @@
 #' @importFrom PCMBase PCMParamGetShortVector PCMParamLoadOrStore
 #' @importFrom stats rnorm
 #' @export
-jitterModelParams <- function(
+JitterModelParams <- function(
   model,
 
   argsPCMParamLowerLimit = NULL,

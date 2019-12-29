@@ -1,3 +1,4 @@
+#' @importFrom PCMBase PCMTreeGetPartRegimes
 PCMFitRecursiveCladePartition <- function(
   X, tree, modelTypes,
   treeVCVMat = NULL,
@@ -169,19 +170,24 @@ PCMFitRecursiveCladePartition <- function(
           " / ", bestScore, " ; \n")
       cat("  Remaining queue:\n")
 
-      print(cbind(
-        queuePartitionRoots[-(1:headQPR),
-                            list(level, node, partitionParentNode)],
-        tableFits[queuePartitionRoots[-(1:headQPR),
-                                      list(hashCodeEntireTree,
-                                           hashCodeBestPartitionInitial,
-                                           hashCodeBestMappingInitial)],
-                  list(partInit = startingNodesRegimesLabels)],
-        tableFits[queuePartitionRoots[-(1:headQPR),
-                                      list(hashCodeEntireTree,
-                                           hashCodeBestPartitionLevel,
-                                           hashCodeBestMappingLevel)],
-                  list(partCurrent = startingNodesRegimesLabels)]))
+      if(headQPR < nrow(queuePartitionRoots)) {
+        print(cbind(
+          queuePartitionRoots[-seq_len(headQPR),
+                              list(level, node, partitionParentNode)],
+          tableFits[queuePartitionRoots[-seq_len(headQPR),
+                                        list(hashCodeEntireTree,
+                                             hashCodeBestPartitionInitial,
+                                             hashCodeBestMappingInitial)],
+                    list(partInit = startingNodesRegimesLabels)],
+          tableFits[queuePartitionRoots[-seq_len(headQPR),
+                                        list(hashCodeEntireTree,
+                                             hashCodeBestPartitionLevel,
+                                             hashCodeBestMappingLevel)],
+                    list(partCurrent = startingNodesRegimesLabels)]))
+
+      } else {
+        cat("<empty queue>\n")
+      }
 
       cat("Performing clade-partitioning at partitionRootLabel=",
           partitionRootLabel, "; partitionRootLevel=", partitionRootLevel,

@@ -1,86 +1,15 @@
-#' Generate the next mapping of a set of model-types to a number of regimes
-#' @param mapping a vector with elements from \code{models}.
-#' (repetitions are allowed) denoting a current model-to-regime mapping.
-#' @param modelTypes a vector of PCM model-types or integer indices.
-#' @return a vector of the same length as mapping with elements from \code{modelTypes}.
-#' @export
-PCMNextMapping <- function(mapping, modelTypes) {
-  R <- length(mapping)
-  mappingInd <- match(mapping, modelTypes)
-  if(any(is.na(mappingInd))) {
-    stop(paste0("ERR:04100:PCMFit:PCMFit.R:PCMNextMapping:: mapping should have
-                length ", R,
-                " and contain only elements among modelTypes; mapping = (",
-                toString(mapping),")",
-                ", modelTypes=(", toString(modelTypes), "), mappingInd=(",
-                toString(mappingInd), ")."))
-  }
-
-
-  numModels <- length(modelTypes)
-
-  carry <- 1
-  for(pos in R:1) {
-    if(mappingInd[pos] + carry <= numModels) {
-      mappingInd[pos] <- mappingInd[pos] + carry
-      carry <- 0
-    } else {
-      mappingInd[pos] <- 1
-    }
-  }
-  res <- modelTypes[mappingInd]
-  names(res) <- names(mapping)
-  res
-}
-
-#' Iterator over combinations with repetions of a given set of modelTypes
-#' @param mapping a vector of elements from modelTypes giving the initial combination
-#' @param modelTypes a vector of unique elements to choose from when building the
-#' combinations.
-#' @return an iterator object with S3 class c("imapping", "abstractiter", "iter").
-#' Calling repeatedly nextElem on this object iterates over all possible combinations
-#' with repetitions of the same length as the argument \code{mapping}.
-#' @examples
-#' it <- PCMIteratorMapping(c("BM", "BM"), c("BM", "OU", "JOU"))
-#' iterators::nextElem(it)
-#' iterators::nextElem(it)
-#' @export
-PCMIteratorMapping <- function(mapping, modelTypes) {
-  state <- new.env()
-
-  state$initial <- mapping
-  state$current <- NULL # at initial state before calling nextEl
-
-  nextEl <- function() {
-    if(is.null(state$current)) {
-      state$current <- state$initial
-      state$current
-    } else {
-      nextMapping <- PCMNextMapping(state$current, modelTypes)
-      if(isTRUE(all(state$initial==nextMapping))) {
-        stop("StopIteration", call. = FALSE)
-      } else {
-        state$current <- nextMapping
-        nextMapping
-      }
-    }
-  }
-  obj <- list(nextElem=nextEl)
-  class(obj) <- c('PCMIteratorMapping', 'abstractiter', 'iter')
-  obj
-}
-
-
 #' Generate the next mapping of model-types chosen from regime-specific sets of possible model-types.
 #' @param mapping a vector with elements from \code{modelTypes}.
 #' (repetitions are allowed) denoting a current model-to-regime mapping.
 #' @param modelTypes a vector of unique model-types, e.g. \code{c("BM", "OU")}.
-#' @param allowedModelTypesIndices a list of the same length as \code{mapping} with integer vector elements
-#' or NULLs. When an element of this list is an integer vector its elements denote unique positions in
-#' modelTypes, i.e. the allowed model-types for the regime at that position in mapping.
-#' @return a vector of the same length as mapping with elements from \code{modelTypes}.
+#' @param allowedModelTypesIndices a list of the same length as \code{mapping}
+#' with integer vector elements or NULLs. When an element of this list is an
+#' integer vector its elements denote unique positions in modelTypes, i.e. the
+#' allowed model-types for the regime at that position in mapping.
+#' @return a vector of the same length as mapping with elements from
+#' \code{modelTypes}.
 #' @export
-PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
+PCMNextMapping <- function(mapping, modelTypes, allowedModelTypesIndices) {
   R <- length(mapping)
   numModels <- length(modelTypes)
 
@@ -89,7 +18,7 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
     print(mapping)
     cat("allowedModelTypesIndices: \n")
     print(allowedModelTypesIndices)
-    stop(paste0("PCMNextMapping2:: mapping and allowedModelTypesIndices should
+    stop(paste0("PCMNextMapping:: mapping and allowedModelTypesIndices should
                 be the same length, ", R, "."))
   }
 
@@ -97,18 +26,17 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
   #cat("mappingInd: ", toString(mappingInd), "\n")
   mappingInd2 <- sapply(seq_len(R), function(pos) {
     if(!is.null(allowedModelTypesIndices[[pos]])) {
-      #cat("pos = ", pos, "; allowedModelTypesIndicies[[pos]] = ", toString(allowedModelTypesIndices[[pos]]), "\n")
-      #cat("pos = ", pos, "; mappingInd[pos] = ", mappingInd[pos], "\n")
       match(mappingInd[pos], allowedModelTypesIndices[[pos]])
     } else {
-      # allowedModelTypesIndices[[pos]] == NULL means that all model types are allowed at this position
+      # allowedModelTypesIndices[[pos]] == NULL means that all model types are
+      # allowed at this position.
       match(mappingInd[pos], seq_len(numModels))
     }
   })
 
 
   if(any(is.na(mappingInd2))) {
-    stop(paste0("ERR:04100:PCMFit:PCMFit.R:PCMNextMapping2:: mapping should have
+    stop(paste0("PCMNextMapping:: mapping should have
                 length ", R, " allowedModelTypesIndices; mapping = (", toString(mapping),")",
                 ", modelTypes=(", toString(modelTypes), "), mappingInd2=(", toString(mappingInd2), ")."))
   }
@@ -143,8 +71,6 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
     }
   })
 
-  #cat("indices=", toString(indices), "\n")
-  #res <- modelTypes[indices]
   names(res) <- names(mapping)
   res
   }
@@ -153,18 +79,42 @@ PCMNextMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
 #' @param mapping a vector of elements from modelTypes giving the initial combination
 #' @param modelTypes a vector of unique elements to choose from when building the
 #' combinations.
-#' @param allowedModelTypesIndices a list of the same length as \code{mapping} with integer vector elements
-#' or NAs. When an element of this list is an integer vector its elements denote unique positions in
-#' modelTypes, i.e. the allowed model-types for the regime at that position in mapping.
-#' @return an iterator object with S3 class c("imapping", "abstractiter", "iter").
-#' Calling repeatedly nextElem on this object iterates over all possible combinations
-#' with repetitions of the same length as the argument \code{mapping}.
+#' @param allowedModelTypesIndices a list of the same length as \code{mapping}
+#' with integer vector elements or NULLs. When an element of this list is an
+#' integer vector its elements denote unique positions in modelTypes, i.e. the
+#' allowed model-types for the regime at that position in mapping. Default
+#' value: \code{rep(list(NULL), length(mapping))}.
+#' @return an iterator object with S3 class \code{c("imapping", "abstractiter",
+#' "iter")}.
+#' Calling repeatedly nextElem on this object iterates over all possible
+#' combinations with repetitions of the same length as the argument
+#' \code{mapping}.
 #' @examples
+#' library(iterators)
+#' it <- PCMIteratorMapping(c(1, 1), c(1, 2, 3))
+#' nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
+#'
+#' it <- PCMIteratorMapping(c(1, 1), c(1, 2, 3), list(NULL, 1:2))
+#' nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
+#'
 #' it <- PCMIteratorMapping(c("BM", "BM"), c("BM", "OU", "JOU"))
-#' iterators::nextElem(it)
-#' iterators::nextElem(it)
+#' nextElem(it)
+#' nextElem(it)
 #' @export
-PCMIteratorMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
+PCMIteratorMapping <- function(
+  mapping, modelTypes,
+  allowedModelTypesIndices = rep(list(NULL), length(mapping)) ) {
+
+  force(allowedModelTypesIndices)
+
   state <- new.env()
 
   state$initial <- mapping
@@ -175,7 +125,8 @@ PCMIteratorMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
       state$current <- state$initial
       state$current
     } else {
-      nextMapping <- PCMNextMapping2(state$current, modelTypes, allowedModelTypesIndices)
+      nextMapping <- PCMNextMapping(
+        state$current, modelTypes, allowedModelTypesIndices)
       if(isTRUE(all(state$initial==nextMapping))) {
         stop("StopIteration", call. = FALSE)
       } else {
@@ -185,6 +136,6 @@ PCMIteratorMapping2 <- function(mapping, modelTypes, allowedModelTypesIndices) {
     }
   }
   obj <- list(nextElem=nextEl)
-  class(obj) <- c('PCMIteratorMapping2', 'abstractiter', 'iter')
+  class(obj) <- c('PCMIteratorMapping', 'abstractiter', 'iter')
   obj
 }

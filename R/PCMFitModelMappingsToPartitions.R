@@ -130,7 +130,7 @@ PCMFitModelMappingsToCladePartitions <- function(
       .packages = (.packages()) ) %:%
 
     foreach(
-      modelMapping = PCMIteratorMapping2(
+      modelMapping = PCMIteratorMapping(
         mapping = unlist(
           sapply(
             GetAllowedModelTypesForPartition(
@@ -339,7 +339,7 @@ PCMFitModelMappingsToCladePartitions <- function(
                       varyParams = TRUE)
                   }))
               matParInitJitter <-
-                jitterModelParams(
+                JitterModelParams(
                   modelForFit,
                   argsPCMParamLowerLimit = argsConfigOptim$argsPCMParamLowerLimit,
                   argsPCMParamUpperLimit = argsConfigOptim$argsPCMParamUpperLimit,

@@ -180,7 +180,8 @@ PCMFit <- function(
   res <- as.list(environment())
   # These objects tend to be very big. the lik function and the metaI object
   # can be recreated.
-  res$lik <- res$matParInit <-
+  res$lik <- res$chunk <- res$is <- res$`%op%` <- res$metaI <-
+    res$globalFuns <- res$matParInit <-
     res$matParInitRunif <- res$matParInitGuess <-
     res$matParInitGuessVaryParams <- NULL
 

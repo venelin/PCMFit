@@ -1,7 +1,7 @@
 Package: PCMFit
 Type: Package
 Title: Maximum likelihood fit and selection of phylogenetic comparative models
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
                  role = c("aut", "cre", "cph")))
 Maintainer: Venelin Mitov <vmitov@gmail.com>
@@ -25,8 +25,8 @@ Description: The goal of PCMFit is to provide a generic tool for inference and
   MGPMs over a tree for which the shift-points are unknown. This function can 
   perform model selection of the best MGPM for a given tree and data according 
   to an information loss function such as the Akaike information criterion 
-  (AIC). The package has been thoroughly tested and applied to real data in the 
-  related research article Mitov et al. 2019 <doi:10.1073/pnas.1813823116>. 
+  (AIC). The package version 1.0.0 has been used in the 
+  research article Mitov et al. 2019 <doi:10.1073/pnas.1813823116>. 
   Currently, the package is available from <https://github.com/venelin/PCMFit>. 
   The web-page <https://venelin.github.io/PCMFit/> provides access to 
   documentation and related resources.

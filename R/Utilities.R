@@ -1,5 +1,6 @@
 #' Load a mixed-regime Gaussian model from a fit vector
-#' @export
+#' @noRd
+#' @keywords internal
 PCMLoadMixedGaussianFromFitVector <- function(
   fitVector, modelTypes, k,
   remapModelTypeIndicesInFitVector = seq_along(modelTypes), ...) {
@@ -40,7 +41,6 @@ PCMLoadMixedGaussianFromFitVector <- function(
 #' @param modelMapping a character or integer vector
 #' @param modelTypes a character vector with valid model-class-names.
 #' @return a character vector with elements from modelTypes or stops with an error
-#' @export
 MatchModelMapping <- function(modelMapping, modelTypes) {
   if(is.character(modelMapping)) {
     m <- match(modelMapping, modelTypes)
@@ -63,7 +63,6 @@ MatchModelMapping <- function(modelMapping, modelTypes) {
 
 #' Compose a MixedGaussian model
 #' @importFrom PCMBase PCMTreeExtractClade is.Fixed is.PCM PCMParamLoadOrStore PCMParamGetShortVector
-#' @export
 ComposeMixedGaussianFromFits <- function(
   tree, startingNodesRegimes, modelTypes, k, R, mapping,
   argsMixedGaussian,
@@ -179,15 +178,14 @@ ComposeMixedGaussianFromFits <- function(
 
 SaveCurrentResults <- function(listResults, filePrefix) {
   status <- try(
-    save(listResults, file = paste0("CurrentResults_", filePrefix, ".RData")),
+    save(listResults, file = paste0("Current_", filePrefix, ".RData")),
     silent = TRUE)
-  if(class(status) == 'try-error') {
+  if(inherits(status, 'try-error')) {
     warning(paste0("An error occurred while saving tableFits to file ",
-                   paste0("CurrentResults_", filePrefix, ".RData"), " :", status))
+                   paste0("Current_", filePrefix, ".RData"), " :", status))
   }
 }
 
-#' @export
 SaveTempWorkerResults <- function(fitsNew, filePrefix) {
   workerPid <- Sys.getpid()
   fileName <- paste0(filePrefix, "_worker_", workerPid, ".RData")
@@ -288,7 +286,6 @@ InitTableFits <- function(
 }
 
 #' @importFrom data.table is.data.table
-#' @export
 UpdateTableFits <- function(tableFits, newFits) {
 
   # prevent 'no visible binding' notes

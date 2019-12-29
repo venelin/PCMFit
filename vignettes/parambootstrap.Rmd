@@ -15,6 +15,11 @@ bibliography: REFERENCES.bib
 ---
 
 ```{r setup, include = FALSE}
+library(data.table)
+library(PCMBase)
+library(PCMFit)
+library(ggplot2)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -36,15 +41,11 @@ if(!requireNamespace("ggtree")) {
 generateParametricBootstrapDatasets <- FALSE
 ```
 
-**Note:** *The writing of this vignette is currently in progress. Content to the following sections will be added in the coming weeks. Please, contact the author for assistance, in case you need to use PCMFit immediately and cannot find your way through the coding examples. Thanks for your understanding.*
+**Note:** *The writing of this vignette is currently in progress. Please, contact the author for assistance, in case you need to use PCMFit immediately and cannot find your way through the coding examples. Thanks for your understanding.*
 
 # Simulating parametric bootstrap datasets
 
 ```{r, eval=generateParametricBootstrapDatasets}
-library(data.table)
-library(PCMBase)
-library(PCMFit)
-
 # make results reproducible
 set.seed(12, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
@@ -167,7 +168,7 @@ fitMGPM_A_F_BC2_RR <- PCMFitMixed(
 save(fitMGPM_A_F_BC2_RR, file = paste0("Result_", prefixFiles, ".RData"))
 ```
 
-## Running the parametric bootstrap inference scripter on a cluster
+## Running the parametric bootstrap inference script on a cluster
 ```{sh eval=FALSE}
 # File: FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh
 # Usage: sh FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh
@@ -178,12 +179,59 @@ cd ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_$id
 if [ -f "Result_MGPM_A_F_BC2_RR_BSID_"$id".RData" ]
 then
 rm MPI*.log
-rm CurrentResults*.RData
+rm Current*.RData
 else
 bsub -M 10000 -n 8 -W 3:59 -R ib sh R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args $id
 fi
 cd ../..
 done
+```
+
+# Collect bootstrap results
+```{r, eval=TRUE, include=FALSE}
+# model and tree used to generate the bootstrap datasets
+inferredModel <- 
+  RetrieveBestFitScore(PCMFitDemoObjects$fitMGPM_A_F_BC2_RR)$inferredModel
+inferredTree <- PCMTree(attr(inferredModel, "tree"))
+epochsHD <- seq(.2, 
+                max(PCMTreeNodeTimes(inferredTree)), 
+                by = 2)
+
+if(is.null(PCMFitDemoObjects$bs_MGPM_A_F_BC2_RR)) {
+  bs_MGPM_A_F_BC2_RR <- CollectBootstrapResults(
+    resultDir = "ResultsBootstrap",
+    prefixFiles = "MGPM_A_F_BC2_RR_BSID_",
+    nameFitObject = 'fitMGPM_A_F_BC2_RR',
+    ids = seq_len(10),
+    inferredTree = inferredTree,
+    epochs = epochsHD,
+    minLength = 0.2,
+    verbose = FALSE)
+  
+  PCMFitDemoObjects$bs_MGPM_A_F_BC2_RR <- bs_MGPM_A_F_BC2_RR
+  usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
+} else {
+  bs_MGPM_A_F_BC2_RR <- PCMFitDemoObjects$bs_MGPM_A_F_BC2_RR
+}
+```
+  
+```{r, eval=FALSE}
+inferredModel <- 
+  RetrieveBestFitScore(PCMFitDemoObjects$fitMGPM_A_F_BC2_RR)$inferredModel
+inferredTree <- PCMTree(attr(inferredModel, "tree"))
+
+epochsHD <- seq(.2, max(PCMTreeNodeTimes(inferredTree)), 
+                by = 2)
+
+bs_MGPM_A_F_BC2_RR <- CollectBootstrapResults(
+  resultDir = "ResultsBootstrap",
+  prefixFiles = "MGPM_A_F_BC2_RR_BSID_",
+  nameFitObject = 'fitMGPM_A_F_BC2_RR',
+  ids = seq_len(10),
+  inferredTree = inferredTree,
+  epochs = epochsHD,
+  minLength = 0.2,
+  verbose = FALSE)
 ```
 
 # References

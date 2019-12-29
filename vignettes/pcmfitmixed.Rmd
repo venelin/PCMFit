@@ -38,14 +38,13 @@ useCacheMGPM_A_F_BC2_RR <- TRUE
 
 **Note:** *The writing of this vignette is currently in progress. If needed, please, contact the author for assistance. Thanks for your understanding.*
 
-# Setting up the computing cluster
+# The main R-script
+## Loading needed packages and parsing command line arguments
 ```{r, results="hide", warning=FALSE, message=FALSE, eval=TRUE}
 library(PCMBase)
 library(PCMBaseCpp)
 library(PCMFit)
 library(data.table)
-library(ggtree)
-library(ggplot2)
 # other needed packages, e.g. ape, data.table etc...
 
 # extract dataset identifier and possibly other parameters from the command line:
@@ -58,8 +57,11 @@ if(length(args) > 0) {
 
 # A character string used in filenames for a model inference on a given data:
 prefixFiles = paste0("MGPM_A_F_BC2_RR_DATAID_", data_id)
+```
 
-
+## Setting up a parallel cluster
+### Using MPI
+```{r, results="hide", warning=FALSE, message=FALSE, eval=FALSE}
 # creating the cluster for this PCMFit run:
 if(!exists("cluster") || is.null(cluster)) {
   if(require(doMPI)) {
@@ -70,15 +72,27 @@ if(!exists("cluster") || is.null(cluster)) {
     cluster <- startMPIcluster(count = p-1, verbose = TRUE)
     doMPI::registerDoMPI(cluster)
   } else {
+    warning("Could not create an MPI cluster")
+  }
+}
+```
+
+### Using a personal computer without mpi installation
+```{r, results="hide", warning=FALSE, message=FALSE, eval=FALSE}
+if(!exists("cluster") || is.null(cluster)) {
+  if(require(parallel)) {
     # possibly running on personal computer without mpi installation
     cluster <- parallel::makeCluster(
       parallel::detectCores(logical = TRUE),
       outfile = paste0("log_", prefixFiles, ".txt"))
     doParallel::registerDoParallel(cluster)
+  } else {
+    warning("Could not create a parallel cluster")
   }
 }
 ```
 
+## Generating PCMModels on the worker nodes
 ```{r}
 # This function is going to be executed on each worker node.
 generatePCMModelsFunction <- function() {
@@ -91,14 +105,16 @@ generatePCMModelsFunction <- function() {
   eval(parse(text = codeDefineLimits), .GlobalEnv)
 }
 ```
-# Running the MGPM Inference
+
+## Tree and trait data 
 ```{r}
 tree <- PCMTree(PCMFitDemoObjects$dtSimulated$tree[[1]])
 X <- PCMFitDemoObjects$dtSimulated$X[[1]][, seq_len(PCMTreeNumTips(tree))]
 ```
 
+## Running the MGPM Inference
 ```{r, include=FALSE, warning=FALSE, results="hide", eval = TRUE}
-currentResultFile <- paste0("CurrentResults_fits_", prefixFiles, ".RData")
+currentResultFile <- paste0("Current_", prefixFiles, ".RData")
 if(file.exists(currentResultFile)) {
   load(currentResultFile)
   tableFitsPrev <- listResults$tableFits
@@ -124,7 +140,7 @@ fitMGPM_A_F_BC2_RR <- PCMFitDemoObjects$fitMGPM_A_F_BC2_RR
 ```
 
 ```{r, eval=FALSE}
-currentResultFile <- paste0("CurrentResults_fits_", prefixFiles, ".RData")
+currentResultFile <- paste0("Current_", prefixFiles, ".RData")
 if(file.exists(currentResultFile)) {
   load(currentResultFile)
   tableFitsPrev <- listResults$tableFits
@@ -177,24 +193,24 @@ dtSummary <- data.table(
 knitr::kable(dtSummary)
 ```
 
-
-```{r}
-PCMMapModelTypesToRegimes(modelTrue, attr(modelTrue, "tree"))
-```
-
-
-```{r}
-PCMMapModelTypesToRegimes(
-  bestFit$inferredModel, attr(bestFit$inferredModel, "tree"))
-```
-
 ```{r, fig.width=7, fig.height=7, fig.cap="**Example phylogenetic comparative data.** **A**: a tree of 80 tips partitioned in three evolutionary regimes. Each evolutionary regime is denoted by #.T, where # is the regime identifier and T is the evolutionary model type associated with this regime (a model type among A, ..., F). **B**:  bivariate trait values at the tips of the tree. **C** and **D**: Analogical to **A** and **B** according to the MGPM found using the AIC score as a criterion.", echo=FALSE}
+library(ggtree)
+library(ggplot2)
+
+TipLabelTable <- function(model, ...) {
+  tree <- PCMTree(attr(model, "tree"))
+  data.table(
+    node = sapply(sapply(PCMRegimes(tree), 
+                         PCMTreeGetTipsInRegime, 
+                         tree = tree), sample, size = 1),
+    part.model = 
+      paste0(" ", PCMRegimes(tree), ".", 
+             LETTERS[PCMMapModelTypesToRegimes(model, tree)], " "), 
+    ...)
+}
 
 plTree <- PCMTreePlot(attr(modelTrue, "tree"), layout="fan") %<+% 
-  data.table(
-    node = c(12, 77, 45), 
-    part.model = c(" 1.D ", " 2.C ", " 3.B "),
-    offset = 5) + 
+  TipLabelTable(modelTrue, offset = 5) + 
   geom_tiplab2(size = 2) + 
   geom_tiplab2(aes(label = part.model), offset = 16) + 
   geom_nodelab(size = 2, color = "black") + 
@@ -205,7 +221,8 @@ plTree <- PCMTreePlot(attr(modelTrue, "tree"), layout="fan") %<+%
 plX <- PCMPlotTraitData2D(
   X[, seq_len(PCMTreeNumTips(attr(modelTrue, "tree")))], 
   attr(modelTrue, "tree"), 
-  scaleSizeWithTime = FALSE) +
+  scaleSizeWithTime = FALSE,
+  numTimeFacets = 4, nrowTimeFacets = 2, ncolTimeFacets = 2) +
   geom_text(
     aes(x = x, y = y, label = id, color = regime), 
     size=2, 
@@ -215,10 +232,7 @@ plX <- PCMPlotTraitData2D(
 
 plTreeInferred <- 
   PCMTreePlot(attr(bestFit$inferredModel, "tree"), layout="fan") %<+% 
-  data.table(
-    node = c(12, 77, 45), 
-    part.model = c(" 2.C ", " 1.C ", " 3.B "),
-    offset = 5) + 
+  TipLabelTable(bestFit$inferredModel, offset = 5) +
   geom_tiplab2(size = 2) + 
   geom_tiplab2(aes(label = part.model), offset = 16) + 
   geom_nodelab(size = 2, color = "black") + 
@@ -229,7 +243,8 @@ plTreeInferred <-
 plXInferred <- PCMPlotTraitData2D(
   X[, seq_len(PCMTreeNumTips(attr(bestFit$inferredModel, "tree")))], 
   attr(bestFit$inferredModel, "tree"), 
-  scaleSizeWithTime = FALSE) +
+  scaleSizeWithTime = FALSE,
+  numTimeFacets = 4, nrowTimeFacets = 2, ncolTimeFacets = 2) +
   geom_text(
     aes(x = x, y = y, label = id, color = regime), 
     size=2, 
@@ -238,7 +253,7 @@ plXInferred <- PCMPlotTraitData2D(
   theme(legend.position = "bottom")
 
 cowplot::plot_grid(
-  plTree, plX, plTreeInferred, plXInferred, labels = LETTERS[1:4])
+  plTree, plX, plTreeInferred, plXInferred, labels = LETTERS[1:4], nrow = 2)
 ```
 
 # References

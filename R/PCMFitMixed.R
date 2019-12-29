@@ -523,7 +523,12 @@ PCMFitMixed <- function(
   )
   class(resFitMappings) <- "PCMFitModelMappings"
 
-  do.call(options, optionsBeforeCall)
+  # resetOptions <- try(do.call(options, optionsBeforeCall), silent = TRUE)
+  # if(inherits(resetOptions, "try-error")) {
+  #   warning(paste0(
+  #     "PCMFitMixed:: Could not reset runtime options to the original values.",
+  #     resetOptions))
+  # }
 
   resFitMappings
 }

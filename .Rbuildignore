@@ -7,3 +7,5 @@
 ^vignettes/.*.pdf
 ^docs
 ^_pkgdown.yml
+^vignettes/.*.RData$
+^vignettes/ResultsBootstrap

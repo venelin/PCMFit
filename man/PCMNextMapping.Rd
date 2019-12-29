@@ -2,19 +2,25 @@
 % Please edit documentation in R/PCMIterators.R
 \name{PCMNextMapping}
 \alias{PCMNextMapping}
-\title{Generate the next mapping of a set of model-types to a number of regimes}
+\title{Generate the next mapping of model-types chosen from regime-specific sets of possible model-types.}
 \usage{
-PCMNextMapping(mapping, modelTypes)
+PCMNextMapping(mapping, modelTypes, allowedModelTypesIndices)
 }
 \arguments{
-\item{mapping}{a vector with elements from \code{models}.
+\item{mapping}{a vector with elements from \code{modelTypes}.
 (repetitions are allowed) denoting a current model-to-regime mapping.}
 
-\item{modelTypes}{a vector of PCM model-types or integer indices.}
+\item{modelTypes}{a vector of unique model-types, e.g. \code{c("BM", "OU")}.}
+
+\item{allowedModelTypesIndices}{a list of the same length as \code{mapping}
+with integer vector elements or NULLs. When an element of this list is an
+integer vector its elements denote unique positions in modelTypes, i.e. the
+allowed model-types for the regime at that position in mapping.}
 }
 \value{
-a vector of the same length as mapping with elements from \code{modelTypes}.
+a vector of the same length as mapping with elements from
+\code{modelTypes}.
 }
 \description{
-Generate the next mapping of a set of model-types to a number of regimes
+Generate the next mapping of model-types chosen from regime-specific sets of possible model-types.
 }
