@@ -1,7 +1,7 @@
 # running the example on a cluster:
-# bsub -M 100000 -n 24 -W 23:59 -R ib sh R --vanilla --slave -f PCMFitMixedExample.R
+# bsub -M 100000 -n 24 -W 23:59 -R ib sh R --vanilla --slave -f ../PCMFitMixedExample.R
 # running locally using a shell:
-# sh R --vanilla --slave -f PCMFitMixedExample.R
+# sh R --vanilla --slave -f ../PCMFitMixedExample.R
 
 library(PCMBase)
 library(PCMBaseCpp)

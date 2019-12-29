@@ -156,6 +156,9 @@ PCMFitModelMappingsToCladePartitions <- function(
       .errorhandling = "pass",
       .packages = (.packages()) ) %op% {
         try({
+          # making the PCMFit internal objects accessible to the foreach body:
+          eval(parse(text="attach(environment(PCMFit::PCMFit))"))
+
           # recreate tableAncestors under a different name, to avoid exporting a
           # potentially big tableAncestors object
           if(!exists("tableAncestorsTree", cacheEnv)) {
