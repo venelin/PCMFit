@@ -21,8 +21,14 @@ if(!exists("cluster") || is.null(cluster)) {
     p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))
     cluster <- startMPIcluster(count = p-1, verbose = TRUE)
     doMPI::registerDoMPI(cluster)
+  } else if(require(parallle)) {
+    # possibly running on personal computer without mpi installation
+    cluster <- parallel::makeCluster(
+      parallel::detectCores(logical = TRUE),
+      outfile = paste0("log_", prefixFiles, ".txt"))
+    doParallel::registerDoParallel(cluster)
   } else {
-    warning("Could not create an MPI cluster")
+    warning("Could not create a cluster. Running serially.")
   }
 }
 
