@@ -38,7 +38,7 @@ generatePCMModelsFunction <- function() {
   set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   PCMGenerateModelTypes()
-  fileName <- 'DefineParameterLimits.R'
+  fileName <- '../DefineParameterLimits.R'
   codeDefineLimits <- readChar(fileName, file.info(fileName)$size)
   eval(parse(text = codeDefineLimits), .GlobalEnv)
 }
