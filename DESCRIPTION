@@ -46,7 +46,12 @@ Suggests:
     PCMBaseCpp,
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    BiocManager,
+    cowplot,
+    usethis,
+    ggplot2,
+    ggtree
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 URL: https://venelin.github.io/PCMFit/index.html, 
