@@ -156,7 +156,7 @@ PCMFitModelMappingsToCladePartitions <- function(
       .errorhandling = "pass",
       .packages = (.packages()) ) %op% {
         try({
-          if(is.null(get("cacheEnv"))) {
+          if(!exists("cacheEnv")) {
             cat("Attaching environment(PCMFit::PCMFit)\n")
             # making the PCMFit internal objects accessible to the foreach body:
             eval(parse(text="attach(environment(PCMFit::PCMFit))"))
