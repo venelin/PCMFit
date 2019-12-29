@@ -20,7 +20,7 @@ JitterModelParams <- function(
 
   # if there is more than one clade in the tree and numJitterRootRegimeFit > 0
   if( !is.null(model[["2"]]) && numJitterRootRegimeFit > 0 ) {
-    vecParamIndex <- 1:ncol(matParams)
+    vecParamIndex <- seq_len(ncol(matParams))
     modelIndexParams <- model
     PCMParamLoadOrStore(modelIndexParams, vecParamIndex, offset = 0, load = TRUE)
     vecParamIndexRootClade <- as.integer(PCMParamGetShortVector(modelIndexParams[["1"]]))

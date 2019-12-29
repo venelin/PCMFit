@@ -41,6 +41,7 @@ PCMLoadMixedGaussianFromFitVector <- function(
 #' @param modelMapping a character or integer vector
 #' @param modelTypes a character vector with valid model-class-names.
 #' @return a character vector with elements from modelTypes or stops with an error
+#' @export
 MatchModelMapping <- function(modelMapping, modelTypes) {
   if(is.character(modelMapping)) {
     m <- match(modelMapping, modelTypes)
@@ -63,6 +64,7 @@ MatchModelMapping <- function(modelMapping, modelTypes) {
 
 #' Compose a MixedGaussian model
 #' @importFrom PCMBase PCMTreeExtractClade is.Fixed is.PCM PCMParamLoadOrStore PCMParamGetShortVector
+#' @export
 ComposeMixedGaussianFromFits <- function(
   tree, startingNodesRegimes, modelTypes, k, R, mapping,
   argsMixedGaussian,
@@ -80,7 +82,8 @@ ComposeMixedGaussianFromFits <- function(
   # In this case, we need to remap the model indices in fitVector to the new modelTypes.
   remapModelTypeIndicesInFitVector <- match(modelTypesInTableFits, modelTypes)
   if(verbose) {
-    cat("remapModelTypeIndicesInFitVector=c(", toString(remapModelTypeIndicesInFitVector), ");")
+    cat("remapModelTypeIndicesInFitVector=c(",
+        toString(remapModelTypeIndicesInFitVector), ");")
     cat("NAs indicate that some of modelTypesInTableFits are not present in modelTypes.\n")
   }
 
@@ -184,23 +187,6 @@ SaveCurrentResults <- function(listResults, filePrefix) {
     warning(paste0("An error occurred while saving tableFits to file ",
                    paste0("Current_", filePrefix, ".RData"), " :", status))
   }
-}
-
-SaveTempWorkerResults <- function(fitsNew, filePrefix) {
-  workerPid <- Sys.getpid()
-  fileName <- paste0(filePrefix, "_worker_", workerPid, ".RData")
-
-  # load file with fits table for this worker
-  status <- try({
-    # previous fits stored in file
-    fits <- NULL
-    # loads a variable fits
-    if(file.exists(fileName)) {
-      load(fileName)
-    }
-    fits <- rbindlist(list(fits, fitsNew))
-    save(fits, file = fileName)
-  }, silent = TRUE)
 }
 
 # combine fits from parallel tasks into a data.table and saves this data.table to
