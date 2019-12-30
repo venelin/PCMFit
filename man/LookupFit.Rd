@@ -16,7 +16,8 @@ LookupFit(tree, modelTypes, modelMapping, tableFits,
 
 \item{modelTypes}{character vector}
 
-\item{modelMapping}{an integer or character vector to be matched against modelTypes}
+\item{modelMapping}{an integer or character vector to be matched against
+modelTypes}
 
 \item{tableFits}{a data.table having at least the following columns:
 \itemize{
@@ -25,6 +26,13 @@ LookupFit(tree, modelTypes, modelMapping, tableFits,
  representing the hash-code of
  \code{PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]}.}
 \item{hashCodeMapping}{an MD5 key column of type character-vector}}}
+
+\item{hashCodes}{the result of calling \code{\link{HashCodes}} on the passed
+arguments \code{tree, modelTypes, modelMapping}. Default:
+\code{HashCodes(
+  tree = tree, modelTypes = modelTypes,
+  startingNodesRegimesLabels = PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)],
+  modelMapping = modelMapping )}.}
 }
 \value{
 the corresponding fit-vector to the given tree and model mapping or

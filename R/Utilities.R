@@ -63,6 +63,14 @@ MatchModelMapping <- function(modelMapping, modelTypes) {
 
 
 #' Compose a MixedGaussian model
+#'
+#' @keywords internal
+#' @param tree,startingNodesRegimes,modelTypes,k,R,mapping,argsMixedGaussian,tableFits,modelTypesInTableFits,tableAncestors,verbose Internal use.
+#'
+#' @details This is an internal function that needs to be exported solely for
+#' technical reasons. Not intended to be called by the end user.
+#'
+#' @return a PCM object.
 #' @importFrom PCMBase PCMTreeExtractClade is.Fixed is.PCM PCMParamLoadOrStore PCMParamGetShortVector
 #' @export
 ComposeMixedGaussianFromFits <- function(
@@ -298,15 +306,32 @@ UpdateTableFits <- function(tableFits, newFits) {
 }
 
 #' Retrieve the ML fits from the fitVectors column in a table of fits.
+#'
 #' @param fitMappings an object of S3 class PCMFitModelMappings.
 #' @param tableFits a data.table
+#' @param modelTypes a character vector of model types. Default:
+#' \code{fitMappings$arguments$modelTypes}.
 #' @param modelTypesNew NULL or a character vector containing all model-types in
 #'  fitMappings$arguments$modelTypes and, eventually, additional model-types.
+#' @param argsMixedGaussian a list of arguments passed to the
+#' \code{\link{MixedGaussian}}.
+#' Default: \code{fitMappings$arguments$argsMixedGaussian}.
 #' @param setAttributes logical indicating if an X and tree attribute should be
 #' set to each model-object. This is used for later evaluation of the
 #' log-likelihood of the score for the model on the given tree and
 #' data. Using a global tree for that is a bad idea, because the model may be
 #' fit for a subtree, i.e. clade. Default FALSE.
+#' @param X a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
+#' column of X contains the measured trait values for one species (tip in tree).
+#' Missing values can be either not-available (\code{NA}) or not existing
+#' (\code{NaN}). Default: \code{fitMappings$X}.
+#' @param tree a phylo object with N tips. Default:
+#' \code{fitMappings$tree}.
+#' @param SE a k x N matrix specifying the standard error for each measurement in
+#' X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+#' factor of the variance covariance matrix for the measurement error
+#' for each node i=1, ..., N.
+#' Default: \code{fitMappings$SE}.
 #' @return a copy of tableFits with added column "model" and, if necessary,
 #' updated integer model-type indices in the "fitVector" column.
 #' @importFrom PCMBase MixedGaussian PCMTreeEvalNestedEDxOnTree
@@ -418,7 +443,11 @@ RetrieveFittedModelsFromFitVectors <- function(
   tableFits2
 }
 
-
+#' Retrieve the best fit from a PCMFitMappings object.
+#' @param fitMappings an object of S3 class 'PCMFitModelMappings' as returned by
+#' \code{\link{PCMFitMixed}}.
+#' @param rank an integer. Default: 1.
+#' @return a named list.
 #' @importFrom data.table setnames
 #' @export
 RetrieveBestFitScore <- function(fitMappings, rank = 1) {
@@ -456,7 +485,7 @@ RetrieveBestFitScore <- function(fitMappings, rank = 1) {
   res
 }
 
-#' Update with parameters from submodels where the fit of a submodel is better
+# Update with parameters from submodels where the fit of a submodel is better
 #' @importFrom PCMBase PCMDefaultObject PCMParamSetByName
 UpdateCladeFitsUsingSubModels <- function(
   cladeFits,
@@ -640,8 +669,17 @@ UpdateCladeFitsUsingSubModels <- function(
     listAllowedModelTypesIndices = listAllowedModelTypesIndices)
 }
 
+#' Generate hash codes.
+#'
+#' @param tree a phylo object
+#' @param modelTypes character vector
+#' @param startingNodesRegimesLabels a character vector denoting the
+#' partition nodes.
+#' @param modelMapping an integer or character vector to be matched against
+#'  modelTypes
 #' @importFrom PCMBase PCMTreeGetPartition PCMTreeGetLabels
 #' @importFrom digest digest
+#' @return a character vector.
 #' @export
 HashCodes <- function(
   tree, modelTypes, startingNodesRegimesLabels, modelMapping) {
@@ -659,9 +697,7 @@ HashCodes <- function(
 #' Lookup a fit vector for a given tree and model mapping in a data.table of
 #' previously run fits.
 #'
-#' @param tree a phylo object
-#' @param modelTypes character vector
-#' @param modelMapping an integer or character vector to be matched against modelTypes
+#' @inheritParams HashCodes
 #' @param tableFits a data.table having at least the following columns:
 #' \itemize{
 #' \item{hashCodeTree}{an MD5 key column of type character-vector}
@@ -669,6 +705,12 @@ HashCodes <- function(
 #'  representing the hash-code of
 #'  \code{PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]}.}
 #' \item{hashCodeMapping}{an MD5 key column of type character-vector}}
+#' @param hashCodes the result of calling \code{\link{HashCodes}} on the passed
+#' arguments \code{tree, modelTypes, modelMapping}. Default:
+#' \code{HashCodes(
+#'   tree = tree, modelTypes = modelTypes,
+#'   startingNodesRegimesLabels = PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)],
+#'   modelMapping = modelMapping )}.
 #' @return the corresponding fit-vector to the given tree and model mapping or
 #' if no such entry is found, issues an error.
 #' @importFrom digest digest

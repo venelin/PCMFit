@@ -47,16 +47,8 @@ library(PCMFit)
 library(data.table)
 # other needed packages, e.g. ape, data.table etc...
 
-# extract dataset identifier and possibly other parameters from the command line:
-args <- commandArgs(trailingOnly = TRUE)
-if(length(args) > 0) {
-  data_id <- as.integer(args[1])
-} else {
-  data_id <- 1L
-}
-
 # A character string used in filenames for a model inference on a given data:
-prefixFiles = paste0("MGPM_A_F_BC2_RR_DATAID_", data_id)
+prefixFiles = paste0("MGPM_A_F_BC2_RR")
 ```
 
 ## Setting up a parallel cluster

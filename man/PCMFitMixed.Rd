@@ -2,8 +2,8 @@
 % Please edit documentation in R/PCMFitMixed.R
 \name{PCMFitMixed}
 \alias{PCMFitMixed}
-\title{Optimal information score search for a mixed Gaussian phylogenetic
-model, given a tree, trait measurements at its tips and a score function.}
+\title{Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
+measurements at its tips and a score function.}
 \usage{
 PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
   subModels = c(B = "A", C = "A", D = "B", E = "D", F = "E"),
@@ -35,11 +35,57 @@ likelihoods: see \code{\link{PCMPresentCoordinates}}.}
 
 \item{tree}{a phylo object with N tips.}
 
+\item{modelTypes}{a named character string vector. Each such
+string denotes a MGPM model class. The default setting is
+\code{MGPMDefaultModelTypes()}, which corresponds to the model types
+\code{A,B,C,D,E,F} as defined in Mitov et al. 2019a:
+\describe{
+\item{A. }{BM (H = 0, diagonal Σ): BM, uncorrelated traits.}
+\item{B. }{BM (H = 0, symmetric Σ): BM, correlated traits.}
+\item{C. }{OU (diagonal H, diagonal Σ): OU, uncorrelated traits.}
+\item{D. }{OU (diagonal H, symmetric Σ): OU, correlated traits, but simple
+(diagonal) selection strength matrix.}
+\item{E. }{OU (symmetric H, symmetric Σ): An OU with nondiagonal symmetric H
+and nondiagonal symmetric Σ.}
+\item{F. }{OU (asymmetric H, symmetric Σ): An OU with nondiagonal asymmetric
+H and nondiagonal symmetric Σ.}
+}
+See also the argument \code{subModels} and
+\code{\link{MGPMDefaultModelTypes}}.}
+
+\item{subModels}{a named character string vector with names and elements
+among the names of \code{modelTypes}. This argument specifies a nesting
+relationship between the model types: a model A is a sub-model of a
+model B if A's parameters are a subset of B's parameters. During the RCP
+search, the parameters of a sub-model fit to a clade in the tree are used as
+a hint for the parameters of its encompassing models. The default setting is
+\code{c(B = 'A', C = 'A', D = 'B', E = 'D', F = 'E')}. Note that this
+setting is valid only for the default setting of the argument
+\code{modelTypes}. Setting this argument to \code{NULL} will turn off the
+use of nested models as hints.}
+
+\item{argsMixedGaussian}{a list of arguments passed to
+\code{\link{MixedGaussian}}. Default:
+\code{Args_MixedGaussian_MGPMDefaultModelTypes()}.}
+
 \item{SE}{a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
+
+\item{generatePCMModelsFun}{A function generating PCM model types.
+Specifying this function is only needed if the inference is to be done using #' custom candidate model types. Default setting:
+\code{\link{PCMGenerateModelTypes}}. Note that this function is called in
+each worker process and populates the global environment with
+\code{\link{PCMParentClasses}} and \code{\link{PCMSpecify}} S3 methods. See
+also \code{\link{PCMGenerateModelTypes}}.}
+
+\item{metaIFun}{a metaI function needed to generate meta- and cache- objects
+for the model objects generated during the RCP search. By default this is
+set to \code{\link{PCMInfo}} from the package PCMBase. For faster execution,
+it is recommended to use the function \code{PCMInfoCpp} from the package
+PCMBaseCpp.}
 
 \item{positiveValueGuard}{a real number (not necessarily positive) used during
 the fit as a threshold for highly positive but likely incorrect log-likelihood
@@ -49,23 +95,140 @@ is by setting more stringent values for the runtime options
 \code{PCMBase.Threshold.EV} and \code{PCMBase.Threshold.SV} (see
 \code{\link{PCMOptions}}).}
 
-\item{doParallel}{logical indicating if optim calls should be executed in
-parallel using the \code{foreach() \%dopar\% \{\}} construct. Default: FALSE.}
+\item{scoreFun}{a information score function such as AIC or BIC.
+Default: \code{\link{AIC}}.}
+
+\item{fitMappingsPrev}{an object of S3 class PCMFitModelMappings, returned
+during a previous call to \code{PCMFitMixed}. Default: \code{NULL}. This can
+be used to enrich a previous MGPM inference with new model types. Currently,
+this feature is experimental. See also arguments \code{tableFitsPrev} and
+\code{modelTypesInTableFitsPrev}.}
+
+\item{tableFitsPrev}{a \code{\link{data.table}} object containing stored
+MGPM fits from a previous (possibly unfinished) call to \code{PCMFitMixed}.
+During a run \code{PCMFitMixed} stores all visited candidate MGPM models in
+a file named 'Current_X.RData' where X is the value of the argument
+\code{prefixFiles}. This file contains a list object of class
+'PCMFitModelMappings' named \code{'listResults'}. One of the elements in
+\code{'listResults'} is a data.table \code{'tableFits'} that can be passed
+as a value of this argument. Default: \code{fitMappingsPrev$tableFits}.
+If a candidate model is found in tableFitsPrev, the previously inferred
+parameters will be reused unless the argument
+\code{skipFitWhenFoundInTableFits} is set to \code{FALSE}. See
+also the argument \code{skipFitWhenFoundInTableFits}.}
+
+\item{modelTypesInTableFitsPrev}{model types used for the fits in
+\code{'tableFitsPrev'}. Default: \code{NULL}, which means that the same
+model types are used as specified in the argument \code{modelTypes}.}
+
+\item{listPartitions, minCladeSizes, skipNodes}{arguments controlling the
+search for an optimal shift point configuration. If not \code{NULL},
+\code{listPartitions} should be specified as a list of integer vectors with
+each such vector containing node indices in \code{tree} corresponding to a
+shift-point configuration (partition). If \code{listPartitions} is
+\code{NULL} (default) then the shift-point configuration are generated
+according to the RCP search algorithm and the arguments \code{minCladeSizes}
+and \code{skipNodes}. The argument \code{minCladeSizes} is an integer or a
+vector of integers - if a single integer it specifies the the minimum number
+of tips allowed in a part at al recursion levels of the RCP algorithm; if a
+vector, then each element specifies the minimal part size at each level of
+the algorithm (see also argument \code{maxCladePartitionLevel}). By default
+this is set to \code{20}. The argument \code{skipNodes} is used in
+combination with \code{minCladeSizes}. This is an integer or character
+vector indicating the ids or labels of nodes that should not be used as
+partition nodes. By default, this is an empty character vector. Default
+setting for the three arguments:
+\code{
+  listPartitions = NULL,
+  minCladeSizes = 20L,
+  skipNodes = character()}. See also \code{maxCladePartitionLevel},
+ \code{maxNumNodesPerCladePartition} and
+ \code{listAllowedModelTypesIndices}.}
+
+\item{maxCladePartitionLevel}{An integer limiting the number of recursive
+levels of the RCP search algorithm. Default setting:
+\code{if(is.null(listPartitions)) 8L else 1L}.}
+
+\item{maxNumNodesPerCladePartition}{An integer controlling the number of
+partition nodes in subtree-partitions during the RCP search. By default,
+this is set to \code{1}, meaning that only single shifts within a parent part
+will be searched. Setting this argument to a bigger value will make the
+RCP search algorithm 'less greedy' but will cause a significant slow-down
+in the search - many more partitions will be visited during the search.}
+
+\item{listAllowedModelTypesIndices}{Default setting: \code{c("best-clade-2", "best-clade", "all")}.}
+
+\item{argsConfigOptim1, argsConfigOptim2, argsConfigOptim3}{Arguments
+controlling the calls to \code{\link{PCMFit}} during the three steps of the
+RCP algorith.
+\code{
+argsConfigOptim1 = \link{DefaultArgsConfigOptim}(numCallsOptim = 10),
+argsConfigOptim2 = \link{DefaultArgsConfigOptim}(numCallsOptim = 4),
+argsConfigOptim3 = \link{DefaultArgsConfigOptim}(numCallsOptim = 10)
+}.}
+
+\item{maxNumRoundRobins}{number of round-robin iterations. By default this is
+set ot 0, i.e. no round-robin step is performed.}
+
+\item{maxNumPartitionsInRoundRobins}{maximum number (2 by default) of top
+partitions tobe included in the round-robin step. This argument only has an
+impact if \code{maxNumRoundRobins > 0}.}
+
+\item{listPCMOptions}{a list of PCM runtime options to be specified prior
+to running the fit. By default, this is set to \code{\link{PCMOptions}()}.}
+
+\item{skipFitWhenFoundInTableFits}{logical. Default: \code{TRUE}.}
+
+\item{doParallel}{logical indicating if the recursive clade partition search
+should be executed in parallel. Default: \code{FALSE}.}
+
+\item{prefixFiles}{a character string used to name a 'Current_X.RData' file
+stored during the inference, where X is to be replaced by the value of
+\code{prefixFiles}. Note that the name
+'prefixFiles' can be misleading, because the actual file-name does not start
+with it - this is due for compliance with existing code. Default:
+\code{"fits_"}.}
+
+\item{saveTempWorkerResults, printFitVectorsToConsole, debug}{Debugging options controlling log-messages and storing of temporary results.
+These are mostly for internal use. Default setting:
+\code{saveTempWorkerResults, = TRUE, printFitVectorsToConsole = FALSE,
+debug = FALSE}}
 
 \item{verbose}{logical indicating if information messages should be printed
-to the console while running. Default: FALSE.}
+to the console while running. Default: \code{TRUE}.}
 }
 \value{
-an S3 object of class PCMFitModelMappings.
+an object of S3 class PCMFitModelMappings.
 }
 \description{
-A mixed Gaussian phylogenetic model (MGPM) represents a Gaussian
-phylogenetic model with shifts in the underlying parameters and, optionally,
-type of Gaussian stochastic process (e.g. shifts from a BM to an OU model of
-evolution). Formally, an MGPM consists of the following components:
-\itemize{
-\item A shift-point configuration: this is a subset of the nodes in the tree
-including at least the root node
-\item b
+A mixed Gaussian phylogenetic model (MGPM) represents a
+Gaussian phylogenetic model with shifts in the underlying parameters and,
+optionally, type of Gaussian stochastic process (e.g. shifts from a BM to an
+OU model of evolution). The function \code{PCMFitMixed} implements a
+recursive clade partition (RCP) search for an approximate information score
+optimization. A deteailed description of the algorithm is provided in
+Appendix A in Mitov et al. 2019a. For this documentation, it is important to
+note that the algorithm proceeds in three steps as follows:
+\describe{
+\item{clade-fits}{Model type fits to all clades in the tree bigger than a specified
+(see argument \code{minCladeSize}).}
+\item{RCP}{Recursive clade partition search.}
+\item{Round-robin}{Round-robin search for an optimal model type mapping in
+the best partitions found during the RCP-step. This step is optional.}
 }
+}
+\references{
+[Mitov et al. 2019a] Mitov, V., Bartoszek, K., & Stadler, T. (2019).
+Automatic generation of evolutionary hypotheses using mixed Gaussian
+phylogenetic models. Proceedings of the National Academy of Sciences of the
+United States of America, 35, 201813823.
+http://doi.org/10.1073/pnas.1813823116
+
+[Mitov et al. 2019b] Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2019). Fast
+ likelihood calculation for multivariate Gaussian phylogenetic models with
+ shifts. Theoretical Population Biology.
+ http://doi.org/10.1016/j.tpb.2019.11.005
+}
+\seealso{
+\code{\link{PCMFitMixed}} \code{\link{PCMOptions}}
 }

@@ -16,8 +16,29 @@ RetrieveFittedModelsFromFitVectors(fitMappings,
 
 \item{tableFits}{a data.table}
 
+\item{modelTypes}{a character vector of model types. Default:
+\code{fitMappings$arguments$modelTypes}.}
+
 \item{modelTypesNew}{NULL or a character vector containing all model-types in
 fitMappings$arguments$modelTypes and, eventually, additional model-types.}
+
+\item{argsMixedGaussian}{a list of arguments passed to the
+\code{\link{MixedGaussian}}.
+Default: \code{fitMappings$arguments$argsMixedGaussian}.}
+
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (\code{NA}) or not existing
+(\code{NaN}). Default: \code{fitMappings$X}.}
+
+\item{tree}{a phylo object with N tips. Default:
+\code{fitMappings$tree}.}
+
+\item{SE}{a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: \code{fitMappings$SE}.}
 
 \item{setAttributes}{logical indicating if an X and tree attribute should be
 set to each model-object. This is used for later evaluation of the

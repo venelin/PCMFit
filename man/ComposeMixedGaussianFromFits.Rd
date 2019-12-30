@@ -8,6 +8,17 @@ ComposeMixedGaussianFromFits(tree, startingNodesRegimes, modelTypes, k, R,
   mapping, argsMixedGaussian, tableFits, modelTypesInTableFits,
   tableAncestors = NULL, verbose = FALSE)
 }
+\arguments{
+\item{tree, startingNodesRegimes, modelTypes, k, R, mapping, argsMixedGaussian, tableFits, modelTypesInTableFits, tableAncestors, verbose}{Internal use.}
+}
+\value{
+a PCM object.
+}
 \description{
 Compose a MixedGaussian model
 }
+\details{
+This is an internal function that needs to be exported solely for
+technical reasons. Not intended to be called by the end user.
+}
+\keyword{internal}

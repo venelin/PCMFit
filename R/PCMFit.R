@@ -53,13 +53,25 @@
 #' @param control a list passed as control argument to \code{\link{optim}}.
 #' Default: NULL.
 #' @param doParallel logical indicating if optim calls should be executed in
-#' parallel using the \code{foreach() \%dopar\% \{\}} construct. Default: FALSE.
+#' parallel. Default: FALSE.
 #' @param verbose logical indicating if information messages should be printed
 #' to the console while running. Default: FALSE.
 #' @return an object of class PCMFit
 #' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMParamRandomVecParams PCMOptions
 #' @importFrom foreach foreach %do% %dopar%
-#' @seealso \code{\link{PCMOptions}}
+#' @seealso \code{\link{PCMFitMixed}} \code{\link{PCMOptions}}
+#'
+#' @references
+#' Mitov, V., Bartoszek, K., & Stadler, T. (2019). Automatic generation of
+#'  evolutionary hypotheses using mixed Gaussian phylogenetic models.
+#'  Proceedings of the National Academy of Sciences of the United States of
+#'  America, 35, 201813823. http://doi.org/10.1073/pnas.1813823116
+#'
+#' Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2019). Fast
+#'  likelihood calculation for multivariate Gaussian phylogenetic models with
+#'  shifts. Theoretical Population Biology.
+#'  http://doi.org/10.1016/j.tpb.2019.11.005
+
 #' @export
 PCMFit <- function(
   X, tree, model,
@@ -215,7 +227,11 @@ PCMFit <- function(
   res
 }
 
-#'@export
+#' Retrieve the optimal PCM model from a PCMFit object
+#' @param fit an object of S3 class \code{'PCMFit'}.
+#' @seealso \code{\link{PCMFit}}.
+#' @return a PCM model object.
+#' @export
 RetrieveBestModel <- function(fit) {
   if(is.PCMFit(fit)) {
     model <- fit$modelOptim
@@ -229,6 +245,9 @@ RetrieveBestModel <- function(fit) {
 }
 
 
+#' Check if an object is a PCMFit.
+#' @param object an R object.
+#' @return logical.
 #' @export
 is.PCMFit <- function(object) {
   inherits(object, "PCMFit")

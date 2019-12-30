@@ -1,13 +1,48 @@
+#' Collect the results from a parametric bootstrap MGPM fit
+#' @param resultDir,prefixFiles character strings denoting the directory
+#' and the file prefix used to locate the result .RData files. The way how the
+#' result file-names are formed is specified by the argument
+#' \code{exprResultFile}.
+#' @param exprResultFile a character string evaluating to an R expression.
+#' Default setting:
+#' \code{
+#' 'paste0(prefixFiles, id,
+#'         "/Result_", prefixFiles, id, ".RData")'
+#' }
+#' In the above R-expression, \code{id} is any integer element from \code{ids}.
+#' @param ids an integer vector denoting the ids of the bootstrap iterations.
+#' @param inferredTree a PCMTree or a phylo object with set partition as
+#' inferred during the ML or recursive clade partition search. This is the tree
+#' used to simulate the bootstrap datasets.
+#' @param epochs a double vector denoting in increasing order the time-points
+#' at which ancestral mean and regression slope parameters should be calculated.
+#' The inferredTree is to be 'sliced' by inserting singleton nodes at all
+#' branch crossings with each epoch. By default the epochs are set at equal
+#' intervals of length 10*minLength, via the following code:
+#' \code{
+#' seq(minLength, max(PCMTreeNodeTimes(inferredTree)), by = 10*minLength)}.
+#' See also \code{minLength}.
+#' @param minLength a positive double denoting the minimal time distance between
+#' a node in the tree and an epoch in \code{epochs}, at which an additional
+#' singleton node can be inserted. Default: 0.2.
+#' @param nameFitObject a character string (default: 'fitMappings') denoting the
+#' name of the PCMFitModelMappings object inside each result .RData file (see
+#' also \code{resultDir} and \code{prefixFiles}).
+#' @param keepBootstrapData logical indicating if the returned object should
+#' contain the bootstrap simulated trait data.
+#' @param verbose logical indicating if some debug or information messages
+#' should be printed during the collection of the results.
+#' @return a named list of S3 class 'ParametricBootstrapFits'.
 #' @export
 CollectBootstrapResults <- function(
   resultDir,
   prefixFiles,
   ids,
   inferredTree,
-  epochs,
+  epochs = seq(
+    minLength, max(PCMTreeNodeTimes(inferredTree)), by = 10*minLength),
   minLength = 0.2,
-  exprResultFile = 'paste0(resultDir, "/", prefixFiles, id,
-                           "/Result_", prefixFiles, id, ".RData")',
+  exprResultFile = 'paste0(prefixFiles, id, "/Result_", prefixFiles, id, ".RData")',
   nameFitObject = "fitMappings",
   keepBootstrapData = FALSE,
   verbose = FALSE) {
@@ -30,7 +65,7 @@ CollectBootstrapResults <- function(
           cat("id:", id, "\n")
         }
 
-        resultFile <- eval(parse(text = exprResultFile))
+        resultFile <- paste0(resultDir, "/", eval(parse(text = exprResultFile)))
 
         CollectBootstrapResultInternal(
           id = id,

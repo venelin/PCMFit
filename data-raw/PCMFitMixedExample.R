@@ -64,6 +64,14 @@ fitMGPM_A_F_BC2_RR <- PCMFitMixed(
 
 bestFit <- RetrieveBestFitScore(fitMGPM_A_F_BC2_RR)
 
+modelTrue <- PCMFitDemoObjects$dtSimulated$model[[1]]
+
+# We specify the tree and trait values for the true model in order to easily
+# calculate parameter count likelihood and AIC for it:
+attr(modelTrue, "tree") <- PCMFitDemoObjects$dtSimulated$treeWithRegimes[[1]]
+attr(modelTrue, "X") <- X
+attr(modelTrue, "SE") <- X * 0.0
+
 listModels <- list(
   RetrieveBestModel(PCMFitDemoObjects$fitBM),
   RetrieveBestModel(PCMFitDemoObjects$fitOU),
@@ -84,4 +92,5 @@ dtSummary <- data.table(
   logLik = sapply(listModels, logLik),
   AIC = sapply(listModels, AIC))
 
-save(fitMGPM_A_F_BC2_RR, bestFit, listModels, dtSummary, file = "ResultPCMFitExample.RData")
+save(fitMGPM_A_F_BC2_RR, bestFit, listModels, dtSummary,
+     file = "ResultPCMFitExample.RData")

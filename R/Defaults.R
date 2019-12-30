@@ -1,3 +1,8 @@
+#' Specify arguments for PCMFit during calls to PCMFitMixed.
+#'
+#' @inheritParams PCMFit
+#' @inheritParams JitterModelParams
+#' @return a named list of arguments to be passed to PCMFit.
 #' @export
 DefaultArgsConfigOptim <- function(
   matParInit = NULL,

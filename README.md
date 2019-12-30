@@ -3,10 +3,10 @@
 
 [![Travis build
 status](https://travis-ci.org/venelin/PCMFit.svg?branch=master)](https://travis-ci.org/venelin/PCMFit)
-[![Coverage
-status](https://codecov.io/gh/venelin/PCMFit/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMFit?branch=master)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/PCMFit?color=blue)](https://cran.r-project.org/package=PCMFit)
+<!--[![Coverage status](https://codecov.io/gh/venelin/PCMFit/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMFit?branch=master)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PCMFit?color=blue)](https://cran.r-project.org/package=PCMFit)
 [![Downloads](http://cranlogs.r-pkg.org/badges/PCMFit?color=blue)](https://cran.r-project.org/package=PCMFit)
+-->
 
 <h1>
 
@@ -305,18 +305,18 @@ their authors.
 The PCMFit R-package uses the following 3rd party R-packages:
 
   - For tree processing in R: ape v5.3 (Paradis et al. 2019), data.table
-    v1.12.2 (Dowle and Srinivasan 2019), PCMBase v1.2.10 (Mitov 2019b);
-  - For specification and manipulation of models in R: PCMBase v1.2.10
-    (Mitov 2019b), PCMBaseCpp v0.1.4 (Mitov 2019a), SPLITT v1.2.1 (Mitov
+    v1.12.2 (Dowle and Srinivasan 2019), PCMBase v1.2.11 (Mitov 2019b);
+  - For specification and manipulation of models in R: PCMBase v1.2.11
+    (Mitov 2019b), PCMBaseCpp v0.1.6 (Mitov 2019a), SPLITT v1.2.1 (Mitov
     2018b);
   - For data processing in R: data.table v1.12.2 (Dowle and Srinivasan
     2019);
   - For parallel execution: iterators v1.0.10 (Analytics and Weston
-    2018), foreach v1.4.4 (Revolution Analytics and Weston, n.d.),
-    doParallel v1.0.14 (Corporation and Weston 2018);
+    2018), foreach v1.4.7 (Revolution Analytics and Weston, n.d.),
+    doParallel v1.0.15 (Corporation and Weston 2018);
   - For algebraic computation: expm v0.999.4 (Goulet et al. 2019),
     mvtnorm v1.0.11 (Genz et al. 2019);
-  - For plotting: ggtree v1.15.3 (Yu and Lam 2019), ggplot2 v3.2.0
+  - For plotting: ggtree v1.15.3 (Yu and Lam 2019), ggplot2 v3.2.1
     (Wickham et al. 2018), cowplot v1.0.0 (Wilke 2019);
   - For unit-testing: testthat v2.1.1 (Wickham 2018);
   - For documentation and web-site generation: roxygen2 v6.1.1 (Wickham,

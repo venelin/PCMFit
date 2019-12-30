@@ -79,7 +79,7 @@ satisfy the parameter limits (see also the arguments
 Default: NULL.}
 
 \item{doParallel}{logical indicating if optim calls should be executed in
-parallel using the \code{foreach() \%dopar\% \{\}} construct. Default: FALSE.}
+parallel. Default: FALSE.}
 
 \item{verbose}{logical indicating if information messages should be printed
 to the console while running. Default: FALSE.}
@@ -90,6 +90,17 @@ an object of class PCMFit
 \description{
 Fitting a PCM model to a given tree and data
 }
+\references{
+Mitov, V., Bartoszek, K., & Stadler, T. (2019). Automatic generation of
+ evolutionary hypotheses using mixed Gaussian phylogenetic models.
+ Proceedings of the National Academy of Sciences of the United States of
+ America, 35, 201813823. http://doi.org/10.1073/pnas.1813823116
+
+Mitov, V., Bartoszek, K., Asimomitis, G., & Stadler, T. (2019). Fast
+ likelihood calculation for multivariate Gaussian phylogenetic models with
+ shifts. Theoretical Population Biology.
+ http://doi.org/10.1016/j.tpb.2019.11.005
+}
 \seealso{
-\code{\link{PCMOptions}}
+\code{\link{PCMFitMixed}} \code{\link{PCMOptions}}
 }
