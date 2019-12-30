@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -147,7 +147,7 @@
       <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
 column of X contains the measured trait values for one species (tip in tree).
 Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-Thse two values have are treated differently when calculating
+These two values have are treated differently when calculating
 likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
     </tr>
     <tr>
@@ -164,7 +164,7 @@ calculated (see also Details).</p></td>
       <th>SE</th>
       <td><p>a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Cholesky factor of the variance covariance matrix for the measurement error
+factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
@@ -214,10 +214,6 @@ printed on the console during the run.</p></td>
 
     <p>a named list</p>
     
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p><code>configOptim</code>.</p></div>
-    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -226,8 +222,6 @@ printed on the console during the run.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

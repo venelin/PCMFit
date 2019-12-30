@@ -30,8 +30,8 @@
   MGPMs over a tree for which the shift-points are unknown. This function can 
   perform model selection of the best MGPM for a given tree and data according 
   to an information loss function such as the Akaike information criterion 
-  (AIC). The package has been thoroughly tested and applied to real data in the 
-  related research article Mitov et al. 2019 &lt;doi:10.1073/pnas.1813823116&gt;. 
+  (AIC). The package version 1.0.0 has been used in the 
+  research article Mitov et al. 2019 &lt;doi:10.1073/pnas.1813823116&gt;. 
   Currently, the package is available from &lt;https://github.com/venelin/PCMFit&gt;. 
   The web-page &lt;https://venelin.github.io/PCMFit/&gt; provides access to 
   documentation and related resources.">
@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -145,7 +145,7 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"Rcpp"</span>)</a>
 <a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"RcppArmadillo"</span>)</a>
 <a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co"># At the time of writing, PCMBaseCpp is available only from github. </span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"venelin/PCMBaseCpp"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb4-5" data-line-number="5">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/remote-reexports">install_github</a></span>(<span class="st">"venelin/PCMBaseCpp"</span>)</a></code></pre></div>
 <ul>
 <li><p>other third party dependencies include the packages <a href="https://CRAN.R-project.org/package=data.table"><code>data.table</code></a>, <a href="https://CRAN.R-project.org/package=foreach"><code>foreach</code></a>, <a href="https://CRAN.R-project.org/package=iterators"><code>iterators</code></a>, <a href="https://CRAN.R-project.org/package=ape"><code>ape</code></a> and <a href="https://CRAN.R-project.org/package=digest"><code>digest</code></a>. These packages should be installed automatically from CRAN when installing PCMFit. If this does not happen, consult the packages’ web-pages (links above).</p></li>
 <li><p>An optional but highly recommended dependency. The function <code>PCMTreePlot</code> in the package PCMBase uses the R-package ggtree, which is not on CRAN. It is highly recommended to install this package in order to be able to visualize trees with colored parts corresponding to defferent evolutionary regimes. If <code>ggtree</code> is not installed, the figures in the vignettes and coding examples cannot be generated. At the time of writing this documentation, <code>ggtree</code> can be installed from bioconductor through the following code (if that does not work, check the <a href="https://guangchuangyu.github.io/software/ggtree/">ggtree home page</a>):</p></li>
@@ -161,7 +161,7 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <h2 class="hasAnchor">
 <a href="#from-github" class="anchor"></a>From Github</h2>
 <p>Currently the package can be installed from github using the command:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"venelin/PCMFit"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/remote-reexports">install_github</a></span>(<span class="st">"venelin/PCMFit"</span>)</a></code></pre></div>
 </div>
 <div id="from-cran" class="section level2">
 <h2 class="hasAnchor">
@@ -257,12 +257,12 @@ title = {Automatic generation of evolutionary hypotheses using mixed Gaussian ph
 <p>Although, I have been consistent in my effort to update the following list with any new package I have used in developing and testing PCMFit, chances are that I have omitted some of these tools. I apologise to their authors.</p>
 <p>The PCMFit R-package uses the following 3rd party R-packages:</p>
 <ul>
-<li>For tree processing in R: ape v5.3 <span class="citation">(Paradis et al. 2019)</span>, data.table v1.12.2 <span class="citation">(Dowle and Srinivasan 2019)</span>, PCMBase v1.2.10 <span class="citation">(Mitov 2019b)</span>;</li>
-<li>For specification and manipulation of models in R: PCMBase v1.2.10 <span class="citation">(Mitov 2019b)</span>, PCMBaseCpp v0.1.4 <span class="citation">(Mitov 2019a)</span>, SPLITT v1.2.1 <span class="citation">(Mitov 2018b)</span>;</li>
+<li>For tree processing in R: ape v5.3 <span class="citation">(Paradis et al. 2019)</span>, data.table v1.12.2 <span class="citation">(Dowle and Srinivasan 2019)</span>, PCMBase v1.2.11 <span class="citation">(Mitov 2019b)</span>;</li>
+<li>For specification and manipulation of models in R: PCMBase v1.2.11 <span class="citation">(Mitov 2019b)</span>, PCMBaseCpp v0.1.6 <span class="citation">(Mitov 2019a)</span>, SPLITT v1.2.1 <span class="citation">(Mitov 2018b)</span>;</li>
 <li>For data processing in R: data.table v1.12.2 <span class="citation">(Dowle and Srinivasan 2019)</span>;</li>
-<li>For parallel execution: iterators v1.0.10 <span class="citation">(Analytics and Weston 2018)</span>, foreach v1.4.4 <span class="citation">(Revolution Analytics and Weston, n.d.)</span>, doParallel v1.0.14 <span class="citation">(Corporation and Weston 2018)</span>;</li>
+<li>For parallel execution: iterators v1.0.10 <span class="citation">(Analytics and Weston 2018)</span>, foreach v1.4.7 <span class="citation">(Revolution Analytics and Weston, n.d.)</span>, doParallel v1.0.15 <span class="citation">(Corporation and Weston 2018)</span>;</li>
 <li>For algebraic computation: expm v0.999.4 <span class="citation">(Goulet et al. 2019)</span>, mvtnorm v1.0.11 <span class="citation">(Genz et al. 2019)</span>;</li>
-<li>For plotting: ggtree v1.15.3 <span class="citation">(Yu and Lam 2019)</span>, ggplot2 v3.2.0 <span class="citation">(Wickham et al. 2018)</span>, cowplot v1.0.0 <span class="citation">(Wilke 2019)</span>;</li>
+<li>For plotting: ggtree v1.15.3 <span class="citation">(Yu and Lam 2019)</span>, ggplot2 v3.2.1 <span class="citation">(Wickham et al. 2018)</span>, cowplot v1.0.0 <span class="citation">(Wilke 2019)</span>;</li>
 <li>For unit-testing: testthat v2.1.1 <span class="citation">(Wickham 2018)</span>;</li>
 <li>For documentation and web-site generation: roxygen2 v6.1.1 <span class="citation">(Wickham, Danenberg, and Eugster 2018)</span>, pkgdown v1.3.0 <span class="citation">(Wickham and Hesselberth 2018)</span>;</li>
 </ul>
@@ -370,10 +370,7 @@ title = {Automatic generation of evolutionary hypotheses using mixed Gaussian ph
       <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://travis-ci.org/venelin/PCMFit"><img src="https://travis-ci.org/venelin/PCMFit.svg?branch=master" alt="Travis build status"></a></li>
-<li><a href="https://codecov.io/github/venelin/PCMFit?branch=master"><img src="https://codecov.io/gh/venelin/PCMFit/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
-<li><a href="https://cran.r-project.org/package=PCMFit"><img src="http://www.r-pkg.org/badges/version/PCMFit?color=blue" alt="CRAN_Status_Badge"></a></li>
-<li><a href="https://cran.r-project.org/package=PCMFit"><img src="http://cranlogs.r-pkg.org/badges/PCMFit?color=blue" alt="Downloads"></a></li>
+<li><a href="https://travis-ci.com/venelin/PCMFit"><img src="https://travis-ci.com/venelin/PCMFit.svg?branch=master" alt="Travis build status"></a></li>
 </ul>
 </div>
 </div>

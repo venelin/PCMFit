@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -136,7 +136,8 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>PCMIteratorMapping</span>(<span class='no'>mapping</span>, <span class='no'>modelTypes</span>)</pre>
+    <pre class="usage"><span class='fu'>PCMIteratorMapping</span>(<span class='no'>mapping</span>, <span class='no'>modelTypes</span>,
+  <span class='kw'>allowedModelTypesIndices</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>NULL</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/length'>length</a></span>(<span class='no'>mapping</span>)))</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,18 +151,33 @@
       <td><p>a vector of unique elements to choose from when building the
 combinations.</p></td>
     </tr>
+    <tr>
+      <th>allowedModelTypesIndices</th>
+      <td><p>a list of the same length as <code>mapping</code>
+with integer vector elements or NULLs. When an element of this list is an
+integer vector its elements denote unique positions in modelTypes, i.e. the
+allowed model-types for the regime at that position in mapping. Default
+value: <code><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep(list(NULL), length(mapping))</a></code>.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an iterator object with S3 class c("imapping", "abstractiter", "iter").
-Calling repeatedly nextElem on this object iterates over all possible combinations
-with repetitions of the same length as the argument <code>mapping</code>.</p>
+    <p>an iterator object with S3 class <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("imapping", "abstractiter",
+"iter")</a></code>.
+Calling repeatedly nextElem on this object iterates over all possible
+combinations with repetitions of the same length as the argument
+<code>mapping</code>.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>it</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMIteratorMapping</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"BM"</span>, <span class='st'>"BM"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"BM"</span>, <span class='st'>"OU"</span>, <span class='st'>"JOU"</span>))
-<span class='kw pkg'>iterators</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] "BM" "BM"</div><div class='input'><span class='kw pkg'>iterators</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] "BM" "OU"</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>iterators</span>)
+<span class='no'>it</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMIteratorMapping</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 1 1</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 1 2</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 1 3</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 2 1</div><div class='input'>
+<span class='no'>it</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMIteratorMapping</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>3</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>NULL</span>, <span class='fl'>1</span>:<span class='fl'>2</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 1 1</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 1 2</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 2 1</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 2 2</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 3 1</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] 3 2</div><div class='input'>
+<span class='no'>it</span> <span class='kw'>&lt;-</span> <span class='fu'>PCMIteratorMapping</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"BM"</span>, <span class='st'>"BM"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"BM"</span>, <span class='st'>"OU"</span>, <span class='st'>"JOU"</span>))
+<span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] "BM" "BM"</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/iterators/topics/nextElem'>nextElem</a></span>(<span class='no'>it</span>)</div><div class='output co'>#&gt; [1] "BM" "OU"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compose a MixedGaussian model — ComposeMixedGaussianFromFits • PCMFit</title>
+<title>Collect the results from a parametric bootstrap MGPM fit — CollectBootstrapResults • PCMFit</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Compose a MixedGaussian model — ComposeMixedGaussianFromFits" />
+<meta property="og:title" content="Collect the results from a parametric bootstrap MGPM fit — CollectBootstrapResults" />
 
-<meta property="og:description" content="Compose a MixedGaussian model" />
+<meta property="og:description" content="Collect the results from a parametric bootstrap MGPM fit" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,38 +125,92 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Compose a MixedGaussian model</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/Utilities.R'><code>R/Utilities.R</code></a></small>
-    <div class="hidden name"><code>ComposeMixedGaussianFromFits.Rd</code></div>
+    <h1>Collect the results from a parametric bootstrap MGPM fit</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/ParametricBootstrap.R'><code>R/ParametricBootstrap.R</code></a></small>
+    <div class="hidden name"><code>CollectBootstrapResults.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Compose a MixedGaussian model</p>
+    <p>Collect the results from a parametric bootstrap MGPM fit</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>ComposeMixedGaussianFromFits</span>(<span class='no'>tree</span>, <span class='no'>startingNodesRegimes</span>, <span class='no'>modelTypes</span>, <span class='no'>k</span>, <span class='no'>R</span>,
-  <span class='no'>mapping</span>, <span class='no'>argsMixedGaussian</span>, <span class='no'>tableFits</span>, <span class='no'>modelTypesInTableFits</span>,
-  <span class='kw'>tableAncestors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>CollectBootstrapResults</span>(<span class='no'>resultDir</span>, <span class='no'>prefixFiles</span>, <span class='no'>ids</span>, <span class='no'>inferredTree</span>,
+  <span class='kw'>epochs</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq</a></span>(<span class='no'>minLength</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></span>(<span class='fu'>PCMTreeNodeTimes</span>(<span class='no'>inferredTree</span>)), <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>10</span> *
+  <span class='no'>minLength</span>), <span class='kw'>minLength</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
+  <span class='kw'>exprResultFile</span> <span class='kw'>=</span> <span class='st'>"paste0(prefixFiles, id, \"/Result_\", prefixFiles, id, \".RData\")"</span>,
+  <span class='kw'>nameFitObject</span> <span class='kw'>=</span> <span class='st'>"fitMappings"</span>, <span class='kw'>keepBootstrapData</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>tree, startingNodesRegimes, modelTypes, k, R, mapping, argsMixedGaussian, tableFits, modelTypesInTableFits, tableAncestors, verbose</th>
-      <td><p>Internal use.</p></td>
+      <th>resultDir, prefixFiles</th>
+      <td><p>character strings denoting the directory
+and the file prefix used to locate the result .RData files. The way how the
+result file-names are formed is specified by the argument
+<code>exprResultFile</code>.</p></td>
+    </tr>
+    <tr>
+      <th>ids</th>
+      <td><p>an integer vector denoting the ids of the bootstrap iterations.</p></td>
+    </tr>
+    <tr>
+      <th>inferredTree</th>
+      <td><p>a PCMTree or a phylo object with set partition as
+inferred during the ML or recursive clade partition search. This is the tree
+used to simulate the bootstrap datasets.</p></td>
+    </tr>
+    <tr>
+      <th>epochs</th>
+      <td><p>a double vector denoting in increasing order the time-points
+at which ancestral mean and regression slope parameters should be calculated.
+The inferredTree is to be 'sliced' by inserting singleton nodes at all
+branch crossings with each epoch. By default the epochs are set at equal
+intervals of length 10*minLength, via the following code:
+<code><a href='https://www.rdocumentation.org/packages/base/topics/seq'>
+seq(minLength, max(PCMTreeNodeTimes(inferredTree)), by = 10*minLength)</a></code>.
+See also <code>minLength</code>.</p></td>
+    </tr>
+    <tr>
+      <th>minLength</th>
+      <td><p>a positive double denoting the minimal time distance between
+a node in the tree and an epoch in <code>epochs</code>, at which an additional
+singleton node can be inserted. Default: 0.2.</p></td>
+    </tr>
+    <tr>
+      <th>exprResultFile</th>
+      <td><p>a character string evaluating to an R expression.
+Default setting:
+<code>
+'paste0(prefixFiles, id,
+        "/Result_", prefixFiles, id, ".RData")'
+</code>
+In the above R-expression, <code>id</code> is any integer element from <code>ids</code>.</p></td>
+    </tr>
+    <tr>
+      <th>nameFitObject</th>
+      <td><p>a character string (default: 'fitMappings') denoting the
+name of the PCMFitModelMappings object inside each result .RData file (see
+also <code>resultDir</code> and <code>prefixFiles</code>).</p></td>
+    </tr>
+    <tr>
+      <th>keepBootstrapData</th>
+      <td><p>logical indicating if the returned object should
+contain the bootstrap simulated trait data.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical indicating if some debug or information messages
+should be printed during the collection of the results.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a PCM object.</p>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>This is an internal function that needs to be exported solely for
-technical reasons. Not intended to be called by the end user.</p>
+    <p>a named list of S3 class 'ParametricBootstrapFits'.</p>
     
 
   </div>
@@ -166,8 +220,6 @@ technical reasons. Not intended to be called by the end user.</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
           </ul>
 
   </div>

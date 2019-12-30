@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Optimal information score search for a mixed Gaussian phylogenetic
-model, given a tree, trait measurements at its tips and a score function. — PCMFitMixed • PCMFit</title>
+<title>Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
+measurements at its tips and a score function. — PCMFitMixed • PCMFit</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -31,16 +31,22 @@ model, given a tree, trait measurements at its tips and a score function. — PC
 
 
 
-<meta property="og:title" content="Optimal information score search for a mixed Gaussian phylogenetic
-model, given a tree, trait measurements at its tips and a score function. — PCMFitMixed" />
+<meta property="og:title" content="Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
+measurements at its tips and a score function. — PCMFitMixed" />
 
-<meta property="og:description" content="A mixed Gaussian phylogenetic model (MGPM) represents a Gaussian
-phylogenetic model with shifts in the underlying parameters and, optionally,
-type of Gaussian stochastic process (e.g. shifts from a BM to an OU model of
-evolution). Formally, an MGPM consists of the following components:
-A shift-point configuration: this is a subset of the nodes in the tree
-including at least the root node
-b
+<meta property="og:description" content="A mixed Gaussian phylogenetic model (MGPM) represents a
+Gaussian phylogenetic model with shifts in the underlying parameters and,
+optionally, type of Gaussian stochastic process (e.g. shifts from a BM to an
+OU model of evolution). The function PCMFitMixed implements a
+recursive clade partition (RCP) search for an approximate information score
+optimization. A deteailed description of the algorithm is provided in
+Appendix A in Mitov et al. 2019a. For this documentation, it is important to
+note that the algorithm proceeds in three steps as follows:
+clade-fitsModel type fits to all clades in the tree bigger than a specified
+(see argument minCladeSize).
+RCPRecursive clade partition search.
+Round-robinRound-robin search for an optimal model type mapping in
+the best partitions found during the RCP-step. This step is optional.
 " />
 <meta name="twitter:card" content="summary" />
 
@@ -82,7 +88,7 @@ b
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -134,22 +140,28 @@ b
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Optimal information score search for a mixed Gaussian phylogenetic
-model, given a tree, trait measurements at its tips and a score function.</h1>
+    <h1>Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
+measurements at its tips and a score function.</h1>
     <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/PCMFitMixed.R'><code>R/PCMFitMixed.R</code></a></small>
     <div class="hidden name"><code>PCMFitMixed.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>A mixed Gaussian phylogenetic model (MGPM) represents a Gaussian
-phylogenetic model with shifts in the underlying parameters and, optionally,
-type of Gaussian stochastic process (e.g. shifts from a BM to an OU model of
-evolution). Formally, an MGPM consists of the following components:</p><ul>
-<li><p>A shift-point configuration: this is a subset of the nodes in the tree
-including at least the root node</p></li>
-<li><p>b</p></li>
-</ul>
+    <p>A mixed Gaussian phylogenetic model (MGPM) represents a
+Gaussian phylogenetic model with shifts in the underlying parameters and,
+optionally, type of Gaussian stochastic process (e.g. shifts from a BM to an
+OU model of evolution). The function <code>PCMFitMixed</code> implements a
+recursive clade partition (RCP) search for an approximate information score
+optimization. A deteailed description of the algorithm is provided in
+Appendix A in Mitov et al. 2019a. For this documentation, it is important to
+note that the algorithm proceeds in three steps as follows:</p><dl class='dl-horizontal'>
+<dt>clade-fits</dt><dd><p>Model type fits to all clades in the tree bigger than a specified
+(see argument <code>minCladeSize</code>).</p></dd>
+<dt>RCP</dt><dd><p>Recursive clade partition search.</p></dd>
+<dt>Round-robin</dt><dd><p>Round-robin search for an optimal model type mapping in
+the best partitions found during the RCP-step. This step is optional.</p></dd>
+</dl>
     
     </div>
 
@@ -165,9 +177,9 @@ including at least the root node</p></li>
   <span class='kw'>maxCladePartitionLevel</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/NULL'>is.null</a></span>(<span class='no'>listPartitions</span>)) <span class='fl'>8L</span> <span class='kw'>else</span> <span class='fl'>1L</span>,
   <span class='kw'>maxNumNodesPerCladePartition</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
   <span class='kw'>listAllowedModelTypesIndices</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"best-clade-2"</span>, <span class='st'>"best-clade"</span>, <span class='st'>"all"</span>),
-  <span class='kw'>argsConfigOptim1</span> <span class='kw'>=</span> <span class='fu'>DefaultArgsConfigOptim</span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
-  <span class='kw'>argsConfigOptim2</span> <span class='kw'>=</span> <span class='fu'>DefaultArgsConfigOptim</span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>4</span>),
-  <span class='kw'>argsConfigOptim3</span> <span class='kw'>=</span> <span class='fu'>DefaultArgsConfigOptim</span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
+  <span class='kw'>argsConfigOptim1</span> <span class='kw'>=</span> <span class='fu'><a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a></span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
+  <span class='kw'>argsConfigOptim2</span> <span class='kw'>=</span> <span class='fu'><a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a></span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>4</span>),
+  <span class='kw'>argsConfigOptim3</span> <span class='kw'>=</span> <span class='fu'><a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a></span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
   <span class='kw'>maxNumRoundRobins</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>maxNumPartitionsInRoundRobins</span> <span class='kw'>=</span> <span class='fl'>2</span>,
   <span class='kw'>listPCMOptions</span> <span class='kw'>=</span> <span class='fu'>PCMOptions</span>(), <span class='kw'>skipFitWhenFoundInTableFits</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>prefixFiles</span> <span class='kw'>=</span> <span class='st'>"fits_"</span>,
@@ -182,7 +194,7 @@ including at least the root node</p></li>
       <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
 column of X contains the measured trait values for one species (tip in tree).
 Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-Thse two values have are treated differently when calculating
+These two values have are treated differently when calculating
 likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
     </tr>
     <tr>
@@ -190,12 +202,66 @@ likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
       <td><p>a phylo object with N tips.</p></td>
     </tr>
     <tr>
+      <th>modelTypes</th>
+      <td><p>a named character string vector. Each such
+string denotes a MGPM model class. The default setting is
+<code>MGPMDefaultModelTypes()</code>, which corresponds to the model types
+<code>A,B,C,D,E,F</code> as defined in Mitov et al. 2019a:</p><dl class='dl-horizontal'>
+<dt>A. </dt><dd><p>BM (H = 0, diagonal \(\Sigma\)): BM, uncorrelated traits.</p></dd>
+<dt>B. </dt><dd><p>BM (H = 0, symmetric \(\Sigma\)): BM, correlated traits.</p></dd>
+<dt>C. </dt><dd><p>OU (diagonal H, diagonal \(\Sigma\)): OU, uncorrelated traits.</p></dd>
+<dt>D. </dt><dd><p>OU (diagonal H, symmetric \(\Sigma\)): OU, correlated traits, but simple
+(diagonal) selection strength matrix.</p></dd>
+<dt>E. </dt><dd><p>OU (symmetric H, symmetric \(\Sigma\)): An OU with nondiagonal symmetric H
+and nondiagonal symmetric \(\Sigma\).</p></dd>
+<dt>F. </dt><dd><p>OU (asymmetric H, symmetric \(\Sigma\)): An OU with nondiagonal asymmetric
+H and nondiagonal symmetric \(\Sigma\).</p></dd>
+</dl><p>See also the argument <code>subModels</code> and
+<code>MGPMDefaultModelTypes</code>.</p></td>
+    </tr>
+    <tr>
+      <th>subModels</th>
+      <td><p>a named character string vector with names and elements
+among the names of <code>modelTypes</code>. This argument specifies a nesting
+relationship between the model types: a model A is a sub-model of a
+model B if A's parameters are a subset of B's parameters. During the RCP
+search, the parameters of a sub-model fit to a clade in the tree are used as
+a hint for the parameters of its encompassing models. The default setting is
+<code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c(B = 'A', C = 'A', D = 'B', E = 'D', F = 'E')</a></code>. Note that this
+setting is valid only for the default setting of the argument
+<code>modelTypes</code>. Setting this argument to <code>NULL</code> will turn off the
+use of nested models as hints.</p></td>
+    </tr>
+    <tr>
+      <th>argsMixedGaussian</th>
+      <td><p>a list of arguments passed to
+<code>MixedGaussian</code>. Default:
+<code>Args_MixedGaussian_MGPMDefaultModelTypes()</code>.</p></td>
+    </tr>
+    <tr>
       <th>SE</th>
       <td><p>a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
-Cholesky factor of the variance covariance matrix for the measurement error
+factor of the variance covariance matrix for the measurement error
 for each node i=1, ..., N.
 Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>generatePCMModelsFun</th>
+      <td><p>A function generating PCM model types.
+Specifying this function is only needed if the inference is to be done using #' custom candidate model types. Default setting:
+<code>PCMGenerateModelTypes</code>. Note that this function is called in
+each worker process and populates the global environment with
+<code>PCMParentClasses</code> and <code>PCMSpecify</code> S3 methods. See
+also <code>PCMGenerateModelTypes</code>.</p></td>
+    </tr>
+    <tr>
+      <th>metaIFun</th>
+      <td><p>a metaI function needed to generate meta- and cache- objects
+for the model objects generated during the RCP search. By default this is
+set to <code>PCMInfo</code> from the package PCMBase. For faster execution,
+it is recommended to use the function <code>PCMInfoCpp</code> from the package
+PCMBaseCpp.</p></td>
     </tr>
     <tr>
       <th>positiveValueGuard</th>
@@ -208,20 +274,162 @@ is by setting more stringent values for the runtime options
 <code>PCMOptions</code>).</p></td>
     </tr>
     <tr>
+      <th>scoreFun</th>
+      <td><p>a information score function such as AIC or BIC.
+Default: <code><a href='https://www.rdocumentation.org/packages/stats/topics/AIC'>AIC</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>fitMappingsPrev</th>
+      <td><p>an object of S3 class PCMFitModelMappings, returned
+during a previous call to <code>PCMFitMixed</code>. Default: <code>NULL</code>. This can
+be used to enrich a previous MGPM inference with new model types. Currently,
+this feature is experimental. See also arguments <code>tableFitsPrev</code> and
+<code>modelTypesInTableFitsPrev</code>.</p></td>
+    </tr>
+    <tr>
+      <th>tableFitsPrev</th>
+      <td><p>a <code>data.table</code> object containing stored
+MGPM fits from a previous (possibly unfinished) call to <code>PCMFitMixed</code>.
+During a run <code>PCMFitMixed</code> stores all visited candidate MGPM models in
+a file named 'Current_X.RData' where X is the value of the argument
+<code>prefixFiles</code>. This file contains a list object of class
+'PCMFitModelMappings' named <code>'listResults'</code>. One of the elements in
+<code>'listResults'</code> is a data.table <code>'tableFits'</code> that can be passed
+as a value of this argument. Default: <code>fitMappingsPrev$tableFits</code>.
+If a candidate model is found in tableFitsPrev, the previously inferred
+parameters will be reused unless the argument
+<code>skipFitWhenFoundInTableFits</code> is set to <code>FALSE</code>. See
+also the argument <code>skipFitWhenFoundInTableFits</code>.</p></td>
+    </tr>
+    <tr>
+      <th>modelTypesInTableFitsPrev</th>
+      <td><p>model types used for the fits in
+<code>'tableFitsPrev'</code>. Default: <code>NULL</code>, which means that the same
+model types are used as specified in the argument <code>modelTypes</code>.</p></td>
+    </tr>
+    <tr>
+      <th>listPartitions, minCladeSizes, skipNodes</th>
+      <td><p>arguments controlling the
+search for an optimal shift point configuration. If not <code>NULL</code>,
+<code>listPartitions</code> should be specified as a list of integer vectors with
+each such vector containing node indices in <code>tree</code> corresponding to a
+shift-point configuration (partition). If <code>listPartitions</code> is
+<code>NULL</code> (default) then the shift-point configuration are generated
+according to the RCP search algorithm and the arguments <code>minCladeSizes</code>
+and <code>skipNodes</code>. The argument <code>minCladeSizes</code> is an integer or a
+vector of integers - if a single integer it specifies the the minimum number
+of tips allowed in a part at al recursion levels of the RCP algorithm; if a
+vector, then each element specifies the minimal part size at each level of
+the algorithm (see also argument <code>maxCladePartitionLevel</code>). By default
+this is set to <code>20</code>. The argument <code>skipNodes</code> is used in
+combination with <code>minCladeSizes</code>. This is an integer or character
+vector indicating the ids or labels of nodes that should not be used as
+partition nodes. By default, this is an empty character vector. Default
+setting for the three arguments:
+<code>
+  listPartitions = NULL,
+  minCladeSizes = 20L,
+  skipNodes = character()</code>. See also <code>maxCladePartitionLevel</code>,
+ <code>maxNumNodesPerCladePartition</code> and
+ <code>listAllowedModelTypesIndices</code>.</p></td>
+    </tr>
+    <tr>
+      <th>maxCladePartitionLevel</th>
+      <td><p>An integer limiting the number of recursive
+levels of the RCP search algorithm. Default setting:
+<code>if(is.null(listPartitions)) 8L else 1L</code>.</p></td>
+    </tr>
+    <tr>
+      <th>maxNumNodesPerCladePartition</th>
+      <td><p>An integer controlling the number of
+partition nodes in subtree-partitions during the RCP search. By default,
+this is set to <code>1</code>, meaning that only single shifts within a parent part
+will be searched. Setting this argument to a bigger value will make the
+RCP search algorithm 'less greedy' but will cause a significant slow-down
+in the search - many more partitions will be visited during the search.</p></td>
+    </tr>
+    <tr>
+      <th>listAllowedModelTypesIndices</th>
+      <td><p>Default setting: <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("best-clade-2", "best-clade", "all")</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>argsConfigOptim1, argsConfigOptim2, argsConfigOptim3</th>
+      <td><p>Arguments
+controlling the calls to <code><a href='PCMFit.html'>PCMFit</a></code> during the three steps of the
+RCP algorith.
+<code>
+argsConfigOptim1 = <a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a>(numCallsOptim = 10),
+argsConfigOptim2 = <a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a>(numCallsOptim = 4),
+argsConfigOptim3 = <a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a>(numCallsOptim = 10)
+</code>.</p></td>
+    </tr>
+    <tr>
+      <th>maxNumRoundRobins</th>
+      <td><p>number of round-robin iterations. By default this is
+set ot 0, i.e. no round-robin step is performed.</p></td>
+    </tr>
+    <tr>
+      <th>maxNumPartitionsInRoundRobins</th>
+      <td><p>maximum number (2 by default) of top
+partitions tobe included in the round-robin step. This argument only has an
+impact if <code>maxNumRoundRobins &gt; 0</code>.</p></td>
+    </tr>
+    <tr>
+      <th>listPCMOptions</th>
+      <td><p>a list of PCM runtime options to be specified prior
+to running the fit. By default, this is set to <code>PCMOptions()</code>.</p></td>
+    </tr>
+    <tr>
+      <th>skipFitWhenFoundInTableFits</th>
+      <td><p>logical. Default: <code>TRUE</code>.</p></td>
+    </tr>
+    <tr>
       <th>doParallel</th>
-      <td><p>logical indicating if optim calls should be executed in
-parallel using the <code>foreach() %dopar% {}</code> construct. Default: FALSE.</p></td>
+      <td><p>logical indicating if the recursive clade partition search
+should be executed in parallel. Default: <code>FALSE</code>.</p></td>
+    </tr>
+    <tr>
+      <th>prefixFiles</th>
+      <td><p>a character string used to name a 'Current_X.RData' file
+stored during the inference, where X is to be replaced by the value of
+<code>prefixFiles</code>. Note that the name
+'prefixFiles' can be misleading, because the actual file-name does not start
+with it - this is due for compliance with existing code. Default:
+<code>"fits_"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>saveTempWorkerResults, printFitVectorsToConsole, debug</th>
+      <td><p>Debugging options controlling log-messages and storing of temporary results.
+These are mostly for internal use. Default setting:
+<code>saveTempWorkerResults, = TRUE, printFitVectorsToConsole = FALSE,
+debug = FALSE</code></p></td>
     </tr>
     <tr>
       <th>verbose</th>
       <td><p>logical indicating if information messages should be printed
-to the console while running. Default: FALSE.</p></td>
+to the console while running. Default: <code>TRUE</code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an S3 object of class PCMFitModelMappings.</p>
+    <p>an object of S3 class PCMFitModelMappings.</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>[Mitov et al. 2019a] Mitov, V., Bartoszek, K., &amp; Stadler, T. (2019).
+Automatic generation of evolutionary hypotheses using mixed Gaussian
+phylogenetic models. Proceedings of the National Academy of Sciences of the
+United States of America, 35, 201813823.
+http://doi.org/10.1073/pnas.1813823116</p>
+<p>[Mitov et al. 2019b] Mitov, V., Bartoszek, K., Asimomitis, G., &amp; Stadler, T. (2019). Fast
+ likelihood calculation for multivariate Gaussian phylogenetic models with
+ shifts. Theoretical Population Biology.
+ http://doi.org/10.1016/j.tpb.2019.11.005</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code>PCMFitMixed</code> <code>PCMOptions</code></p></div>
     
 
   </div>
@@ -231,6 +439,10 @@ to the console while running. Default: FALSE.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#references">References</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

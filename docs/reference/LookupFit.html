@@ -76,7 +76,7 @@ previously run fits." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -142,7 +142,7 @@ previously run fits.</p>
     </div>
 
     <pre class="usage"><span class='fu'>LookupFit</span>(<span class='no'>tree</span>, <span class='no'>modelTypes</span>, <span class='no'>modelMapping</span>, <span class='no'>tableFits</span>,
-  <span class='kw'>hashCodes</span> <span class='kw'>=</span> <span class='fu'>HashCodes</span>(<span class='kw'>tree</span> <span class='kw'>=</span> <span class='no'>tree</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='no'>modelTypes</span>,
+  <span class='kw'>hashCodes</span> <span class='kw'>=</span> <span class='fu'><a href='HashCodes.html'>HashCodes</a></span>(<span class='kw'>tree</span> <span class='kw'>=</span> <span class='no'>tree</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='no'>modelTypes</span>,
   <span class='kw'>startingNodesRegimesLabels</span> <span class='kw'>=</span>
   <span class='fu'>PCMTreeGetLabels</span>(<span class='no'>tree</span>)[<span class='fu'>PCMTreeGetPartition</span>(<span class='no'>tree</span>)], <span class='kw'>modelMapping</span> <span class='kw'>=</span>
   <span class='no'>modelMapping</span>))</pre>
@@ -160,7 +160,8 @@ previously run fits.</p>
     </tr>
     <tr>
       <th>modelMapping</th>
-      <td><p>an integer or character vector to be matched against modelTypes</p></td>
+      <td><p>an integer or character vector to be matched against
+modelTypes</p></td>
     </tr>
     <tr>
       <th>tableFits</th>
@@ -171,6 +172,15 @@ previously run fits.</p>
  <code>PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)]</code>.</p></li>
 <li><p>hashCodeMappingan MD5 key column of type character-vector</p></li>
 </ul></td>
+    </tr>
+    <tr>
+      <th>hashCodes</th>
+      <td><p>the result of calling <code><a href='HashCodes.html'>HashCodes</a></code> on the passed
+arguments <code>tree, modelTypes, modelMapping</code>. Default:
+<code><a href='HashCodes.html'>HashCodes(
+  tree = tree, modelTypes = modelTypes,
+  startingNodesRegimesLabels = PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)],
+  modelMapping = modelMapping )</a></code>.</p></td>
     </tr>
     </table>
     

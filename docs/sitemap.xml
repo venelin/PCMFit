@@ -4,10 +4,22 @@
     <loc>http://venelin.github.io/PCMFit/index.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMFit/reference/CollectBootstrapResults.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMFit/reference/ComposeMixedGaussianFromFits.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMFit/reference/DefaultArgsConfigOptim.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMFit/reference/GuessInitVecParams.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMFit/reference/HashCodes.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMFit/reference/JitterModelParams.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/LookupFit.html</loc>
@@ -19,28 +31,31 @@
     <loc>http://venelin.github.io/PCMFit/reference/PCMFit.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMFit/reference/PCMFitDemoObjects.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMFit/reference/PCMFitMixed.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/PCMIteratorMapping.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMFit/reference/PCMIteratorMapping2.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMFit/reference/PCMLoadMixedGaussianFromFitVector.html</loc>
-  </url>
-  <url>
     <loc>http://venelin.github.io/PCMFit/reference/PCMNextMapping.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMFit/reference/PCMNextMapping2.html</loc>
+    <loc>http://venelin.github.io/PCMFit/reference/RetrieveBestFitScore.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMFit/reference/RetrieveBestModel.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/RetrieveFittedModelsFromFitVectors.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMFit/reference/UpdateCladeFitsUsingSubModels.html</loc>
+    <loc>http://venelin.github.io/PCMFit/reference/dot-cacheEnv.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMFit/reference/is.PCMFit.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/runOptim.html</loc>

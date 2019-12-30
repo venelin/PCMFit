@@ -40,15 +40,15 @@ string denotes a MGPM model class. The default setting is
 \code{MGPMDefaultModelTypes()}, which corresponds to the model types
 \code{A,B,C,D,E,F} as defined in Mitov et al. 2019a:
 \describe{
-\item{A. }{BM (H = 0, diagonal Σ): BM, uncorrelated traits.}
-\item{B. }{BM (H = 0, symmetric Σ): BM, correlated traits.}
-\item{C. }{OU (diagonal H, diagonal Σ): OU, uncorrelated traits.}
-\item{D. }{OU (diagonal H, symmetric Σ): OU, correlated traits, but simple
+\item{A. }{BM (H = 0, diagonal \eqn{\Sigma}): BM, uncorrelated traits.}
+\item{B. }{BM (H = 0, symmetric \eqn{\Sigma}): BM, correlated traits.}
+\item{C. }{OU (diagonal H, diagonal \eqn{\Sigma}): OU, uncorrelated traits.}
+\item{D. }{OU (diagonal H, symmetric \eqn{\Sigma}): OU, correlated traits, but simple
 (diagonal) selection strength matrix.}
-\item{E. }{OU (symmetric H, symmetric Σ): An OU with nondiagonal symmetric H
-and nondiagonal symmetric Σ.}
-\item{F. }{OU (asymmetric H, symmetric Σ): An OU with nondiagonal asymmetric
-H and nondiagonal symmetric Σ.}
+\item{E. }{OU (symmetric H, symmetric \eqn{\Sigma}): An OU with nondiagonal symmetric H
+and nondiagonal symmetric \eqn{\Sigma}.}
+\item{F. }{OU (asymmetric H, symmetric \eqn{\Sigma}): An OU with nondiagonal asymmetric
+H and nondiagonal symmetric \eqn{\Sigma}.}
 }
 See also the argument \code{subModels} and
 \code{\link{MGPMDefaultModelTypes}}.}

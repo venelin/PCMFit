@@ -77,7 +77,7 @@ optimization or MCMC inference." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">PCMFit</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -162,6 +162,22 @@ optimization or MCMC inference.</p>
       <td><p>a PCM model object.</p></td>
     </tr>
     <tr>
+      <th>regimes</th>
+      <td><p>a vector of character strings denoting regimes in <code>o</code>,
+for which parameters must be guessed. This argument has special usage in
+S3 methods and should be left to its default setting (<code>PCMRegimes(o)</code>).</p></td>
+    </tr>
+    <tr>
+      <th>oParent</th>
+      <td><p>a PCM model object. This argument has special usage in
+S3 methods and should be left to its default setting (<code>o</code>).</p></td>
+    </tr>
+    <tr>
+      <th>accessExpr</th>
+      <td><p>a character string. This argument has special usage in
+S3 methods and should be left to its default setting (<code>""</code>).</p></td>
+    </tr>
+    <tr>
       <th>n</th>
       <td><p>integer denoting the number of parameter vectors to generate.</p></td>
     </tr>
@@ -170,6 +186,26 @@ optimization or MCMC inference.</p>
       <td><p>lists of parameters
 passed to <code>PCMParamLowerLimit</code> and <code>PCMParamUpperLimit</code>
 respectively. (see the argument <code>returnWithinBoundsOnly</code>).</p></td>
+    </tr>
+    <tr>
+      <th>X</th>
+      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
+column of X contains the measured trait values for one species (tip in tree).
+Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
+These two values have are treated differently when calculating
+likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
+    </tr>
+    <tr>
+      <th>tree</th>
+      <td><p>a phylo object with N tips.</p></td>
+    </tr>
+    <tr>
+      <th>SE</th>
+      <td><p>a k x N matrix specifying the standard error for each measurement in
+X. Alternatively, a k x k x N cube specifying an upper triangular k x k
+factor of the variance covariance matrix for the measurement error
+for each node i=1, ..., N.
+Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>
       <th>tableAnc</th>
@@ -193,12 +229,9 @@ Internal use only.</p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments passed to implementations.</p></td>
-    </tr>
-    <tr>
-      <th>k</th>
-      <td><p>integer denoting the number of traits in o.
-Default: <code>PCMNumTraits(o)</code>.</p></td>
+      <td><p>additional arguments passed to implementations. Currently an
+N x N matrix argument named treeVCVMat can be passed which is equal to the
+phylogenetic covariance matrix for tree.</p></td>
     </tr>
     </table>
     
@@ -278,55 +311,35 @@ Default: <code>PCMNumTraits(o)</code>.</p></td>
 <span class='co'># likelihood at true parameters used to generate the data</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] 5.00 2.00 1.60 0.01 2.40 2.40 0.08 0.80</div><div class='input'><span class='fu'>likFunBM</span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] -395.0189
 #&gt; attr(,"X0")
-#&gt; [1] 5 2
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div><div class='input'>
+#&gt; [1] 5 2</div><div class='input'>
 <span class='co'># likelihood at guessed parameter values for the BM model</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5]     [,6]        [,7]
-#&gt; [1,] 5.195898 3.968937 1.377055 -0.0455495 2.350337 2.556571 -0.08695515
-#&gt;          [,8]
-#&gt; [1,] 0.835641</div><div class='input'><span class='fu'>likFunBM</span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt; [1] -393.2269
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5]     [,6]      [,7]
+#&gt; [1,] 5.195898 3.968937 1.501725 -0.1199992 1.878255 2.759574 0.1405427
+#&gt;           [,8]
+#&gt; [1,] 0.7858626</div><div class='input'><span class='fu'>likFunBM</span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt; [1] -398.6362
 #&gt; attr(,"X0")
-#&gt; [1] 5.195898 3.968937
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div><div class='input'>
+#&gt; [1] 5.195898 3.968937</div><div class='input'>
 <span class='co'># likelihood at guessed parameter values for the OU model</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessOU</span>)</div><div class='output co'>#&gt;          [,1]     [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]    [,11]
 #&gt; [1,] 5.195898 3.968937    0    0    0    0    0    0    0     0 3.636564
-#&gt;        [,12]    [,13]    [,14]    [,15]      [,16]    [,17]    [,18]
-#&gt; [1,] 7.50923 4.084623 6.026438 1.377055 -0.0455495 2.350337 2.556571
-#&gt;            [,19]    [,20]
-#&gt; [1,] -0.08695515 0.835641</div><div class='input'><span class='fu'>likFunOU</span>(<span class='no'>vecGuessOU</span>)</div><div class='output co'>#&gt; [1] -393.2269
+#&gt;        [,12]    [,13]    [,14]    [,15]     [,16]    [,17]    [,18]      [,19]
+#&gt; [1,] 7.50923 4.084623 6.026438 1.484078 0.2442901 2.217484 2.067015 -0.0392634
+#&gt;          [,20]
+#&gt; [1,] 0.8843471</div><div class='input'><span class='fu'>likFunOU</span>(<span class='no'>vecGuessOU</span>)</div><div class='output co'>#&gt; [1] -397.1146
 #&gt; attr(,"X0")
-#&gt; [1] 5.195898 3.968937
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div><div class='input'>
+#&gt; [1] 5.195898 3.968937</div><div class='input'>
 <span class='co'># likelihood at guessed parameter values for the BM model</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5] [,6] [,7] [,8] [,9] [,10]
-#&gt; [1,] 5.195898 3.968937 1.377055 -0.0455495 2.350337    0    0    0    0     0
-#&gt;      [,11]    [,12]       [,13]    [,14]    [,15] [,16]      [,17]
-#&gt; [1,]     0 2.556571 -0.08695515 0.835641 0.067928     0 0.08735338</div><div class='input'><span class='fu'>likFunMG</span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt; [1] -393.3124
+#&gt; [1,] 5.195898 3.968937 1.227323 -0.3968675 1.710291    0    0    0    0     0
+#&gt;      [,11]    [,12]      [,13]     [,14]    [,15] [,16]      [,17]
+#&gt; [1,]     0 2.336112 -0.6563992 0.8052728 0.067928     0 0.08735338</div><div class='input'><span class='fu'>likFunMG</span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt; [1] -409.752
 #&gt; attr(,"X0")
-#&gt; [1] 5.195898 3.968937
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div><div class='input'>
+#&gt; [1] 5.195898 3.968937</div><div class='input'>
 <span class='co'># likelihood at completely random parameter values</span>
 <span class='no'>vecRand</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMParamRandomVecParams.html'>PCMParamRandomVecParams</a></span>(<span class='no'>modelBM.ab.Guess</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>R</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='fu'>likFunBM</span>(<span class='no'>vecRand</span>)</div><div class='output co'>#&gt; [1] -613.3641
+<span class='fu'>likFunBM</span>(<span class='no'>vecRand</span>)</div><div class='output co'>#&gt; [1] -553.4146
 #&gt; attr(,"X0")
-#&gt; [1]  6.843086 -5.212989
-#&gt; attr(,"class")
-#&gt; [1] "VectorParameter" "_Global"         "numeric"        
-#&gt; attr(,"description")
-#&gt; [1] "trait values at the root"</div></pre>
+#&gt; [1]  4.194961 -2.341388</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

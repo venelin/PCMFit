@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![Travis build
-status](https://travis-ci.org/venelin/PCMFit.svg?branch=master)](https://travis-ci.org/venelin/PCMFit)
+status](https://travis-ci.com/venelin/PCMFit.svg?branch=master)](https://travis-ci.com/venelin/PCMFit)
 <!--[![Coverage status](https://codecov.io/gh/venelin/PCMFit/branch/master/graph/badge.svg)](https://codecov.io/github/venelin/PCMFit?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/PCMFit?color=blue)](https://cran.r-project.org/package=PCMFit)
 [![Downloads](http://cranlogs.r-pkg.org/badges/PCMFit?color=blue)](https://cran.r-project.org/package=PCMFit)
