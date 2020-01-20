@@ -123,8 +123,6 @@
 #' library(PCMBase)
 #'
 #' tree <- PCMBaseTestObjects$tree.ab
-#' model <-
-#'   PCMExtractDimensions(PCMBaseTestObjects$model_MixedGaussian_ab, dims = 1:2)
 #' X <- PCMBaseTestObjects$traits.ab.123[1:2, ]
 #'
 #' # Create a MGPM environment
@@ -203,10 +201,14 @@
 #'        c(0, 52, 46, 0),
 #'        c(1, 5, 2)), silent = TRUE)
 #' stopifnot(inherits(error, "try-error"))
+#'
+#' # At this stage, mgpm's parameters are all equal to 0.
+#' # Don't do this, because it does not execute PCMParamRandomVecParams in the environment env.
 #' mgpmVec <- as.vector(mgpm)
 #' mgpmVec[MGPMPosv(mgpm)] <- PCMParamRandomVecParams(mgpm$model)
 #'
-#' mgpm2 <- as.MGPM(mgpmVec, attr(mgpm, "env"))
+#' # Do this way:
+#' mgpm2 <- MGPM(attr(mgpm, "env"), mgpm$K, mgpm$n, mgpm$l, mgpm$r, mgpm$m, NULL)
 #'
 #' stopifnot(identical(mgpm$n, mgpm2$n))
 #' stopifnot(identical(mgpm$l, mgpm2$l))
@@ -214,8 +216,7 @@
 #' stopifnot(identical(mgpm$m, mgpm2$m))
 #'
 #' # These two should be different values but same length:
-#' mgpm$v
-#' mgpm2$v
+#' cbind(mgpm$v, mgpm2$v)
 #'
 #' mgpm3 <- MGPM(env, c(4, 8, 46, 52, 73, 0, 0.4, 0.1, 0.05, 0, 46, 52, 0, 1, 5, 2))
 #' stopifnot(identical(mgpm$n, mgpm3$n))
@@ -237,7 +238,7 @@
 #'   mgpm4$tree) +
 #'   ggtree::geom_nodelab(angle = 45) + ggtree::geom_tiplab(angle = 45)
 #' }
-#' @seealso \code{\link{MGPMEnvironment}} \code{\link{MGPMPosK}} \code{\link{MixedGaussian}}
+#' @seealso \code{\link{MGPMEnvironment}} \code{\link{MGPMPosK}} \code{\link{PCMBase::MixedGaussian}}
 #'
 #' @import PCMBase
 #' @export
@@ -497,11 +498,9 @@ MGPM <- function(
   # Number of unique regimes
   R <- length(regimeNames)
 
-  namesModelTypes <- names(env$modelTemplate)[sapply(env$modelTemplate, is.PCM)]
-
   if(is.null(s)) {
     if(is.null(m)) {
-      m <- sample(seq_along(namesModelTypes), R, replace = TRUE)
+      m <- sample(seq_along(get("modelTypeNames", env)), R, replace = TRUE)
     }
     m <- as.integer(m)
     if(length(m) != R) {
@@ -518,6 +517,7 @@ MGPM <- function(
     }
   }
   names(m) <- regimeNames
+  env$mNewModel <- m
 
   ##................................................................
   ##
@@ -525,17 +525,24 @@ MGPM <- function(
   ##
   ##................................................................
 
-  model <- do.call(
+  with(env, newModel <- do.call(
     MixedGaussian,
-    c(list(k = env$k,
-           modelTypes = env$modelTemplate[namesModelTypes],
-           mapping = m),
-      attr(env$modelTemplate, "spec")[
-        setdiff(names(attr(env$modelTemplate, "spec")), namesModelTypes)]))
+    c(list(k = k,
+           modelTypes = modelTemplate[modelTypeNames],
+           mapping = mNewModel),
+      attr(modelTemplate, "spec")[setdiff(names(attr(modelTemplate, "spec")), modelTypeNames)])))
+
+  # model <- do.call(
+  #   MixedGaussian,
+  #   c(list(k = get("k", env),
+  #          modelTypes = get("modelTemplate", env)[get("modelTypeNames", env)],
+  #          mapping = m),
+  #     attr(get("modelTemplate", env), "spec")[
+  #       setdiff(names(attr(get("modelTemplate", env), "spec")), get("modelTypeNames", env))]))
 
   # Load the parameter values into the model (the number of parameters is
   # stored in P)
-  P <- as.integer(attr(model, "p"))
+  P <- as.integer(attr(env$newModel, "p"))
 
   ##................................................................
   ##
@@ -545,8 +552,12 @@ MGPM <- function(
 
   if(is.null(s)) {
     if(is.null(v)) {
-      # Generate a random v according to the parameter limits
-      v <- with(env, PCMParamRandomVecParams(model))
+      # Generate a random v according to the parameter limits. This is done by evaluating
+      # PCMParamRandomVecParams(model) in env, in order to use any specific settings such
+      # as S3 methods for the functions PCMBase::PCMParamLowerLimit and
+      # PCMBase::PCMParamUpperLimit. However.
+      # The object model must exist in the environme
+      v <- with(env, PCMParamRandomVecParams(newModel))
     } else if(is.na(v)) {
       v <- double(P)
     } else if(length(v) != P) {
@@ -561,14 +572,19 @@ MGPM <- function(
     if(length(s) >= 1L + K + K + K + R + P) {
       v <- s[-seq_len(1L + K + K + K + R)]
     }
-    P1 <- PCMParamLoadOrStore(model, v, offset = 0, k = env$k, R = R,load = TRUE)
-    if(P != P1) {
-      stop(paste0(
-        "MGPM:: something is wrong with the attribute p of the model ",
-        "and the number of parameters returned by PCMParamLoadOrStore. ",
-        "This could be a bug."))
-    }
   }
+
+  model <- env$newModel
+  P1 <- PCMParamLoadOrStore(model, v, offset = 0, k = get("k", env), R = R, load = TRUE)
+  if(P != P1) {
+    stop(paste0(
+      "MGPM:: something is wrong with the attribute p of the model ",
+      "and the number of parameters returned by PCMParamLoadOrStore. ",
+      "This could be a bug."))
+  }
+
+  # Clean newModel and mNewModel from env
+  rm("newModel", "mNewModel", pos = env)
 
   ##................................................................
   ##
