@@ -3,11 +3,12 @@ Type: Package
 Title: Maximum likelihood fit and selection of phylogenetic comparative models
 Version: 1.1.0
 Authors@R: c(person("Venelin", "Mitov", email = "vmitov@gmail.com",
-                 role = c("aut", "cre", "cph")))
+                    comment = '<a href="https://venelin.github.io">venelin.github.io</a>',
+                    role = c("aut", "cre", "cph")))
 Maintainer: Venelin Mitov <vmitov@gmail.com>
-Description: The goal of PCMFit is to provide a generic tool for inference and 
+Description: PCMFit provides maximum likelihood inference and 
   selection of phylogenetic comparative models (PCMs). Currently, the package 
-  implements Gaussian and mixed Gaussian phylogenetic models (MGPM) over all 
+  implements Gaussian and mixed Gaussian phylogenetic models (MGPMs) over all 
   tree types (including non-ultrametric and polytomic trees). The package 
   supports non-existing traits or missing measurements for some of the traits on 
   some of the species. The package supports specifying measurement error 
@@ -23,13 +24,14 @@ Description: The goal of PCMFit is to provide a generic tool for inference and
   PCMFit is used to fit a given PCM or a MGPM for a given tree with specified 
   shift-points. The function PCMFitMixed is used to fit an ensemble of possible 
   MGPMs over a tree for which the shift-points are unknown. This function can 
-  perform model selection of the best MGPM for a given tree and data according 
-  to an information loss function such as the Akaike information criterion 
-  (AIC). The package version 1.0.0 has been used in the 
-  research article Mitov et al. 2019 <doi:10.1073/pnas.1813823116>. 
-  Currently, the package is available from <https://github.com/venelin/PCMFit>. 
-  The web-page <https://venelin.github.io/PCMFit/> provides access to 
-  documentation and related resources.
+  perform approximage model selection of the best MGPM for a given tree and data 
+  according to an information loss function such as the Akaike information 
+  criterion (AIC) and a heuristic-based recursive clade partition search 
+  algorithm. The package version 1.0.0 has been used in the research article 
+  Mitov et al. 2019 <doi:10.1073/pnas.1813823116>. Currently, the package is 
+  available from <https://github.com/venelin/PCMFit>. The web-page 
+  <https://venelin.github.io/PCMFit/> provides access to documentation and 
+  related resources.
 Encoding: UTF-8
 License: GPL (>= 3.0)
 LazyData: true
