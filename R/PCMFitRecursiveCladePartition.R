@@ -104,7 +104,8 @@ PCMFitRecursiveCladePartition <- function(
     }]
 
   if(verbose) {
-    cat("Step 2.1 (", Sys.time() ,"): Initiated queue of partition root nodes with the root of the original tree...\n")
+    cat("Step 2.1 (", Sys.time() ,
+        "): Initiated queue of partition root nodes with the root of the original tree...\n")
   }
 
   # index of the head row in queuePartitionRoots
@@ -163,7 +164,8 @@ PCMFitRecursiveCladePartition <- function(
       headQPR_Score = bestScore)
 
     if(verbose) {
-      cat("Step 2.2 (", Sys.time() ,"): headQPR=", headQPR, ": bestPartition / mapping / logLik / score: (",
+      cat("Step 2.2 (", Sys.time() ,"): headQPR=", headQPR,
+          ": bestPartition / mapping / logLik / score: (",
           toString(bestPartition), ") / (",
           toString(names(modelTypes)[match(bestMapping, modelTypes)]),
           ") / ", bestLogLik,
@@ -210,7 +212,8 @@ PCMFitRecursiveCladePartition <- function(
     labelsSubtree <- PCMTreeGetLabels(subtree)
 
     if(verbose) {
-      cat("Step 2.3 (", Sys.time() ,"): numTips in subtree = ", PCMTreeNumTips(subtree), "\n")
+      cat("Step 2.3 (", Sys.time() ,"): numTips in subtree = ",
+          PCMTreeNumTips(subtree), "\n")
     }
 
     minCladeSizeLevel <-
@@ -232,7 +235,8 @@ PCMFitRecursiveCladePartition <- function(
       # clade-partitions of subtree into clades not smaller than
       # minCladeSizes[partitionRootLevel].
       if(verbose) {
-        cat("Step 2.4 (", Sys.time() ,"): Generating list of clade partitions for the subtree rooted at '",
+        cat("Step 2.4 (", Sys.time(),
+            "): Generating list of clade partitions for the subtree rooted at '",
             partitionRootLabel, "':\n")
       }
 
@@ -240,7 +244,6 @@ PCMFitRecursiveCladePartition <- function(
       numPartNodes <- 1
 
       # cat("Step 2.4.1: minCladeSizeLevel=", minCladeSizeLevel, "\n")
-
       while(numPartNodes <= maxNumNodesPerCladePartition) {
         listNew <- PCMTreeListCladePartitions(
           tree = subtree,
@@ -292,7 +295,6 @@ PCMFitRecursiveCladePartition <- function(
     listPartitions <- lapply(
       listPartitions,
       function(partNodes) {
-        # TODO return NULL if partNodes has nodes to be skipped
         PCMTreeSetPartition(tree, partNodes)
         partNodes2 <- PCMTreeGetPartition(tree)
 
@@ -489,7 +491,7 @@ PCMFitRecursiveCladePartition <- function(
 
     if( length(listPartitions) > 0 ) {
       if(fitsToTree[, min(score)] < bestScore &&
-         partitionRootLevel < maxCladePartitionLevel ) {
+        partitionRootLevel < maxCladePartitionLevel ) {
         # a partitioning with a better score was found
 
         # put new partitioning nodes and the partition root-node in the queue

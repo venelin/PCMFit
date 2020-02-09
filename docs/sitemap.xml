@@ -52,13 +52,16 @@
     <loc>http://venelin.github.io/PCMFit/reference/RetrieveFittedModelsFromFitVectors.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMFit/reference/RunOptim.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMFit/reference/dot-cacheEnv.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/is.PCMFit.html</loc>
   </url>
   <url>
-    <loc>http://venelin.github.io/PCMFit/reference/runOptim.html</loc>
+    <loc>http://venelin.github.io/PCMFit/reference/is.PCMFitModelMappings.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/articles/parambootstrap.html</loc>

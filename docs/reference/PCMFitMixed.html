@@ -191,11 +191,13 @@ the best partitions found during the RCP-step. This step is optional.</p></dd>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-These two values have are treated differently when calculating
-likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
+      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and
+<code>NaN</code> entries. For <code>i=1,..., N</code>, the column <code>i</code> of X contains
+the measured trait values for species <code>i</code> (the tip with integer
+identifier equal to <code>i</code> in <code>tree</code>). Missing values can be either
+not-available (<code>NA</code>) or not existing (<code>NaN</code>). These two values are
+treated differently when calculating likelihoods (see
+<code>PCMPresentCoordinates</code>).</p></td>
     </tr>
     <tr>
       <th>tree</th>
@@ -243,7 +245,17 @@ use of nested models as hints.</p></td>
       <td><p>a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
+for each tip <code>i=1, ..., N</code>. When <code>SE</code> is a matrix, the k x k
+measurement error variance matrix for a tip <code>i</code> is calculated as
+<code>VE[, , i] &lt;- diag(SE[, i] * SE[, i], nrow = k)</code>. When <code>SE</code> is a
+cube, the way how the measurement variance matrix for a tip <code>i</code> is
+calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
+as follows:</p><dl class='dl-horizontal'>
+<dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
+<dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+</dl><p>Note that the above behavior is consistent with the treatment of the model
+parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
+also specified as upper triangular factors.
 Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>

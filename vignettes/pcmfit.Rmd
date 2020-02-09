@@ -313,13 +313,15 @@ PCMParamUpperLimit.OU <- function(o, k, R, ...) {
 
 ```{r fitGlobalModels, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
 if(is.null(PCMFitDemoObjects$fitBM) || !useCacheGlobalModels) {
-  fitBM <- PCMFit(X, tree, modelBM, metaI = PCMBaseCpp::PCMInfoCpp)
+  fitBM <- PCMFit(model = modelBM, tree = tree, X = X,
+                  metaI = PCMBaseCpp::PCMInfoCpp)
   PCMFitDemoObjects$fitBM <- fitBM
   usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
 } 
 
 if(is.null(PCMFitDemoObjects$fitOU) || !useCacheGlobalModels) {
-  fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
+  fitOU <- PCMFit(model = modelOU, tree = tree, X = X, 
+                  metaI = PCMBaseCpp::PCMInfoCpp)
   PCMFitDemoObjects$fitOU <- fitOU
   usethis::use_data(PCMFitDemoObjects, overwrite = TRUE)
 } 
@@ -329,8 +331,10 @@ fitOU <- PCMFitDemoObjects$fitOU
 ```
 
 ```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
-fitBM <- PCMFit(X, tree, modelBM, metaI = PCMBaseCpp::PCMInfoCpp)
-fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
+fitBM <- PCMFit(model = modelBM, tree = tree, X = X, 
+                metaI = PCMBaseCpp::PCMInfoCpp)
+fitOU <- PCMFit(model = modelOU, tree = tree, X = X, 
+                metaI = PCMBaseCpp::PCMInfoCpp)
 ```
 
 ## Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters
@@ -338,7 +342,9 @@ fitOU <- PCMFit(X, tree, modelOU, metaI = PCMBaseCpp::PCMInfoCpp)
 ```{r fitMGPMTrueTypeMapping, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
 if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMapping) || !useCacheMGPMTrueTypeMapping) {
   fitMGPMTrueTypeMapping <- PCMFit(
-    X, treeWithTrueShifts, modelTrueTypeMapping, 
+    model = modelTrueTypeMapping, 
+    tree = treeWithTrueShifts,
+    X = X,
     metaI = PCMBaseCpp::PCMInfoCpp)
   
   PCMFitDemoObjects$fitMGPMTrueTypeMapping <- fitMGPMTrueTypeMapping
@@ -351,7 +357,9 @@ fitMGPMTrueTypeMapping <- PCMFitDemoObjects$fitMGPMTrueTypeMapping
 ```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
 # This can take about 5 minutes to finish
 fitMGPMTrueTypeMapping <- PCMFit(
-  X, treeWithTrueShifts, modelTrueTypeMapping, 
+  model = modelTrueTypeMapping, 
+  tree = treeWithTrueShifts, 
+  X = X,
   metaI = PCMBaseCpp::PCMInfoCpp)
 ```
 
@@ -361,7 +369,9 @@ fitMGPMTrueTypeMapping <- PCMFit(
 ```{r fitMGPMTrueTypeMappingCheat, message=FALSE, include = FALSE, warning=FALSE, results="hide"}
 if(is.null(PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat) || !useCacheMGPMTrueTypeMappingCheat) {
   fitMGPMTrueTypeMappingCheat <- PCMFit(
-    X, treeWithTrueShifts, modelTrueTypeMapping, 
+    model = modelTrueTypeMapping, 
+    tree = treeWithTrueShifts, 
+    X = X, 
     matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L),
     numRunifInitVecParams = 1000L,
     numGuessInitVecParams = 100L,
@@ -376,7 +386,9 @@ fitMGPMTrueTypeMappingCheat <- PCMFitDemoObjects$fitMGPMTrueTypeMappingCheat
 
 ```{r message=FALSE, warning=FALSE, results="hide", eval = FALSE}
 fitMGPMTrueTypeMappingCheat <- PCMFit(
-  X, treeWithTrueShifts, modelTrueTypeMapping, 
+  model = modelTrueTypeMapping, 
+  tree = treeWithTrueShifts, 
+  X = X,
   matParInit = matrix(PCMParamGetShortVector(modelTrue), 1L),
   numRunifInitVecParams = 1000L,
   numGuessInitVecParams = 100L,

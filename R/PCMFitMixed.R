@@ -683,3 +683,13 @@ PCMFitMixed <- function(
 
   resFitMappings
 }
+
+
+
+#' Check if an object is a PCMFitModelMappings.
+#' @param object an R object.
+#' @return logical.
+#' @export
+is.PCMFitModelMappings <- function(object) {
+  inherits(object, "PCMFitModelMappings")
+}

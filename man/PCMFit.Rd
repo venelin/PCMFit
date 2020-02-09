@@ -2,7 +2,7 @@
 % Please edit documentation in R/PCMFit.R
 \name{PCMFit}
 \alias{PCMFit}
-\title{Fitting a PCM model to a given tree and data}
+\title{Fitting a PCM model}
 \usage{
 PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE),
@@ -14,11 +14,13 @@ PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
   verbose = FALSE)
 }
 \arguments{
-\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and \code{NaN} entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (\code{NA}) or not existing (\code{NaN}).
-These two values have are treated differently when calculating
-likelihoods: see \code{\link{PCMPresentCoordinates}}.}
+\item{X}{a \code{k x N} numerical matrix with possible \code{NA} and
+\code{NaN} entries. For \code{i=1,..., N}, the column \code{i} of X contains
+the measured trait values for species \code{i} (the tip with integer
+identifier equal to \code{i} in \code{tree}). Missing values can be either
+not-available (\code{NA}) or not existing (\code{NaN}). These two values are
+treated differently when calculating likelihoods (see
+\code{\link{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 
@@ -29,13 +31,26 @@ calculated (see also Details).}
 \item{SE}{a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
+for each tip \code{i=1, ..., N}. When \code{SE} is a matrix, the k x k
+measurement error variance matrix for a tip \code{i} is calculated as
+\code{VE[, , i] <- diag(SE[, i] * SE[, i], nrow = k)}. When \code{SE} is a
+cube, the way how the measurement variance matrix for a tip \code{i} is
+calculated depends on the runtime option \code{PCMBase.Transpose.Sigma_x}
+as follows:
+\describe{
+\item{if \code{getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE} (default): }{VE[, , i] <- SE[, , i] \%*\% t(SE[, , i])}
+\item{if \code{getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE}: }{VE[, , i] <- t(SE[, , i]) \%*\% SE[, , i]}
+}
+Note that the above behavior is consistent with the treatment of the model
+parameters \code{Sigma_x}, \code{Sigmae_x} and \code{Sigmaj_x}, which are
+also specified as upper triangular factors.
 Default: \code{matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))}.}
 
 \item{metaI}{a list returned from a call to \code{PCMInfo(X, tree, model, SE)},
 containing meta-data such as N, M and k. Alternatively, this can be a
-function object that returns such a list, e.g. the function\code{PCMInfo}
-or the function \code{PCMInfoCpp} from the \code{PCMBaseCpp} package.}
+character string naming a function or a function object that returns such
+a list, e.g. the function\code{PCMInfo} or the function \code{PCMInfoCpp}
+from the \code{PCMBaseCpp} package.}
 
 \item{positiveValueGuard}{a real number (not necessarily positive) used during
 the fit as a threshold for highly positive but likely incorrect log-likelihood
@@ -88,7 +103,7 @@ to the console while running. Default: FALSE.}
 an object of class PCMFit
 }
 \description{
-Fitting a PCM model to a given tree and data
+Fitting a PCM model
 }
 \references{
 Mitov, V., Bartoszek, K., & Stadler, T. (2019). Automatic generation of

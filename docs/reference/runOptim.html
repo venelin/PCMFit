@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Calling optim a number of times — runOptim • PCMFit</title>
+<title>Calling optim a number of times — RunOptim • PCMFit</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Calling optim a number of times — runOptim" />
+<meta property="og:title" content="Calling optim a number of times — RunOptim" />
 
 <meta property="og:description" content="Calling optim a number of times" />
 <meta name="twitter:card" content="summary" />
@@ -126,8 +126,8 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calling optim a number of times</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/PCMFit.R'><code>R/PCMFit.R</code></a></small>
-    <div class="hidden name"><code>runOptim.Rd</code></div>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/RunOptim.R'><code>R/RunOptim.R</code></a></small>
+    <div class="hidden name"><code>RunOptim.Rd</code></div>
     </div>
 
     <div class="ref-description">
@@ -136,7 +136,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>runOptim</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>, <span class='no'>metaI</span>, <span class='no'>positiveValueGuard</span>, <span class='no'>parLower</span>, <span class='no'>parUpper</span>,
+    <pre class="usage"><span class='fu'>RunOptim</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>, <span class='no'>metaI</span>, <span class='no'>positiveValueGuard</span>, <span class='no'>parLower</span>, <span class='no'>parUpper</span>,
   <span class='no'>matParInit</span>, <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -144,11 +144,13 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>X</th>
-      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and <code>NaN</code> entries. Each
-column of X contains the measured trait values for one species (tip in tree).
-Missing values can be either not-available (<code>NA</code>) or not existing (<code>NaN</code>).
-These two values have are treated differently when calculating
-likelihoods: see <code>PCMPresentCoordinates</code>.</p></td>
+      <td><p>a <code>k x N</code> numerical matrix with possible <code>NA</code> and
+<code>NaN</code> entries. For <code>i=1,..., N</code>, the column <code>i</code> of X contains
+the measured trait values for species <code>i</code> (the tip with integer
+identifier equal to <code>i</code> in <code>tree</code>). Missing values can be either
+not-available (<code>NA</code>) or not existing (<code>NaN</code>). These two values are
+treated differently when calculating likelihoods (see
+<code>PCMPresentCoordinates</code>).</p></td>
     </tr>
     <tr>
       <th>tree</th>
@@ -165,15 +167,26 @@ calculated (see also Details).</p></td>
       <td><p>a k x N matrix specifying the standard error for each measurement in
 X. Alternatively, a k x k x N cube specifying an upper triangular k x k
 factor of the variance covariance matrix for the measurement error
-for each node i=1, ..., N.
+for each tip <code>i=1, ..., N</code>. When <code>SE</code> is a matrix, the k x k
+measurement error variance matrix for a tip <code>i</code> is calculated as
+<code>VE[, , i] &lt;- diag(SE[, i] * SE[, i], nrow = k)</code>. When <code>SE</code> is a
+cube, the way how the measurement variance matrix for a tip <code>i</code> is
+calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
+as follows:</p><dl class='dl-horizontal'>
+<dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
+<dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+</dl><p>Note that the above behavior is consistent with the treatment of the model
+parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
+also specified as upper triangular factors.
 Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>
       <th>metaI</th>
       <td><p>a list returned from a call to <code>PCMInfo(X, tree, model, SE)</code>,
 containing meta-data such as N, M and k. Alternatively, this can be a
-function object that returns such a list, e.g. the function<code>PCMInfo</code>
-or the function <code>PCMInfoCpp</code> from the <code>PCMBaseCpp</code> package.</p></td>
+character string naming a function or a function object that returns such
+a list, e.g. the function<code>PCMInfo</code> or the function <code>PCMInfoCpp</code>
+from the <code>PCMBaseCpp</code> package.</p></td>
     </tr>
     <tr>
       <th>positiveValueGuard</th>

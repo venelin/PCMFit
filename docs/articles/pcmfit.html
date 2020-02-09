@@ -88,7 +88,7 @@
       <h1>Getting started with the PCMFit R-package</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2019-12-30</h4>
+            <h4 class="date">2020-02-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/pcmfit.Rmd"><code>vignettes/pcmfit.Rmd</code></a></small>
       <div class="hidden name"><code>pcmfit.Rmd</code></div>
@@ -512,26 +512,32 @@
 <div id="fitting-the-global-models" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-the-global-models" class="anchor"></a>Fitting the global models</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">fitBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelBM, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">fitOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(X, tree, modelOU, <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">fitBM &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(<span class="dt">model =</span> modelBM, <span class="dt">tree =</span> tree, <span class="dt">X =</span> X, </a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">                <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">fitOU &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(<span class="dt">model =</span> modelOU, <span class="dt">tree =</span> tree, <span class="dt">X =</span> X, </a>
+<a class="sourceLine" id="cb12-4" data-line-number="4">                <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
 </div>
 <div id="fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-but-unknown-model-parameters" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping but unknown model parameters</h2>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="co"># This can take about 5 minutes to finish</span></a>
 <a class="sourceLine" id="cb13-2" data-line-number="2">fitMGPMTrueTypeMapping &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">  X, treeWithTrueShifts, modelTrueTypeMapping, </a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
+<a class="sourceLine" id="cb13-3" data-line-number="3">  <span class="dt">model =</span> modelTrueTypeMapping, </a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">  <span class="dt">tree =</span> treeWithTrueShifts, </a>
+<a class="sourceLine" id="cb13-5" data-line-number="5">  <span class="dt">X =</span> X,</a>
+<a class="sourceLine" id="cb13-6" data-line-number="6">  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
 </div>
 <div id="fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="section level2">
 <h2 class="hasAnchor">
 <a href="#fitting-an-mgpm-model-with-known-shift-point-configuration-and-model-type-mapping-starting-from-the-true-parameter-values" class="anchor"></a>Fitting an MGPM model with known shift-point configuration and model type mapping starting from the true parameter values</h2>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">fitMGPMTrueTypeMappingCheat &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFit.html">PCMFit</a></span>(</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">  X, treeWithTrueShifts, modelTrueTypeMapping, </a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">  <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L),</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">  <span class="dt">numRunifInitVecParams =</span> 1000L,</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">  <span class="dt">numGuessInitVecParams =</span> 100L,</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6">  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
+<a class="sourceLine" id="cb14-2" data-line-number="2">  <span class="dt">model =</span> modelTrueTypeMapping, </a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">  <span class="dt">tree =</span> treeWithTrueShifts, </a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">  <span class="dt">X =</span> X,</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">  <span class="dt">matParInit =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMParamGetShortVector.html">PCMParamGetShortVector</a></span>(modelTrue), 1L),</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">  <span class="dt">numRunifInitVecParams =</span> 1000L,</a>
+<a class="sourceLine" id="cb14-7" data-line-number="7">  <span class="dt">numGuessInitVecParams =</span> 100L,</a>
+<a class="sourceLine" id="cb14-8" data-line-number="8">  <span class="dt">metaI =</span> PCMBaseCpp<span class="op">::</span>PCMInfoCpp)</a></code></pre></div>
 </div>
 </div>
 <div id="step-5--evaluating-the-model-fits" class="section level1">

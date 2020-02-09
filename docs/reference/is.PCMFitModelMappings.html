@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Retrieve the best fit from a PCMFitMappings object. — RetrieveBestFitScore • PCMFit</title>
+<title>Check if an object is a PCMFitModelMappings. — is.PCMFitModelMappings • PCMFit</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Retrieve the best fit from a PCMFitMappings object. — RetrieveBestFitScore" />
+<meta property="og:title" content="Check if an object is a PCMFitModelMappings. — is.PCMFitModelMappings" />
 
-<meta property="og:description" content="Retrieve the best fit from a PCMFitMappings object." />
+<meta property="og:description" content="Check if an object is a PCMFitModelMappings." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -125,36 +125,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Retrieve the best fit from a PCMFitMappings object.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/TableFits.R'><code>R/TableFits.R</code></a></small>
-    <div class="hidden name"><code>RetrieveBestFitScore.Rd</code></div>
+    <h1>Check if an object is a PCMFitModelMappings.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/venelin/PCMFit/blob/master/R/PCMFitMixed.R'><code>R/PCMFitMixed.R</code></a></small>
+    <div class="hidden name"><code>is.PCMFitModelMappings.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Retrieve the best fit from a PCMFitMappings object.</p>
+    <p>Check if an object is a PCMFitModelMappings.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>RetrieveBestFitScore</span>(<span class='no'>fitMappings</span>, <span class='kw'>rank</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>is.PCMFitModelMappings</span>(<span class='no'>object</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>fitMappings</th>
-      <td><p>an object of S3 class 'PCMFitModelMappings' as returned by
-<code><a href='PCMFitMixed.html'>PCMFitMixed</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>rank</th>
-      <td><p>an integer. Default: 1.</p></td>
+      <th>object</th>
+      <td><p>an R object.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a named list.</p>
+    <p>logical.</p>
     
 
   </div>
