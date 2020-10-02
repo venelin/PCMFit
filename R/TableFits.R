@@ -168,7 +168,7 @@ RetrieveFittedModelsFromFitVectors <- function(
         treeEDExpression[[i]], PCMTree(arguments$tree))
       PCMTreeSetPartition(
         tree, match(startingNodesRegimesLabels[[i]], PCMTreeGetLabels(tree)))
-      X <- arguments$X[, tree$tip.label]
+      X <- arguments$X[, tree$tip.label, drop = FALSE]
       SE <- if(is.matrix(arguments$SE)) {
         arguments$SE[, tree$tip.label, drop = FALSE]
       } else {
