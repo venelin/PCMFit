@@ -667,13 +667,13 @@ GuessSigmae_x <- function(
 
   if(!(is.null(Sigmae_x) || is.Fixed(Sigmae_x)) && !is.null(X)) {
     Sigmae_x[] <- 0.0
-    SDSigmae_x[] <- 0.02
+    SDSigmae_x[] <- 0.002
 
     if(is.Global(Sigmae_x)) {
       # Sigmae_x has a global scope for the entire tree
       for(j in seq_len(PCMNumTraits(o))) {
-        Sigmae_x[j, j] <- sd(X[j,], na.rm = TRUE) * 0.025
-        SDSigmae_x[j, j] <- sqrt(abs(Sigmae_x[j, j]) * 0.05)
+        Sigmae_x[j, j] <- sd(X[j,], na.rm = TRUE) * 0.005
+        SDSigmae_x[j, j] <- sqrt(abs(Sigmae_x[j, j]) * 0.002)
       }
     } else {
       # Sigma_x has a local scope for each regime in the model
@@ -682,8 +682,8 @@ GuessSigmae_x <- function(
         tipsInRegime <- PCMTreeGetTipsInRegime(tree, reg)
 
         for(j in seq_len(PCMNumTraits(o))) {
-          Sigmae_x[j, j, r] <- sd(X[j, tipsInRegime], na.rm = TRUE) * 0.025
-          SDSigmae_x[j, j, r] <- sqrt(abs(Sigmae_x[j, j, r]) * 0.05)
+          Sigmae_x[j, j, r] <- sd(X[j, tipsInRegime], na.rm = TRUE) * 0.005
+          SDSigmae_x[j, j, r] <- sqrt(abs(Sigmae_x[j, j, r]) * 0.002)
         }
       }
     }
