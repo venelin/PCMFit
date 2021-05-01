@@ -4,8 +4,11 @@
 \alias{PCMIteratorMapping}
 \title{Iterator over combinations with repetions of a given set of modelTypes}
 \usage{
-PCMIteratorMapping(mapping, modelTypes,
-  allowedModelTypesIndices = rep(list(NULL), length(mapping)))
+PCMIteratorMapping(
+  mapping,
+  modelTypes,
+  allowedModelTypesIndices = rep(list(NULL), length(mapping))
+)
 }
 \arguments{
 \item{mapping}{a vector of elements from modelTypes giving the initial combination}

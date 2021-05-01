@@ -5,26 +5,40 @@
 \title{Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
 measurements at its tips and a score function.}
 \usage{
-PCMFitMixed(X, tree, modelTypes = MGPMDefaultModelTypes(),
+PCMFitMixed(
+  X,
+  tree,
+  modelTypes = MGPMDefaultModelTypes(),
   subModels = c(B = "A", C = "A", D = "B", E = "D", F = "E"),
   argsMixedGaussian = Args_MixedGaussian_MGPMDefaultModelTypes(),
   SE = matrix(0, nrow(X), PCMTreeNumTips(tree)),
-  generatePCMModelsFun = PCMGenerateModelTypes, metaIFun = PCMInfo,
-  positiveValueGuard = Inf, scoreFun = AIC, fitMappingsPrev = NULL,
+  generatePCMModelsFun = PCMGenerateModelTypes,
+  metaIFun = PCMInfo,
+  positiveValueGuard = Inf,
+  scoreFun = AIC,
+  fitMappingsPrev = NULL,
   tableFitsPrev = fitMappingsPrev$tableFits,
-  modelTypesInTableFitsPrev = NULL, listPartitions = NULL,
-  minCladeSizes = 20L, skipNodes = character(),
+  modelTypesInTableFitsPrev = NULL,
+  listPartitions = NULL,
+  minCladeSizes = 20L,
+  skipNodes = character(),
   maxCladePartitionLevel = if (is.null(listPartitions)) 8L else 1L,
   maxNumNodesPerCladePartition = 1L,
   listAllowedModelTypesIndices = c("best-clade-2", "best-clade", "all"),
   argsConfigOptim1 = DefaultArgsConfigOptim(numCallsOptim = 10),
   argsConfigOptim2 = DefaultArgsConfigOptim(numCallsOptim = 4),
   argsConfigOptim3 = DefaultArgsConfigOptim(numCallsOptim = 10),
-  maxNumRoundRobins = 0, maxNumPartitionsInRoundRobins = 2,
-  listPCMOptions = PCMOptions(), skipFitWhenFoundInTableFits = TRUE,
-  doParallel = FALSE, prefixFiles = "fits_",
-  saveTempWorkerResults = TRUE, printFitVectorsToConsole = FALSE,
-  verbose = TRUE, debug = FALSE)
+  maxNumRoundRobins = 0,
+  maxNumPartitionsInRoundRobins = 2,
+  listPCMOptions = PCMOptions(),
+  skipFitWhenFoundInTableFits = TRUE,
+  doParallel = FALSE,
+  prefixFiles = "fits_",
+  saveTempWorkerResults = TRUE,
+  printFitVectorsToConsole = FALSE,
+  verbose = TRUE,
+  debug = FALSE
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and
@@ -33,7 +47,7 @@ the measured trait values for species \code{i} (the tip with integer
 identifier equal to \code{i} in \code{tree}). Missing values can be either
 not-available (\code{NA}) or not existing (\code{NaN}). These two values are
 treated differently when calculating likelihoods (see
-\code{\link{PCMPresentCoordinates}}).}
+\code{\link[PCMBase]{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 

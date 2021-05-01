@@ -4,14 +4,23 @@
 \alias{PCMFit}
 \title{Fitting a PCM model}
 \usage{
-PCMFit(X, tree, model, SE = matrix(0, PCMNumTraits(model),
-  PCMTreeNumTips(tree)), metaI = PCMInfo(X, tree, model, SE),
-  positiveValueGuard = Inf, argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL, matParInit = NULL,
+PCMFit(
+  X,
+  tree,
+  model,
+  SE = matrix(0, PCMNumTraits(model), PCMTreeNumTips(tree)),
+  metaI = PCMInfo(X, tree, model, SE),
+  positiveValueGuard = Inf,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  matParInit = NULL,
   numRunifInitVecParams = if (is.null(matParInit)) 1000L else 0L,
   numGuessInitVecParams = if (is.null(matParInit)) 100L else 0L,
-  numCallsOptim = 10L, control = NULL, doParallel = FALSE,
-  verbose = FALSE)
+  numCallsOptim = 10L,
+  control = NULL,
+  doParallel = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and
@@ -20,7 +29,7 @@ the measured trait values for species \code{i} (the tip with integer
 identifier equal to \code{i} in \code{tree}). Missing values can be either
 not-available (\code{NA}) or not existing (\code{NaN}). These two values are
 treated differently when calculating likelihoods (see
-\code{\link{PCMPresentCoordinates}}).}
+\code{\link[PCMBase]{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 

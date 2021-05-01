@@ -4,15 +4,25 @@
 \alias{GuessInitVecParams}
 \title{A heuristic-based guess of the optimal parameters of a model}
 \usage{
-GuessInitVecParams(o, regimes = as.character(PCMRegimes(o)),
-  oParent = o, accessExpr = "", n = 1L,
-  argsPCMParamLowerLimit = NULL, argsPCMParamUpperLimit = NULL,
-  X = NULL, tree = NULL, SE = NULL, tableAnc = NULL,
-  varyParams = FALSE, returnWithinBoundsOnly = TRUE,
-  res = PCMParamRandomVecParams(o = oParent, k = PCMNumTraits(oParent), R
-  = PCMNumRegimes(oParent), n = n, argsPCMParamLowerLimit =
-  argsPCMParamLowerLimit, argsPCMParamUpperLimit = argsPCMParamUpperLimit),
-  ...)
+GuessInitVecParams(
+  o,
+  regimes = as.character(PCMRegimes(o)),
+  oParent = o,
+  accessExpr = "",
+  n = 1L,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  X = NULL,
+  tree = NULL,
+  SE = NULL,
+  tableAnc = NULL,
+  varyParams = FALSE,
+  returnWithinBoundsOnly = TRUE,
+  res = PCMParamRandomVecParams(o = oParent, k = PCMNumTraits(oParent), R =
+    PCMNumRegimes(oParent), n = n, argsPCMParamLowerLimit = argsPCMParamLowerLimit,
+    argsPCMParamUpperLimit = argsPCMParamUpperLimit),
+  ...
+)
 }
 \arguments{
 \item{o}{a PCM model object.}
@@ -39,7 +49,7 @@ the measured trait values for species \code{i} (the tip with integer
 identifier equal to \code{i} in \code{tree}). Missing values can be either
 not-available (\code{NA}) or not existing (\code{NaN}). These two values are
 treated differently when calculating likelihoods (see
-\code{\link{PCMPresentCoordinates}}).}
+\code{\link[PCMBase]{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 

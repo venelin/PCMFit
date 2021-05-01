@@ -4,11 +4,17 @@
 \alias{JitterModelParams}
 \title{Add random white noise to the parameters of a model.}
 \usage{
-JitterModelParams(model, argsPCMParamLowerLimit = NULL,
-  argsPCMParamUpperLimit = NULL, numJitterRootRegimeFit = 1000,
-  sdJitterRootRegimeFit = 0.5, numJitterAllRegimeFits = 1000,
-  sdJitterAllRegimeFits = 0.5, returnWithinBoundsOnly = TRUE,
-  verbose = FALSE)
+JitterModelParams(
+  model,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  numJitterRootRegimeFit = 1000,
+  sdJitterRootRegimeFit = 0.5,
+  numJitterAllRegimeFits = 1000,
+  sdJitterAllRegimeFits = 0.5,
+  returnWithinBoundsOnly = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{model}{a PCM object.}

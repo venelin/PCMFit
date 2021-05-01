@@ -4,12 +4,19 @@
 \alias{DefaultArgsConfigOptim}
 \title{Specify arguments for PCMFit during calls to PCMFitMixed.}
 \usage{
-DefaultArgsConfigOptim(matParInit = NULL,
-  argsPCMParamLowerLimit = NULL, argsPCMParamUpperLimit = NULL,
-  numRunifInitVecParams = 1000, numGuessInitVecParams = 100,
-  numJitterRootRegimeFit = 100, sdJitterRootRegimeFit = 0.5,
-  numJitterAllRegimeFits = 100, sdJitterAllRegimeFits = 0.5,
-  numCallsOptim = 10, control = list(fnscale = -1))
+DefaultArgsConfigOptim(
+  matParInit = NULL,
+  argsPCMParamLowerLimit = NULL,
+  argsPCMParamUpperLimit = NULL,
+  numRunifInitVecParams = 1000,
+  numGuessInitVecParams = 100,
+  numJitterRootRegimeFit = 100,
+  sdJitterRootRegimeFit = 0.5,
+  numJitterAllRegimeFits = 100,
+  sdJitterAllRegimeFits = 0.5,
+  numCallsOptim = 10,
+  control = list(fnscale = -1)
+)
 }
 \arguments{
 \item{matParInit}{a matrix of any number of rows and p columns where, p is

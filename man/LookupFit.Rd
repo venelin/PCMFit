@@ -5,11 +5,15 @@
 \title{Lookup a fit vector for a given tree and model mapping in a data.table of
 previously run fits.}
 \usage{
-LookupFit(tree, modelTypes, modelMapping, tableFits,
+LookupFit(
+  tree,
+  modelTypes,
+  modelMapping,
+  tableFits,
   hashCodes = HashCodes(tree = tree, modelTypes = modelTypes,
-  startingNodesRegimesLabels =
-  PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)], modelMapping =
-  modelMapping))
+    startingNodesRegimesLabels = PCMTreeGetLabels(tree)[PCMTreeGetPartition(tree)],
+    modelMapping = modelMapping)
+)
 }
 \arguments{
 \item{tree}{a phylo object}

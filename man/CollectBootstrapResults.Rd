@@ -4,12 +4,19 @@
 \alias{CollectBootstrapResults}
 \title{Collect the results from a parametric bootstrap MGPM fit}
 \usage{
-CollectBootstrapResults(resultDir, prefixFiles, ids, inferredTree,
-  epochs = seq(minLength, max(PCMTreeNodeTimes(inferredTree)), by = 10 *
-  minLength), minLength = 0.2,
-  exprResultFile = "paste0(prefixFiles, id, \\"/Result_\\", prefixFiles, id, \\".RData\\")",
-  nameFitObject = "fitMappings", keepBootstrapData = FALSE,
-  verbose = FALSE)
+CollectBootstrapResults(
+  resultDir,
+  prefixFiles,
+  ids,
+  inferredTree,
+  epochs = seq(minLength, max(PCMTreeNodeTimes(inferredTree)), by = 10 * minLength),
+  minLength = 0.2,
+ 
+    exprResultFile = "paste0(prefixFiles, id, \\"/Result_\\", prefixFiles, id, \\".RData\\")",
+  nameFitObject = "fitMappings",
+  keepBootstrapData = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{resultDir, prefixFiles}{character strings denoting the directory

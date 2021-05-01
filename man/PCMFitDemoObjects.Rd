@@ -4,8 +4,10 @@
 \name{PCMFitDemoObjects}
 \alias{PCMFitDemoObjects}
 \title{Demo objects for the PCMFit package}
-\format{A list containing simulated trees, trait-values model objects and inference
-results.}
+\format{
+A list containing simulated trees, trait-values model objects and inference
+results.
+}
 \usage{
 PCMFitDemoObjects
 }

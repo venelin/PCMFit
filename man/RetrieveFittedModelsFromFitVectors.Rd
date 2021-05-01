@@ -4,12 +4,17 @@
 \alias{RetrieveFittedModelsFromFitVectors}
 \title{Retrieve the ML fits from the fitVectors column in a table of fits.}
 \usage{
-RetrieveFittedModelsFromFitVectors(fitMappings,
+RetrieveFittedModelsFromFitVectors(
+  fitMappings,
   tableFits = fitMappings$tableFits,
-  modelTypes = fitMappings$arguments$modelTypes, modelTypesNew = NULL,
+  modelTypes = fitMappings$arguments$modelTypes,
+  modelTypesNew = NULL,
   argsMixedGaussian = fitMappings$arguments$argsMixedGaussian,
-  X = fitMappings$X, tree = fitMappings$tree, SE = fitMappings$SE,
-  setAttributes = FALSE)
+  X = fitMappings$X,
+  tree = fitMappings$tree,
+  SE = fitMappings$SE,
+  setAttributes = FALSE
+)
 }
 \arguments{
 \item{fitMappings}{an object of S3 class PCMFitModelMappings.}

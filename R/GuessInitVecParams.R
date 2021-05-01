@@ -162,6 +162,12 @@ GuessInitVecParams.PCM <- function(
     argsPCMParamUpperLimit = argsPCMParamUpperLimit),
   ...) {
 
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
+
+
   paramNames <- "X0"
   paramDefaultValues <- list()
   paramSDValues <- list()
@@ -211,7 +217,13 @@ GuessInitVecParams.BM <- function(
     argsPCMParamUpperLimit = argsPCMParamUpperLimit),
   ...) {
 
-  paramNames <- c("X0", "Sigma_x")
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
+
+
+  paramNames <- c("X0", "Sigma_x", "Sigmae_x")
   paramDefaultValues <- list()
   paramSDValues <- list()
 
@@ -259,6 +271,11 @@ GuessInitVecParams.OU <- function(
     argsPCMParamLowerLimit = argsPCMParamLowerLimit,
     argsPCMParamUpperLimit = argsPCMParamUpperLimit),
   ...) {
+
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
 
   paramNames <- c("X0", "H", "Theta", "Sigma_x", "Sigmae_x")
   paramDefaultValues <- list(H = 0.0)
@@ -360,6 +377,12 @@ GuessInitVecParams.MixedGaussian <- function(
     argsPCMParamUpperLimit = argsPCMParamUpperLimit),
   ...) {
 
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
+
+
   # 1. first we guess all global parameters
   paramNames <- names(o)[!sapply(o, is.PCM) & !sapply(o, is.Fixed)]
   paramDefaultValues <- list(H = 0.0, H1 = 0.0, H2 = 0.0)
@@ -438,6 +461,11 @@ GuessX0 <- function(
   SE = NULL,
   tableAnc = NULL,
   ...) {
+
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
 
   if( !is.null(X) && "X0" %in% names(o) && !is.Fixed(o$X0) ) {
     if(is.null(tree)) {
@@ -525,6 +553,11 @@ GuessSigma_x <- function(
   SE = NULL,
   tableAnc = NULL,
   ...) {
+
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
 
   Sigma_x <- SDSigma_x <- o$Sigma_x
   argsExtra <- list(...)
@@ -622,6 +655,12 @@ GuessSigmae_x <- function(
   SE = NULL,
   tableAnc = NULL,
   ...) {
+
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
+
   regimes <- as.character(PCMRegimes(o))
 
   Sigmae_x <- SDSigmae_x <- o$Sigmae_x
@@ -661,6 +700,11 @@ GuessTheta <- function(
   SE = NULL,
   tableAnc = NULL,
   ...) {
+
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
 
   regimes <- as.character(PCMRegimes(o))
 
@@ -723,6 +767,7 @@ GuessDefault <- function(
   list(mean = as.vector(P), sd = as.vector(SDP))
 }
 
+#' @importFrom PCMBase PCMTree
 GuessParameters <- function(
   o, regimes, oParent = o, accessExpr = "",
   res,
@@ -737,6 +782,11 @@ GuessParameters <- function(
   varyParams = FALSE,
   returnWithinBoundsOnly = TRUE,
   ...) {
+
+  # Make sure that tree is a PCMTree object to prevent errors due to missing node.label
+  if(!is.null(tree)) {
+    tree <- PCMTree(tree)
+  }
 
   for(name in paramNames) {
     if(name == "X0") {

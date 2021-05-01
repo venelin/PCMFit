@@ -57,7 +57,7 @@
 #' @param verbose logical indicating if information messages should be printed
 #' to the console while running. Default: FALSE.
 #' @return an object of class PCMFit
-#' @importFrom PCMBase PCMCreateLikelihood PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMParamRandomVecParams PCMOptions
+#' @importFrom PCMBase PCMCreateLikelihood PCMTree PCMInfo PCMParamCount PCMParamGetShortVector PCMParamLoadOrStore PCMParamLowerLimit PCMParamUpperLimit PCMParamRandomVecParams PCMOptions
 #' @importFrom foreach foreach %do% %dopar%
 #' @seealso \code{\link{PCMFitMixed}} \code{\link{PCMOptions}}
 #'
@@ -87,6 +87,9 @@ PCMFit <- function(
   control = NULL,
   doParallel = FALSE,
   verbose = FALSE) {
+
+  # Make sure tree is a PCMTree object (prevent potential errors in GuessInitVecParams)
+  tree <- PCMTree(tree)
 
   lowerModel <- do.call(PCMParamLowerLimit, c(list(model), argsPCMParamLowerLimit))
   lowerVecParams <- PCMParamGetShortVector(lowerModel)

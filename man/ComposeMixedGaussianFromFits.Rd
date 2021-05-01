@@ -4,9 +4,19 @@
 \alias{ComposeMixedGaussianFromFits}
 \title{Compose a MixedGaussian model}
 \usage{
-ComposeMixedGaussianFromFits(tree, startingNodesRegimes, modelTypes, k, R,
-  mapping, argsMixedGaussian, tableFits, modelTypesInTableFits,
-  tableAncestors = NULL, verbose = FALSE)
+ComposeMixedGaussianFromFits(
+  tree,
+  startingNodesRegimes,
+  modelTypes,
+  k,
+  R,
+  mapping,
+  argsMixedGaussian,
+  tableFits,
+  modelTypesInTableFits,
+  tableAncestors = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{tree, startingNodesRegimes, modelTypes, k, R, mapping, argsMixedGaussian, tableFits, modelTypesInTableFits, tableAncestors, verbose}{Internal use.}

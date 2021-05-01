@@ -4,8 +4,20 @@
 \alias{RunOptim}
 \title{Calling optim a number of times}
 \usage{
-RunOptim(X, tree, model, SE, metaI, positiveValueGuard, parLower, parUpper,
-  matParInit, control = NULL, doParallel = FALSE, verbose = TRUE)
+RunOptim(
+  X,
+  tree,
+  model,
+  SE,
+  metaI,
+  positiveValueGuard,
+  parLower,
+  parUpper,
+  matParInit,
+  control = NULL,
+  doParallel = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{X}{a \code{k x N} numerical matrix with possible \code{NA} and
@@ -14,7 +26,7 @@ the measured trait values for species \code{i} (the tip with integer
 identifier equal to \code{i} in \code{tree}). Missing values can be either
 not-available (\code{NA}) or not existing (\code{NaN}). These two values are
 treated differently when calculating likelihoods (see
-\code{\link{PCMPresentCoordinates}}).}
+\code{\link[PCMBase]{PCMPresentCoordinates}}).}
 
 \item{tree}{a phylo object with N tips.}
 
