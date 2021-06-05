@@ -13,10 +13,19 @@
     <loc>http://venelin.github.io/PCMFit/reference/DefaultArgsConfigOptim.html</loc>
   </url>
   <url>
+    <loc>http://venelin.github.io/PCMFit/reference/dot-cacheEnv.html</loc>
+  </url>
+  <url>
     <loc>http://venelin.github.io/PCMFit/reference/GuessInitVecParams.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/HashCodes.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMFit/reference/is.PCMFit.html</loc>
+  </url>
+  <url>
+    <loc>http://venelin.github.io/PCMFit/reference/is.PCMFitModelMappings.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/JitterModelParams.html</loc>
@@ -53,15 +62,6 @@
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/reference/RunOptim.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMFit/reference/dot-cacheEnv.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMFit/reference/is.PCMFit.html</loc>
-  </url>
-  <url>
-    <loc>http://venelin.github.io/PCMFit/reference/is.PCMFitModelMappings.html</loc>
   </url>
   <url>
     <loc>http://venelin.github.io/PCMFit/articles/parambootstrap.html</loc>

@@ -8,21 +8,25 @@
 
 <title>Fitting a PCM model — PCMFit • PCMFit</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +34,11 @@
 
 
 
-<meta property="og:title" content="Fitting a PCM model — PCMFit" />
 
+<meta property="og:title" content="Fitting a PCM model — PCMFit" />
 <meta property="og:description" content="Fitting a PCM model" />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -56,6 +61,7 @@
 
   gtag('config', 'UA-129563006-6');
 </script>
+
 
   </head>
 
@@ -110,7 +116,6 @@
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -120,6 +125,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -131,20 +137,27 @@
     </div>
 
     <div class="ref-description">
-    
     <p>Fitting a PCM model</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>PCMFit</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'>PCMNumTraits</span>(<span class='no'>model</span>),
-  <span class='fu'>PCMTreeNumTips</span>(<span class='no'>tree</span>)), <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'>PCMInfo</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>),
-  <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>argsPCMParamLowerLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>argsPCMParamUpperLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>matParInit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>numRunifInitVecParams</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/NULL'>is.null</a></span>(<span class='no'>matParInit</span>)) <span class='fl'>1000L</span> <span class='kw'>else</span> <span class='fl'>0L</span>,
-  <span class='kw'>numGuessInitVecParams</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/NULL'>is.null</a></span>(<span class='no'>matParInit</span>)) <span class='fl'>100L</span> <span class='kw'>else</span> <span class='fl'>0L</span>,
-  <span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10L</span>, <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>PCMFit</span>(
+  <span class='no'>X</span>,
+  <span class='no'>tree</span>,
+  <span class='no'>model</span>,
+  <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'>PCMNumTraits</span>(<span class='no'>model</span>), <span class='fu'>PCMTreeNumTips</span>(<span class='no'>tree</span>)),
+  <span class='kw'>metaI</span> <span class='kw'>=</span> <span class='fu'>PCMInfo</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='no'>model</span>, <span class='no'>SE</span>),
+  <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>argsPCMParamLowerLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>argsPCMParamUpperLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>matParInit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>numRunifInitVecParams</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span>(<span class='no'>matParInit</span>)) <span class='fl'>1000L</span> <span class='kw'>else</span> <span class='fl'>0L</span>,
+  <span class='kw'>numGuessInitVecParams</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span>(<span class='no'>matParInit</span>)) <span class='fl'>100L</span> <span class='kw'>else</span> <span class='fl'>0L</span>,
+  <span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10L</span>,
+  <span class='kw'>control</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -156,7 +169,7 @@ the measured trait values for species <code>i</code> (the tip with integer
 identifier equal to <code>i</code> in <code>tree</code>). Missing values can be either
 not-available (<code>NA</code>) or not existing (<code>NaN</code>). These two values are
 treated differently when calculating likelihoods (see
-<code>PCMPresentCoordinates</code>).</p></td>
+<code><a href='http://venelin.github.io/PCMBase/reference/PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>).</p></td>
     </tr>
     <tr>
       <th>tree</th>
@@ -181,10 +194,11 @@ calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
 as follows:</p><dl class='dl-horizontal'>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+
 </dl><p>Note that the above behavior is consistent with the treatment of the model
 parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
 also specified as upper triangular factors.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+Default: <code><a href='https://rdrr.io/r/base/matrix.html'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>
       <th>metaI</th>
@@ -235,8 +249,8 @@ optimization. The default settings are
     <tr>
       <th>numCallsOptim</th>
       <td><p>integer specifying the maximum number of calls to
-<code><a href='https://www.rdocumentation.org/packages/stats/topics/optim'>optim</a></code> function. Default: 10. Note that this parameter would be
-overwritten by a smaller <code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow(matParInit)</a></code> (if <code>matParInit</code> is
+<code><a href='https://rdrr.io/r/stats/optim.html'>optim</a></code> function. Default: 10. Note that this parameter would be
+overwritten by a smaller <code><a href='https://rdrr.io/r/base/nrow.html'>nrow(matParInit)</a></code> (if <code>matParInit</code> is
 specified) or by a smaller number of generated initial parameter vectors that
 satisfy the parameter limits (see also the arguments
 <code>numRunifInitVecParams,numGuessInitVecParams</code> and
@@ -244,7 +258,7 @@ satisfy the parameter limits (see also the arguments
     </tr>
     <tr>
       <th>control</th>
-      <td><p>a list passed as control argument to <code><a href='https://www.rdocumentation.org/packages/stats/topics/optim'>optim</a></code>.
+      <td><p>a list passed as control argument to <code><a href='https://rdrr.io/r/stats/optim.html'>optim</a></code>.
 Default: NULL.</p></td>
     </tr>
     <tr>
@@ -258,11 +272,10 @@ parallel. Default: FALSE.</p></td>
 to the console while running. Default: FALSE.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>an object of class PCMFit</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Mitov, V., Bartoszek, K., &amp; Stadler, T. (2019). Automatic generation of
@@ -273,27 +286,23 @@ to the console while running. Default: FALSE.</p></td>
  likelihood calculation for multivariate Gaussian phylogenetic models with
  shifts. Theoretical Population Biology.
  http://doi.org/10.1016/j.tpb.2019.11.005</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='PCMFitMixed.html'>PCMFitMixed</a></code> <code>PCMOptions</code></p></div>
-    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#references">References</a></li>
-
       <li><a href="#see-also">See also</a></li>
-          </ul>
+    </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -301,13 +310,16 @@ to the console while running. Default: FALSE.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

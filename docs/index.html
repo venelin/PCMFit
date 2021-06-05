@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Maximum likelihood fit and selection of phylogenetic comparative models • PCMFit</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Maximum likelihood fit and selection of phylogenetic comparative models">
 <meta property="og:description" content="PCMFit provides maximum likelihood inference and 
   selection of phylogenetic comparative models (PCMs). Currently, the package 
@@ -49,7 +50,7 @@
 </script>
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -107,18 +108,17 @@
 <!--/.navbar -->
 
       
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    
 
-    
-    
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+      </header><div class="row">
+  <div class="contents col-md-9">
+
 
 <div class="page-header"><h1>
+
 PCMFit: Statistical inference of phylogenetic comparative models
+
 </h1></div>
-<p>The goal of PCMFit is to provide a generic tool for inference and selection of phylogenetic comparative models (PCMs). Currently, the package implements Gaussian and mixed Gaussian phylogenetic models (MGPM) over all tree types (including non-ultrametric and polytomic trees). The package supports non-existing traits or missing measurements for some of the traits on some of the species. The package supports specifying measurement error associated with each tip of the tree or inferring a measurement error parameter for a group of tips. The Gaussian phylogenetic models include various parametrizations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching processes. The mixed Gaussian models represent models with shifts in the model parameters as well as the type of model at points of the tree. Each shift-point is described as a pair of a shift-node and associated type of model (e.g. OU or BM) driving the trait evolution from the beginning of the branch leading to the shift-node toward the shift-node and its descendants until reaching a tip or another shift-point. The function PCMFit is used to fit a given PCM or a MGPM for a given tree with specified shift-points. The function PCMFitMixed is used to fit an ensemble of possible MGPMs over a tree for which the shift-points are unknown. This function can perform model selection of the best MGPM for a given tree and data according to an information loss function such as the Akaike information criterion (AIC). The package has been thoroughly tested and applied to real data in the related research article <span class="citation">(Mitov, Bartoszek, and Stadler 2019)</span> <a href="doi:10.1073/pnas.1813823116" class="uri">doi:10.1073/pnas.1813823116</a>. Currently, the package is available from <a href="https://github.com/venelin/PCMFit" class="uri">https://github.com/venelin/PCMFit</a>. The web-page <a href="https://venelin.github.io/PCMFit/" class="uri">https://venelin.github.io/PCMFit/</a> provides access to documentation and related resources.</p>
+<p>The goal of PCMFit is to provide a generic tool for inference and selection of phylogenetic comparative models (PCMs). Currently, the package implements Gaussian and mixed Gaussian phylogenetic models (MGPM) over all tree types (including non-ultrametric and polytomic trees). The package supports non-existing traits or missing measurements for some of the traits on some of the species. The package supports specifying measurement error associated with each tip of the tree or inferring a measurement error parameter for a group of tips. The Gaussian phylogenetic models include various parametrizations of Brownian motion (BM) and Ornstein-Uhlenbeck (OU) multivariate branching processes. The mixed Gaussian models represent models with shifts in the model parameters as well as the type of model at points of the tree. Each shift-point is described as a pair of a shift-node and associated type of model (e.g. OU or BM) driving the trait evolution from the beginning of the branch leading to the shift-node toward the shift-node and its descendants until reaching a tip or another shift-point. The function PCMFit is used to fit a given PCM or a MGPM for a given tree with specified shift-points. The function PCMFitMixed is used to fit an ensemble of possible MGPMs over a tree for which the shift-points are unknown. This function can perform model selection of the best MGPM for a given tree and data according to an information loss function such as the Akaike information criterion (AIC). The package has been thoroughly tested and applied to real data in the related research article (Mitov, Bartoszek, and Stadler 2019) <a href="doi:10.1073/pnas.1813823116" class="uri">doi:10.1073/pnas.1813823116</a>. Currently, the package is available from <a href="https://github.com/venelin/PCMFit" class="uri">https://github.com/venelin/PCMFit</a>. The web-page <a href="https://venelin.github.io/PCMFit/" class="uri">https://venelin.github.io/PCMFit/</a> provides access to documentation and related resources.</p>
 <!--An early version of this article is available in Chapter 7 of the doctoral thesis available at <https://doi.org/10.3929/ethz-b-000315296>. -->
 <div id="prerequisites" class="section level1">
 <h1 class="hasAnchor">
@@ -128,32 +128,32 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <li>
 <a href="https://venelin.github.io/PCMBase">PCMBase</a>. The PCMBase package is available on CRAN and should be installed automatically during the installation of PCMFit. If this does not happen, try the command:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"PCMBase"</span>)</a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"PCMBase"</span>)</span></code></pre></div>
 <ul>
 <li>
-<p>[<a href="https://github.com/venelin/PCMBaseCpp">PCMBaseCpp</a>]. This package contains Rcpp modules for likelihood calculation of the model types implemented in PCMBase. PCMBaseCpp can be used as a companion and not a substitute of PCMBase. The sole purpose of PCMBaseCpp is to accelerate the likelihood calculation by implementing the most computationally intensive algorithm in C++, which has shown a dramatic speed-up (in the order of 100 times) <span class="citation">(Mitov et al. 2018)</span>. Hence, installing this package is optional but highly recommended, in particular, if the goal is to infer models with shifts and/or to infer models on trees bigger than 100 tips. Installing PCMBaseCpp requires a C++ compiler to be installed on the system. This installation has been tested on two systems:</p>
+<p>[<a href="https://github.com/venelin/PCMBaseCpp">PCMBaseCpp</a>]. This package contains Rcpp modules for likelihood calculation of the model types implemented in PCMBase. PCMBaseCpp can be used as a companion and not a substitute of PCMBase. The sole purpose of PCMBaseCpp is to accelerate the likelihood calculation by implementing the most computationally intensive algorithm in C++, which has shown a dramatic speed-up (in the order of 100 times) (Mitov et al. 2018). Hence, installing this package is optional but highly recommended, in particular, if the goal is to infer models with shifts and/or to infer models on trees bigger than 100 tips. Installing PCMBaseCpp requires a C++ compiler to be installed on the system. This installation has been tested on two systems:</p>
 <ul>
 <li>On Mac OS X, it has been tested using the default (clang) and the Intel (icpc) compiler.</li>
 <li>On Linux (Euler ETH cluster), it has been tested with the following modules loaded (commands in the file <code>.bashrc</code>):</li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ex">module</span> load interconnect/ethernet</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="ex">module</span> load new gcc/6.3.0 open_mpi/1.6.5 r/3.4.0 intel/2017.5</a></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="ex">xcode-select</span> --install</a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1"></a><span class="ex">module</span> load interconnect/ethernet</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ex">module</span> load new gcc/6.3.0 open_mpi/1.6.5 r/3.4.0 intel/2017.5</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="ex">xcode-select</span> --install</span></code></pre></div>
 <p>Upon validating the availability of a C++ compiler, PCMBaseCpp can be installed using the commands:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># These two packages are available on CRAN</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"Rcpp"</span>)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"RcppArmadillo"</span>)</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co"># At the time of writing, PCMBaseCpp is available only from github. </span></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/remote-reexports">install_github</a></span>(<span class="st">"venelin/PCMBaseCpp"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># These two packages are available on CRAN</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"Rcpp"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"RcppArmadillo"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># At the time of writing, PCMBaseCpp is available only from github. </span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"venelin/PCMBaseCpp"</span>)</span></code></pre></div>
 <ul>
 <li><p>other third party dependencies include the packages <a href="https://CRAN.R-project.org/package=data.table"><code>data.table</code></a>, <a href="https://CRAN.R-project.org/package=foreach"><code>foreach</code></a>, <a href="https://CRAN.R-project.org/package=iterators"><code>iterators</code></a>, <a href="https://CRAN.R-project.org/package=ape"><code>ape</code></a> and <a href="https://CRAN.R-project.org/package=digest"><code>digest</code></a>. These packages should be installed automatically from CRAN when installing PCMFit. If this does not happen, consult the packages’ web-pages (links above).</p></li>
 <li><p>An optional but highly recommended dependency. The function <code>PCMTreePlot</code> in the package PCMBase uses the R-package ggtree, which is not on CRAN. It is highly recommended to install this package in order to be able to visualize trees with colored parts corresponding to defferent evolutionary regimes. If <code>ggtree</code> is not installed, the figures in the vignettes and coding examples cannot be generated. At the time of writing this documentation, <code>ggtree</code> can be installed from bioconductor through the following code (if that does not work, check the <a href="https://guangchuangyu.github.io/software/ggtree/">ggtree home page</a>):</p></li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ns-load">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>))</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">    <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"BiocManager"</span>)</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"ggtree"</span>, <span class="dt">version =</span> <span class="st">"3.8"</span>)</a></code></pre></div>
+<!-- end list --><div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span>(<span class="st">"BiocManager"</span>, <span class="dt">quietly =</span> <span class="ot">TRUE</span>))</span>
+<span id="cb5-2"><a href="#cb5-2"></a>    <span class="kw"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"BiocManager"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>BiocManager<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/BiocManager/man/install.html">install</a></span>(<span class="st">"ggtree"</span>, <span class="dt">version =</span> <span class="st">"3.8"</span>)</span></code></pre></div>
 </div>
 <div id="installing-pcmfit" class="section level1">
 <h1 class="hasAnchor">
@@ -162,7 +162,7 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <h2 class="hasAnchor">
 <a href="#from-github" class="anchor"></a>From Github</h2>
 <p>Currently the package can be installed from github using the command:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/remote-reexports">install_github</a></span>(<span class="st">"venelin/PCMFit"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>devtools<span class="op">::</span><span class="kw"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"venelin/PCMFit"</span>)</span></code></pre></div>
 </div>
 <div id="from-cran" class="section level2">
 <h2 class="hasAnchor">
@@ -179,46 +179,46 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <li>Using the R package <a href="https://CRAN.R-project.org/package=doParallel"><code>doParallel</code></a> on a MacBook Pro (Retina, 15-inch, Late 2013), 2.3 GHz Intel Core i7 processor (4 physical cores, 8 logical cores), running macOS Sierra 10.12.6.</li>
 </ul>
 <p>To install the above packages, follow the most recent instructions in their documentation (links to the packages web-pages provided above). Once you have installed the parallel backend of choice, you can paste/edit the following code snippet in the beginning of the R-script for running PCMFit model inference:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBaseCpp)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="co"># other needed packages, e.g. ape, data.table etc...</span></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co"># extract dataset identifier and possibly other parameters from the command line:</span></a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">args &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/commandArgs">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8"><span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</a>
-<a class="sourceLine" id="cb7-9" data-line-number="9">  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(args[<span class="dv">1</span>])</a>
-<a class="sourceLine" id="cb7-10" data-line-number="10">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb7-11" data-line-number="11">  data_id &lt;-<span class="st"> </span>1L</a>
-<a class="sourceLine" id="cb7-12" data-line-number="12">}</a>
-<a class="sourceLine" id="cb7-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb7-14" data-line-number="14"><span class="co"># A character string used in filenames for a model inference on a given data:</span></a>
-<a class="sourceLine" id="cb7-15" data-line-number="15">prefixFiles =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_DATAID_"</span>, data_id)</a>
-<a class="sourceLine" id="cb7-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb7-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb7-18" data-line-number="18"><span class="co"># creating the cluster for this PCMFit run:</span></a>
-<a class="sourceLine" id="cb7-19" data-line-number="19"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"cluster"</span>) <span class="op">||</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(cluster)) {</a>
-<a class="sourceLine" id="cb7-20" data-line-number="20">  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(doMPI)) {</a>
-<a class="sourceLine" id="cb7-21" data-line-number="21">    <span class="co"># using MPI cluster as distributed node cluster (possibly running on a </span></a>
-<a class="sourceLine" id="cb7-22" data-line-number="22">    <span class="co"># cluster of multiple nodes)</span></a>
-<a class="sourceLine" id="cb7-23" data-line-number="23">    <span class="co"># Get the number of cores. Assume this is run in a batch job.</span></a>
-<a class="sourceLine" id="cb7-24" data-line-number="24">    p =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/strtoi">strtoi</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">'LSB_DJOB_NUMPROC'</span>))</a>
-<a class="sourceLine" id="cb7-25" data-line-number="25">    cluster &lt;-<span class="st"> </span><span class="kw">startMPIcluster</span>(<span class="dt">count =</span> p<span class="dv">-1</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb7-26" data-line-number="26">    doMPI<span class="op">::</span><span class="kw">registerDoMPI</span>(cluster)</a>
-<a class="sourceLine" id="cb7-27" data-line-number="27">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb7-28" data-line-number="28">    <span class="co"># possibly running on personal computer without mpi installation</span></a>
-<a class="sourceLine" id="cb7-29" data-line-number="29">    cluster &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/makeCluster">makeCluster</a></span>(</a>
-<a class="sourceLine" id="cb7-30" data-line-number="30">      parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>(<span class="dt">logical =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb7-31" data-line-number="31">      <span class="dt">outfile =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))</a>
-<a class="sourceLine" id="cb7-32" data-line-number="32">    doParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/doParallel/topics/registerDoParallel">registerDoParallel</a></span>(cluster)</a>
-<a class="sourceLine" id="cb7-33" data-line-number="33">  }</a>
-<a class="sourceLine" id="cb7-34" data-line-number="34">}</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMBase)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMBaseCpp)</span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMFit)</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># other needed packages, e.g. ape, data.table etc...</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="co"># extract dataset identifier and possibly other parameters from the command line:</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>args &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/commandArgs.html">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="cf">if</span>(<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</span>
+<span id="cb7-9"><a href="#cb7-9"></a>  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(args[<span class="dv">1</span>])</span>
+<span id="cb7-10"><a href="#cb7-10"></a>} <span class="cf">else</span> {</span>
+<span id="cb7-11"><a href="#cb7-11"></a>  data_id &lt;-<span class="st"> </span>1L</span>
+<span id="cb7-12"><a href="#cb7-12"></a>}</span>
+<span id="cb7-13"><a href="#cb7-13"></a></span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="co"># A character string used in filenames for a model inference on a given data:</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>prefixFiles =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_DATAID_"</span>, data_id)</span>
+<span id="cb7-16"><a href="#cb7-16"></a></span>
+<span id="cb7-17"><a href="#cb7-17"></a></span>
+<span id="cb7-18"><a href="#cb7-18"></a><span class="co"># creating the cluster for this PCMFit run:</span></span>
+<span id="cb7-19"><a href="#cb7-19"></a><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/exists.html">exists</a></span>(<span class="st">"cluster"</span>) <span class="op">||</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span>(cluster)) {</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="cf">if</span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(doMPI)) {</span>
+<span id="cb7-21"><a href="#cb7-21"></a>    <span class="co"># using MPI cluster as distributed node cluster (possibly running on a </span></span>
+<span id="cb7-22"><a href="#cb7-22"></a>    <span class="co"># cluster of multiple nodes)</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a>    <span class="co"># Get the number of cores. Assume this is run in a batch job.</span></span>
+<span id="cb7-24"><a href="#cb7-24"></a>    p =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/strtoi.html">strtoi</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv</a></span>(<span class="st">'LSB_DJOB_NUMPROC'</span>))</span>
+<span id="cb7-25"><a href="#cb7-25"></a>    cluster &lt;-<span class="st"> </span><span class="kw">startMPIcluster</span>(<span class="dt">count =</span> p<span class="dv">-1</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb7-26"><a href="#cb7-26"></a>    doMPI<span class="op">::</span><span class="kw">registerDoMPI</span>(cluster)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>  } <span class="cf">else</span> {</span>
+<span id="cb7-28"><a href="#cb7-28"></a>    <span class="co"># possibly running on personal computer without mpi installation</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a>    cluster &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/r/parallel/makeCluster.html">makeCluster</a></span>(</span>
+<span id="cb7-30"><a href="#cb7-30"></a>      parallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/r/parallel/detectCores.html">detectCores</a></span>(<span class="dt">logical =</span> <span class="ot">TRUE</span>),</span>
+<span id="cb7-31"><a href="#cb7-31"></a>      <span class="dt">outfile =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))</span>
+<span id="cb7-32"><a href="#cb7-32"></a>    doParallel<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span>(cluster)</span>
+<span id="cb7-33"><a href="#cb7-33"></a>  }</span>
+<span id="cb7-34"><a href="#cb7-34"></a>}</span></code></pre></div>
 <p>Finally, to tell PCMFit that it should run the inference in parallel, specify the argument <code>doParallel=TRUE</code> in calls to the function <code>PCMFitMixed</code>. A full example for this is provided in the user guide <a href="https://venelin.github.io/PCMFit/articles/pcmfitmixed.html">Inferring an MGPM with Unknown Shifts</a>.</p>
 </div>
 <div id="resources" class="section level1">
 <h1 class="hasAnchor">
 <a href="#resources" class="anchor"></a>Resources</h1>
-<p>A brief historical background and theoretical overview of PCMs can be found in Chapter 1 of <span class="citation">(Mitov 2018a)</span>. A more general introduction can be found in <span class="citation">(Harmon 2018)</span>. The research article “Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models” provides a general introduction to MGPMs and reports a real data example and a simulation based comparison of MGPMs versus other implementations of phylogenetic comparative models with shifts. The article is currently undergoing peer review for a publication.</p>
+<p>A brief historical background and theoretical overview of PCMs can be found in Chapter 1 of (Mitov 2018a). A more general introduction can be found in (Harmon 2018). The research article “Automatic Generation of Evolutionary Hypotheses using Mixed Gaussian Phylogenetic Models” provides a general introduction to MGPMs and reports a real data example and a simulation based comparison of MGPMs versus other implementations of phylogenetic comparative models with shifts. The article is currently undergoing peer review for a publication.</p>
 <p>The user guides and technical reference for the library are available on the <a href="https://venelin.github.io/PCMFit/">PCMFit web-page</a>:</p>
 <p><strong>Note:</strong> <em>The writing of the user gudes and <a href="https://venelin.github.io/PCMFit/reference/index.html">help articles</a> for this package is in progress. Please, contact the author for assistance, in case you need to use PCMFit right away and need help with the coding examples. Thanks for your understanding.</em></p>
 <ul>
@@ -234,9 +234,9 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <a href="#related-tools" class="anchor"></a>Related tools</h1>
 <p>PCMFit builds on top of a stack of three tools enabling fast likelihood calculation and simulation of MGPMs:</p>
 <ul>
-<li>The R-package <a href="https://venelin.github.io/PCMBase/">PCMBase</a> implements the specification, likelihood calculation and simulation of MGPMs <span class="citation">(Mitov et al. 2018)</span>.</li>
-<li>The auxiliary package <a href="https://github.com/venelin/PCMBaseCpp">PCMBaseCpp</a> provides a fast C++ implementation of the likelihood calculation as described in <span class="citation">(Mitov et al. 2018)</span>.</li>
-<li>PCMBaseCpp relies on the C++ library <a href="https://github.com/venelin/SPLITT">SPLITT</a> implementing fast traversal of phylogenetic trees <span class="citation">(Mitov and Stadler 2018)</span>.</li>
+<li>The R-package <a href="https://venelin.github.io/PCMBase/">PCMBase</a> implements the specification, likelihood calculation and simulation of MGPMs (Mitov et al. 2018).</li>
+<li>The auxiliary package <a href="https://github.com/venelin/PCMBaseCpp">PCMBaseCpp</a> provides a fast C++ implementation of the likelihood calculation as described in (Mitov et al. 2018).</li>
+<li>PCMBaseCpp relies on the C++ library <a href="https://github.com/venelin/SPLITT">SPLITT</a> implementing fast traversal of phylogenetic trees (Mitov and Stadler 2018).</li>
 </ul>
 </div>
 <div id="citing-pcmfit" class="section level1">
@@ -244,13 +244,13 @@ PCMFit: Statistical inference of phylogenetic comparative models
 <a href="#citing-pcmfit" class="anchor"></a>Citing PCMFit</h1>
 <p>To acknowledge the PCMFit package in a publication or other presentation, please cite:</p>
 <p>Mitov, V., Bartoszek, K., &amp; Stadler, T. (2019). Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models. Proceedings of the National Academy of Sciences of the United States of America, <a href="http://doi.org/10.1073/pnas.1813823116" class="uri">http://doi.org/10.1073/pnas.1813823116</a>.</p>
-<pre><code>@article{Mitov:2019agh,
-title = {Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models},
-    author = {Venelin Mitov and Krzysztof Bartoszek and Tanja Stadler},
-    journal = {Proceedings of the National Academy of Sciences of the United States of America},
-    year = {2019},
-    url = {https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116},
-}</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="op">@</span>article{Mitov<span class="op">:</span>2019agh,</span>
+<span id="cb8-2"><a href="#cb8-2"></a>title =<span class="st"> </span>{Automatic generation of evolutionary hypotheses using mixed Gaussian phylogenetic models},</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    author =<span class="st"> </span>{Venelin Mitov and Krzysztof Bartoszek and Tanja Stadler},</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    journal =<span class="st"> </span>{Proceedings of the National Academy of Sciences of the United States of America},</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    year =<span class="st"> </span>{<span class="dv">2019</span>},</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    url =<span class="st"> </span>{https<span class="op">:</span><span class="er">//</span>www.pnas.org<span class="op">/</span>lookup<span class="op">/</span>doi<span class="op">/</span><span class="fl">10.1073</span><span class="op">/</span>pnas<span class="fl">.1813823116</span>},</span>
+<span id="cb8-7"><a href="#cb8-7"></a>}</span></code></pre></div>
 </div>
 <div id="used-software-packages" class="section level1">
 <h1 class="hasAnchor">
@@ -258,85 +258,208 @@ title = {Automatic generation of evolutionary hypotheses using mixed Gaussian ph
 <p>Although, I have been consistent in my effort to update the following list with any new package I have used in developing and testing PCMFit, chances are that I have omitted some of these tools. I apologise to their authors.</p>
 <p>The PCMFit R-package uses the following 3rd party R-packages:</p>
 <ul>
-<li>For tree processing in R: ape v5.3 <span class="citation">(Paradis et al. 2019)</span>, data.table v1.12.2 <span class="citation">(Dowle and Srinivasan 2019)</span>, PCMBase v1.2.12 <span class="citation">(Mitov 2019b)</span>;</li>
-<li>For specification and manipulation of models in R: PCMBase v1.2.12 <span class="citation">(Mitov 2019b)</span>, PCMBaseCpp v0.1.6 <span class="citation">(Mitov 2019a)</span>, SPLITT v1.2.1 <span class="citation">(Mitov 2018b)</span>;</li>
-<li>For data processing in R: data.table v1.12.2 <span class="citation">(Dowle and Srinivasan 2019)</span>;</li>
-<li>For parallel execution: iterators v1.0.10 <span class="citation">(Analytics and Weston 2018)</span>, foreach v1.4.7 <span class="citation">(Revolution Analytics and Weston, n.d.)</span>, doParallel v1.0.15 <span class="citation">(Corporation and Weston 2018)</span>;</li>
-<li>For algebraic computation: expm v0.999.4 <span class="citation">(Goulet et al. 2019)</span>, mvtnorm v1.0.11 <span class="citation">(Genz et al. 2019)</span>;</li>
-<li>For plotting: ggtree v1.15.3 <span class="citation">(Yu and Lam 2019)</span>, ggplot2 v3.2.1 <span class="citation">(Wickham et al. 2018)</span>, cowplot v1.0.0 <span class="citation">(Wilke 2019)</span>;</li>
-<li>For unit-testing: testthat v2.1.1 <span class="citation">(Wickham 2018)</span>;</li>
-<li>For documentation and web-site generation: roxygen2 v6.1.1 <span class="citation">(Wickham, Danenberg, and Eugster 2018)</span>, pkgdown v1.3.0 <span class="citation">(Wickham and Hesselberth 2018)</span>;</li>
+<li>For tree processing in R: ape v5.3 (Paradis et al. 2019), data.table v1.12.2 (Dowle and Srinivasan 2019), PCMBase v1.2.11 (Mitov 2019b);</li>
+<li>For specification and manipulation of models in R: PCMBase v1.2.11 (Mitov 2019b), PCMBaseCpp v0.1.6 (Mitov 2019a), SPLITT v1.2.1 (Mitov 2018b);</li>
+<li>For data processing in R: data.table v1.12.2 (Dowle and Srinivasan 2019);</li>
+<li>For parallel execution: iterators v1.0.10 (Analytics and Weston 2018), foreach v1.4.7 (Revolution Analytics and Weston, n.d.), doParallel v1.0.15 (Corporation and Weston 2018);</li>
+<li>For algebraic computation: expm v0.999.4 (Goulet et al. 2019), mvtnorm v1.0.11 (Genz et al. 2019);</li>
+<li>For plotting: ggtree v1.15.3 (Yu and Lam 2019), ggplot2 v3.2.1 (Wickham et al. 2018), cowplot v1.0.0 (Wilke 2019);</li>
+<li>For unit-testing: testthat v2.1.1 (Wickham 2018);</li>
+<li>For documentation and web-site generation: roxygen2 v6.1.1 (Wickham, Danenberg, and Eugster 2018), pkgdown v1.3.0 (Wickham and Hesselberth 2018);</li>
 </ul>
 </div>
-<div id="references" class="section level1 unnumbered">
+<div id="references" class="section level1">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references">
+
 <div id="ref-R-iterators">
-<p>Analytics, Revolution, and Steve Weston. 2018. <em>Iterators: Provides Iterator Construct for R</em>. <a href="https://CRAN.R-project.org/package=iterators">https://CRAN.R-project.org/package=iterators</a>.</p>
+
+Analytics, Revolution, and Steve Weston. 2018. *Iterators: Provides
+Iterator Construct for R*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-doParallel">
-<p>Corporation, Microsoft, and Steve Weston. 2018. <em>DoParallel: Foreach Parallel Adaptor for the ’Parallel’ Package</em>. <a href="https://CRAN.R-project.org/package=doParallel">https://CRAN.R-project.org/package=doParallel</a>.</p>
+
+Corporation, Microsoft, and Steve Weston. 2018. *DoParallel: Foreach
+Parallel Adaptor for the ’Parallel’ Package*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-data-table">
-<p>Dowle, Matt, and Arun Srinivasan. 2019. <em>Data.table: Extension of ‘Data.frame‘</em>. <a href="https://CRAN.R-project.org/package=data.table">https://CRAN.R-project.org/package=data.table</a>.</p>
+
+Dowle, Matt, and Arun Srinivasan. 2019. *Data.table: Extension of
+‘Data.frame‘*. <https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-mvtnorm">
-<p>Genz, Alan, Frank Bretz, Tetsuhisa Miwa, Xuefei Mi, and Torsten Hothorn. 2019. <em>Mvtnorm: Multivariate Normal and T Distributions</em>. <a href="https://CRAN.R-project.org/package=mvtnorm">https://CRAN.R-project.org/package=mvtnorm</a>.</p>
+
+Genz, Alan, Frank Bretz, Tetsuhisa Miwa, Xuefei Mi, and Torsten Hothorn.
+2019. *Mvtnorm: Multivariate Normal and T Distributions*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-expm">
-<p>Goulet, Vincent, Christophe Dutang, Martin Maechler, David Firth, Marina Shapira, and Michael Stadelmann. 2019. <em>Expm: Matrix Exponential, Log, ’Etc’</em>. <a href="https://CRAN.R-project.org/package=expm">https://CRAN.R-project.org/package=expm</a>.</p>
+
+Goulet, Vincent, Christophe Dutang, Martin Maechler, David Firth, Marina
+Shapira, and Michael Stadelmann. 2019. *Expm: Matrix Exponential, Log,
+’Etc’*. <https:>.
+
+</https:>
 </div>
+
 <div id="ref-Harmon:2018pcm">
-<p>Harmon, Luke J. 2018. <em>Phylogenetic Comparative Methods</em>. Learning from Trees. <a href="https://lukejharmon.github.io/pcm/">https://lukejharmon.github.io/pcm/</a>.</p>
+
+Harmon, Luke J. 2018. *Phylogenetic Comparative Methods*. Learning from
+Trees. <https:></https:>.
+
 </div>
+
 <div id="ref-Mitov:2018hh">
-<p>Mitov, Venelin. 2018a. “Phylogenetic Comparative Methods in the Era of Big Data.” PhD thesis, Zurich: ETH Zurich. <a href="https://doi.org/10.3929/ethz-b-000315296">https://doi.org/10.3929/ethz-b-000315296</a>.</p>
+
+Mitov, Venelin. 2018a. “Phylogenetic Comparative Methods in the Era of
+Big Data.” PhD thesis, Zurich: ETH Zurich.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-SPLITT">
-<p>———. 2018b. <em>SPLITT: A Generic Library for Serial and Parallel Lineage Traversal of Trees</em>.</p>
+
+———. 2018b. *SPLITT: A Generic Library for Serial and Parallel Lineage
+Traversal of Trees*.
+
 </div>
+
 <div id="ref-R-PCMBaseCpp">
-<p>———. 2019a. <em>PCMBaseCpp: A C++ Implementation of Parallel Likelihood Calculation for Phylogenetic Comparative Models</em>.</p>
+
+———. 2019a. *PCMBaseCpp: A C++ Implementation of Parallel Likelihood
+Calculation for Phylogenetic Comparative Models*.
+
 </div>
+
 <div id="ref-R-PCMBase">
-<p>———. 2019b. <em>PCMBase: Simulation and Likelihood Calculation of Phylogenetic Comparative Models</em>. <a href="https://CRAN.R-project.org/package=PCMBase">https://CRAN.R-project.org/package=PCMBase</a>.</p>
+
+———. 2019b. *PCMBase: Simulation and Likelihood Calculation of
+Phylogenetic Comparative Models*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-Mitov:2018fl">
-<p>Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic comparative methods: the PCMBase R package.” <em>arXiv.org</em>, September, arXiv:1809.09014. <a href="http://arxiv.org/abs/1809.09014">http://arxiv.org/abs/1809.09014</a>.</p>
+
+Mitov, Venelin, Krzysztof Bartoszek, Georgios Asimomitis, and Tanja
+Stadler. 2018. “Fast likelihood evaluation for multivariate phylogenetic
+comparative methods: the PCMBase R package.” *arXiv.org*, September,
+arXiv:1809.09014. <http:>.
+
+</http:>
 </div>
+
 <div id="ref-Mitov:2019agh">
-<p>Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic Generation of Evolutionary Hypotheses Using Mixed Gaussian Phylogenetic Models.” <em>Proceedings of the National Academy of Sciences of the United States of America</em>. <a href="https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116">https://www.pnas.org/lookup/doi/10.1073/pnas.1813823116</a>.</p>
+
+Mitov, Venelin, Krzysztof Bartoszek, and Tanja Stadler. 2019. “Automatic
+Generation of Evolutionary Hypotheses Using Mixed Gaussian Phylogenetic
+Models.” *Proceedings of the National Academy of Sciences of the United
+States of America*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-Mitov:2018dqa">
-<p>Mitov, Venelin, and Tanja Stadler. 2018. “Parallel likelihood calculation for phylogenetic comparative models: The SPLITT C++ library.” <em>Methods in Ecology and Evolution</em>, December, 2041–210X.13136.</p>
+
+Mitov, Venelin, and Tanja Stadler. 2018. “Parallel likelihood
+calculation for phylogenetic comparative models: The SPLITT C++
+library.” *Methods in Ecology and Evolution*, December,
+2041–210X.13136.
+
 </div>
+
 <div id="ref-R-ape">
-<p>Paradis, Emmanuel, Simon Blomberg, Ben Bolker, Joseph Brown, Julien Claude, Hoa Sien Cuong, Richard Desper, et al. 2019. <em>Ape: Analyses of Phylogenetics and Evolution</em>. <a href="https://CRAN.R-project.org/package=ape">https://CRAN.R-project.org/package=ape</a>.</p>
+
+Paradis, Emmanuel, Simon Blomberg, Ben Bolker, Joseph Brown, Julien
+Claude, Hoa Sien Cuong, Richard Desper, et al. 2019. *Ape: Analyses of
+Phylogenetics and Evolution*. <https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-foreach">
-<p>Revolution Analytics, and Steve Weston. n.d. <em>Foreach: Provides Foreach Looping Construct for R</em>.</p>
+
+Revolution Analytics, and Steve Weston. n.d. *Foreach: Provides Foreach
+Looping Construct for R*.
+
 </div>
+
 <div id="ref-R-testthat">
-<p>Wickham, Hadley. 2018. <em>Testthat: Unit Testing for R</em>. <a href="https://CRAN.R-project.org/package=testthat">https://CRAN.R-project.org/package=testthat</a>.</p>
+
+Wickham, Hadley. 2018. *Testthat: Unit Testing for R*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-ggplot2">
-<p>Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen, Kohske Takahashi, Claus Wilke, and Kara Woo. 2018. <em>Ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics</em>. <a href="https://CRAN.R-project.org/package=ggplot2">https://CRAN.R-project.org/package=ggplot2</a>.</p>
+
+Wickham, Hadley, Winston Chang, Lionel Henry, Thomas Lin Pedersen,
+Kohske Takahashi, Claus Wilke, and Kara Woo. 2018. *Ggplot2: Create
+Elegant Data Visualisations Using the Grammar of Graphics*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-roxygen2">
-<p>Wickham, Hadley, Peter Danenberg, and Manuel Eugster. 2018. <em>Roxygen2: In-Line Documentation for R</em>. <a href="https://CRAN.R-project.org/package=roxygen2">https://CRAN.R-project.org/package=roxygen2</a>.</p>
+
+Wickham, Hadley, Peter Danenberg, and Manuel Eugster. 2018. *Roxygen2:
+In-Line Documentation for R*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-pkgdown">
-<p>Wickham, Hadley, and Jay Hesselberth. 2018. <em>Pkgdown: Make Static Html Documentation for a Package</em>. <a href="https://CRAN.R-project.org/package=pkgdown">https://CRAN.R-project.org/package=pkgdown</a>.</p>
+
+Wickham, Hadley, and Jay Hesselberth. 2018. *Pkgdown: Make Static Html
+Documentation for a Package*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-cowplot">
-<p>Wilke, Claus O. 2019. <em>Cowplot: Streamlined Plot Theme and Plot Annotations for ’Ggplot2’</em>. <a href="https://CRAN.R-project.org/package=cowplot">https://CRAN.R-project.org/package=cowplot</a>.</p>
+
+Wilke, Claus O. 2019. *Cowplot: Streamlined Plot Theme and Plot
+Annotations for ’Ggplot2’*.
+<https:>.
+
+</https:>
 </div>
+
 <div id="ref-R-ggtree">
-<p>Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. <em>Ggtree: An R Package for Visualization and Annotation of Phylogenetic Trees with Their Covariates and Other Associated Data</em>. <a href="https://guangchuangyu.github.io/software/ggtree">https://guangchuangyu.github.io/software/ggtree</a>.</p>
+
+Yu, Guangchuang, and Tommy Tsan-Yuk Lam. 2019. *Ggtree: An R Package for
+Visualization and Annotation of Phylogenetic Trees with Their Covariates
+and Other Associated Data*.
+<https:>.
+
+</https:>
+</div>
+
 </div>
 </div>
-</div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -369,14 +492,13 @@ title = {Automatic generation of evolutionary hypotheses using mixed Gaussian ph
 </ul>
 </div>
 
-      <div class="dev-status">
+  <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://travis-ci.com/venelin/PCMFit"><img src="https://travis-ci.com/venelin/PCMFit.svg?branch=master" alt="Travis build status"></a></li>
 </ul>
 </div>
 </div>
-
 </div>
 
 
@@ -385,12 +507,14 @@ title = {Automatic generation of evolutionary hypotheses using mixed Gaussian ph
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

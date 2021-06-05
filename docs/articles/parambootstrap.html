@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Parametric Bootstrap of an MGPM • PCMFit</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Parametric Bootstrap of an MGPM">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -82,15 +83,16 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Parametric Bootstrap of an MGPM</h1>
                         <h4 class="author">Venelin Mitov</h4>
             
-            <h4 class="date">2020-02-09</h4>
+            <h4 class="date">2021-06-05</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/parambootstrap.Rmd"><code>vignettes/parambootstrap.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/venelin/PCMFit/blob/master/vignettes/ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_1/vignettes/parambootstrap.Rmd"><code>vignettes/ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_1/vignettes/parambootstrap.Rmd</code></a></small>
       <div class="hidden name"><code>parambootstrap.Rmd</code></div>
 
     </div>
@@ -101,167 +103,195 @@
 <div id="simulating-parametric-bootstrap-datasets" class="section level1">
 <h1 class="hasAnchor">
 <a href="#simulating-parametric-bootstrap-datasets" class="anchor"></a>Simulating parametric bootstrap datasets</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># make results reproducible</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">12</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">numBootstraps &lt;-<span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">bestModel &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">metaI &lt;-<span class="st"> </span><span class="kw">PCMInfo</span>(</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">  <span class="dt">X =</span> <span class="ot">NULL</span>, <span class="dt">tree =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestModel, <span class="st">"tree"</span>), <span class="dt">model =</span> bestModel)</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># Simulate data with the best fit model from the mammal data with SEs</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">valuesBootstrapMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw">data.table</span>(</a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">  <span class="dt">IdGlob =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(numBootstraps),</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">  <span class="dt">X =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(numBootstraps), <span class="cf">function</span>(id) {</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16">    <span class="kw">PCMSim</span>(</a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">      <span class="dt">tree =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestModel, <span class="st">"tree"</span>), </a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">      <span class="dt">model =</span> bestModel, </a>
-<a class="sourceLine" id="cb1-19" data-line-number="19">      <span class="dt">X0 =</span> bestModel<span class="op">$</span>X0,</a>
-<a class="sourceLine" id="cb1-20" data-line-number="20">      <span class="dt">metaI =</span> metaI)</a>
-<a class="sourceLine" id="cb1-21" data-line-number="21">  })</a>
-<a class="sourceLine" id="cb1-22" data-line-number="22">)</a>
-<a class="sourceLine" id="cb1-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb1-24" data-line-number="24"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">PCMBase.Value.NA =</span> <span class="fl">-1e20</span>)</a>
-<a class="sourceLine" id="cb1-25" data-line-number="25"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">PCMBase.Lmr.mode =</span> <span class="dv">11</span>)</a>
-<a class="sourceLine" id="cb1-26" data-line-number="26"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/options">options</a></span>(<span class="dt">PCMBase.Threshold.EV =</span> <span class="fl">1e-7</span>)</a>
-<a class="sourceLine" id="cb1-27" data-line-number="27"></a>
-<a class="sourceLine" id="cb1-28" data-line-number="28">valuesBootstrapMGPM_A_F_BC2_RR[</a>
-<a class="sourceLine" id="cb1-29" data-line-number="29">  , <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"df"</span>, <span class="st">"logLik"</span>, <span class="st">"score"</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span>{</a>
-<a class="sourceLine" id="cb1-30" data-line-number="30">    resLists &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(.I, <span class="cf">function</span>(i) {</a>
-<a class="sourceLine" id="cb1-31" data-line-number="31">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(bestModel, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X[[i]]</a>
-<a class="sourceLine" id="cb1-32" data-line-number="32">      ll &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/logLik">logLik</a></span>(bestModel)</a>
-<a class="sourceLine" id="cb1-33" data-line-number="33">      aic &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/AIC">AIC</a></span>(bestModel)</a>
-<a class="sourceLine" id="cb1-34" data-line-number="34">      df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(ll, <span class="st">"df"</span>)</a>
-<a class="sourceLine" id="cb1-35" data-line-number="35">      <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(df, ll, aic)</a>
-<a class="sourceLine" id="cb1-36" data-line-number="36">    })</a>
-<a class="sourceLine" id="cb1-37" data-line-number="37">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">df =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">1</span>]),</a>
-<a class="sourceLine" id="cb1-38" data-line-number="38">         <span class="dt">logLik =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">2</span>]),</a>
-<a class="sourceLine" id="cb1-39" data-line-number="39">         <span class="dt">score =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">3</span>]))</a>
-<a class="sourceLine" id="cb1-40" data-line-number="40">  }]</a>
-<a class="sourceLine" id="cb1-41" data-line-number="41"></a>
-<a class="sourceLine" id="cb1-42" data-line-number="42">PCMFitDemoObjects<span class="op">$</span>valuesBootstrapMGPM_A_F_BC2_RR &lt;-<span class="st"> </span>valuesBootstrapMGPM_A_F_BC2_RR</a>
-<a class="sourceLine" id="cb1-43" data-line-number="43">usethis<span class="op">::</span><span class="kw"><a href="https://usethis.r-lib.org/reference/use_data.html">use_data</a></span>(PCMFitDemoObjects, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># make results reproducible</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">12</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a>numBootstraps &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a>bestModel &lt;-<span class="st"> </span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="st">  </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel</span>
+<span id="cb1-8"><a href="#cb1-8"></a></span>
+<span id="cb1-9"><a href="#cb1-9"></a>metaI &lt;-<span class="st"> </span><span class="kw">PCMInfo</span>(</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="dt">X =</span> <span class="ot">NULL</span>, <span class="dt">tree =</span> <span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(bestModel, <span class="st">"tree"</span>), <span class="dt">model =</span> bestModel)</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co"># Simulate data with the best fit model from the mammal data with SEs</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>valuesBootstrapMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw">data.table</span>(</span>
+<span id="cb1-14"><a href="#cb1-14"></a>  <span class="dt">IdGlob =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(numBootstraps),</span>
+<span id="cb1-15"><a href="#cb1-15"></a>  <span class="dt">X =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(numBootstraps), <span class="cf">function</span>(id) {</span>
+<span id="cb1-16"><a href="#cb1-16"></a>    <span class="kw">PCMSim</span>(</span>
+<span id="cb1-17"><a href="#cb1-17"></a>      <span class="dt">tree =</span> <span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(bestModel, <span class="st">"tree"</span>), </span>
+<span id="cb1-18"><a href="#cb1-18"></a>      <span class="dt">model =</span> bestModel, </span>
+<span id="cb1-19"><a href="#cb1-19"></a>      <span class="dt">X0 =</span> bestModel<span class="op">$</span>X0,</span>
+<span id="cb1-20"><a href="#cb1-20"></a>      <span class="dt">metaI =</span> metaI)</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  })</span>
+<span id="cb1-22"><a href="#cb1-22"></a>)</span>
+<span id="cb1-23"><a href="#cb1-23"></a></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">PCMBase.Value.NA =</span> <span class="fl">-1e20</span>)</span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">PCMBase.Lmr.mode =</span> <span class="dv">11</span>)</span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="kw"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="dt">PCMBase.Threshold.EV =</span> <span class="fl">1e-7</span>)</span>
+<span id="cb1-27"><a href="#cb1-27"></a></span>
+<span id="cb1-28"><a href="#cb1-28"></a>valuesBootstrapMGPM_A_F_BC2_RR[</span>
+<span id="cb1-29"><a href="#cb1-29"></a>  , <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"df"</span>, <span class="st">"logLik"</span>, <span class="st">"score"</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span>{</span>
+<span id="cb1-30"><a href="#cb1-30"></a>    resLists &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(.I, <span class="cf">function</span>(i) {</span>
+<span id="cb1-31"><a href="#cb1-31"></a>      <span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(bestModel, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X[[i]]</span>
+<span id="cb1-32"><a href="#cb1-32"></a>      ll &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/logLik.html">logLik</a></span>(bestModel)</span>
+<span id="cb1-33"><a href="#cb1-33"></a>      aic &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/AIC.html">AIC</a></span>(bestModel)</span>
+<span id="cb1-34"><a href="#cb1-34"></a>      df &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(ll, <span class="st">"df"</span>)</span>
+<span id="cb1-35"><a href="#cb1-35"></a>      <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(df, ll, aic)</span>
+<span id="cb1-36"><a href="#cb1-36"></a>    })</span>
+<span id="cb1-37"><a href="#cb1-37"></a>    <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">df =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">1</span>]),</span>
+<span id="cb1-38"><a href="#cb1-38"></a>         <span class="dt">logLik =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">2</span>]),</span>
+<span id="cb1-39"><a href="#cb1-39"></a>         <span class="dt">score =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(resLists, <span class="cf">function</span>(.) .[<span class="dv">3</span>]))</span>
+<span id="cb1-40"><a href="#cb1-40"></a>  }]</span>
+<span id="cb1-41"><a href="#cb1-41"></a></span>
+<span id="cb1-42"><a href="#cb1-42"></a>PCMFitDemoObjects<span class="op">$</span>valuesBootstrapMGPM_A_F_BC2_RR &lt;-<span class="st"> </span>valuesBootstrapMGPM_A_F_BC2_RR</span></code></pre></div>
 </div>
 <div id="model-inference-on-the-parametric-bootstrap-datasets" class="section level1">
 <h1 class="hasAnchor">
 <a href="#model-inference-on-the-parametric-bootstrap-datasets" class="anchor"></a>Model inference on the parametric bootstrap datasets</h1>
+<p>To make the following example work, create a directory where several files and execution results should be stored. Here, we call this directory TEST.</p>
 <div id="writing-a-parametric-bootstrap-inference-r-script" class="section level2">
 <h2 class="hasAnchor">
 <a href="#writing-a-parametric-bootstrap-inference-r-script" class="anchor"></a>Writing a parametric bootstrap inference R-script</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># File: FitBootstrap_MGPM_A_F_BC2_RR.R</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co"># Usage: R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args 1</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBase)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMBaseCpp)</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PCMFit)</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(data.table)</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co"># extract dataset identifier and possibly other parameters from the command line:</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">args &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/commandArgs">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/integer">as.integer</a></span>(args[<span class="dv">1</span>])</a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">  data_id &lt;-<span class="st"> </span>1L</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">}</a>
-<a class="sourceLine" id="cb2-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb2-16" data-line-number="16"><span class="co"># A character string used in filenames for a model inference on a given data:</span></a>
-<a class="sourceLine" id="cb2-17" data-line-number="17">prefixFiles =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_BSID_"</span>, data_id)</a>
-<a class="sourceLine" id="cb2-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb2-19" data-line-number="19"><span class="co"># creating the cluster for this PCMFit run:</span></a>
-<a class="sourceLine" id="cb2-20" data-line-number="20"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/exists">exists</a></span>(<span class="st">"cluster"</span>) <span class="op">||</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NULL">is.null</a></span>(cluster)) {</a>
-<a class="sourceLine" id="cb2-21" data-line-number="21">  <span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">require</a></span>(doMPI)) {</a>
-<a class="sourceLine" id="cb2-22" data-line-number="22">    <span class="co"># using MPI cluster as distributed node cluster (possibly running on a </span></a>
-<a class="sourceLine" id="cb2-23" data-line-number="23">    <span class="co"># cluster of multiple nodes)</span></a>
-<a class="sourceLine" id="cb2-24" data-line-number="24">    <span class="co"># Get the number of cores. Assume this is run in a batch job.</span></a>
-<a class="sourceLine" id="cb2-25" data-line-number="25">    p =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/strtoi">strtoi</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.getenv">Sys.getenv</a></span>(<span class="st">'LSB_DJOB_NUMPROC'</span>))</a>
-<a class="sourceLine" id="cb2-26" data-line-number="26">    cluster &lt;-<span class="st"> </span><span class="kw">startMPIcluster</span>(<span class="dt">count =</span> p<span class="dv">-1</span>, <span class="dt">verbose =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-27" data-line-number="27">    doMPI<span class="op">::</span><span class="kw">registerDoMPI</span>(cluster)</a>
-<a class="sourceLine" id="cb2-28" data-line-number="28">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb2-29" data-line-number="29">    <span class="co"># possibly running on personal computer without mpi installation</span></a>
-<a class="sourceLine" id="cb2-30" data-line-number="30">    cluster &lt;-<span class="st"> </span>parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/makeCluster">makeCluster</a></span>(</a>
-<a class="sourceLine" id="cb2-31" data-line-number="31">      parallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/parallel/topics/detectCores">detectCores</a></span>(<span class="dt">logical =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb2-32" data-line-number="32">      <span class="dt">outfile =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"log_"</span>, prefixFiles, <span class="st">".txt"</span>))</a>
-<a class="sourceLine" id="cb2-33" data-line-number="33">    doParallel<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/doParallel/topics/registerDoParallel">registerDoParallel</a></span>(cluster)</a>
-<a class="sourceLine" id="cb2-34" data-line-number="34">  }</a>
-<a class="sourceLine" id="cb2-35" data-line-number="35">}</a>
-<a class="sourceLine" id="cb2-36" data-line-number="36"></a>
-<a class="sourceLine" id="cb2-37" data-line-number="37"><span class="co"># This function is going to be executed on each worker node.</span></a>
-<a class="sourceLine" id="cb2-38" data-line-number="38">generatePCMModelsFunction &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb2-39" data-line-number="39">  <span class="co"># make results reproducible</span></a>
-<a class="sourceLine" id="cb2-40" data-line-number="40">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</a>
-<a class="sourceLine" id="cb2-41" data-line-number="41"></a>
-<a class="sourceLine" id="cb2-42" data-line-number="42">  <span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMGenerateModelTypes.html">PCMGenerateModelTypes</a></span>()</a>
-<a class="sourceLine" id="cb2-43" data-line-number="43">  fileName &lt;-<span class="st"> '../../DefineParameterLimits.R'</span></a>
-<a class="sourceLine" id="cb2-44" data-line-number="44">  codeDefineLimits &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/readChar">readChar</a></span>(fileName, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/file.info">file.info</a></span>(fileName)<span class="op">$</span>size)</a>
-<a class="sourceLine" id="cb2-45" data-line-number="45">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/eval">eval</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/parse">parse</a></span>(<span class="dt">text =</span> codeDefineLimits), .GlobalEnv)</a>
-<a class="sourceLine" id="cb2-46" data-line-number="46">}</a>
-<a class="sourceLine" id="cb2-47" data-line-number="47"></a>
-<a class="sourceLine" id="cb2-48" data-line-number="48">bestModel &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb2-49" data-line-number="49"><span class="st">  </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel</a>
-<a class="sourceLine" id="cb2-50" data-line-number="50"></a>
-<a class="sourceLine" id="cb2-51" data-line-number="51">tree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>tree[[<span class="dv">1</span>]])</a>
-<a class="sourceLine" id="cb2-52" data-line-number="52">X &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>valuesBootstrapMGPM_A_F_BC2_RR<span class="op">$</span>X[[data_id]][</a>
-<a class="sourceLine" id="cb2-53" data-line-number="53">  , <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNumTips.html">PCMTreeNumTips</a></span>(tree))]</a>
-<a class="sourceLine" id="cb2-54" data-line-number="54"></a>
-<a class="sourceLine" id="cb2-55" data-line-number="55">currentResultFile &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"CurrentResults_fits_"</span>, prefixFiles, <span class="st">".RData"</span>)</a>
-<a class="sourceLine" id="cb2-56" data-line-number="56"><span class="cf">if</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/files">file.exists</a></span>(currentResultFile)) {</a>
-<a class="sourceLine" id="cb2-57" data-line-number="57">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/load">load</a></span>(currentResultFile)</a>
-<a class="sourceLine" id="cb2-58" data-line-number="58">  tableFitsPrev &lt;-<span class="st"> </span>listResults<span class="op">$</span>tableFits</a>
-<a class="sourceLine" id="cb2-59" data-line-number="59">} <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb2-60" data-line-number="60">  tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb2-61" data-line-number="61">}</a>
-<a class="sourceLine" id="cb2-62" data-line-number="62"></a>
-<a class="sourceLine" id="cb2-63" data-line-number="63">fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(</a>
-<a class="sourceLine" id="cb2-64" data-line-number="64">    <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,</a>
-<a class="sourceLine" id="cb2-65" data-line-number="65">    <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, </a>
-<a class="sourceLine" id="cb2-66" data-line-number="66">    <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb2-67" data-line-number="67">    <span class="dt">tableFitsPrev =</span> tableFitsPrev,</a>
-<a class="sourceLine" id="cb2-68" data-line-number="68">    <span class="dt">prefixFiles =</span> prefixFiles,</a>
-<a class="sourceLine" id="cb2-69" data-line-number="69">    <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-70" data-line-number="70"></a>
-<a class="sourceLine" id="cb2-71" data-line-number="71"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/save">save</a></span>(fitMGPM_A_F_BC2_RR, <span class="dt">file =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste0</a></span>(<span class="st">"Result_"</span>, prefixFiles, <span class="st">".RData"</span>))</a></code></pre></div>
+<ul>
+<li>Copy the file vignettes/DefineParameterLimits.R from the PCMFit R-package source-code to the TEST directory.</li>
+<li>Save the following code to a file named FitBootstrap_MGPM_A_F_BC2_RR.R in the TEST directory.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># File: FitBootstrap_MGPM_A_F_BC2_RR.R</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co"># Usage: R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args 1</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMBase)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMBaseCpp)</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(PCMFit)</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(data.table)</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co"># extract dataset identifier and possibly other parameters from the command line:</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>args &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/commandArgs.html">commandArgs</a></span>(<span class="dt">trailingOnly =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="cf">if</span>(<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(args) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  data_id &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span>(args[<span class="dv">1</span>])</span>
+<span id="cb2-12"><a href="#cb2-12"></a>} <span class="cf">else</span> {</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  data_id &lt;-<span class="st"> </span>1L</span>
+<span id="cb2-14"><a href="#cb2-14"></a>}</span>
+<span id="cb2-15"><a href="#cb2-15"></a></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co"># A character string used in filenames for a model inference on a given data:</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>prefixFiles =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"MGPM_A_F_BC2_RR_BSID_"</span>, data_id)</span>
+<span id="cb2-18"><a href="#cb2-18"></a></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="co"># Creating the cluster for this PCMFit run.</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co"># Uncomment the follwing code only if doMPI package is available and working.</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co"># if(!exists("cluster") || is.null(cluster)) {</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co">#   if(require(doMPI)) {</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">#     # using MPI cluster as distributed node cluster (possibly running on a</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co">#     # cluster of multiple nodes)</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#     # Get the number of cores. Assume this is run in a batch job.</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co">#     p = strtoi(Sys.getenv('LSB_DJOB_NUMPROC'))</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="co">#     cluster &lt;- startMPIcluster(count = p-1, verbose = TRUE)</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="co">#     doMPI::registerDoMPI(cluster)</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a><span class="co">#   } else {</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="co">#     # possibly running on personal computer without mpi installation</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="co">#     cluster &lt;- parallel::makeCluster(</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="co">#       parallel::detectCores(logical = TRUE),</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a><span class="co">#       outfile = paste0("log_", prefixFiles, ".txt"))</span></span>
+<span id="cb2-34"><a href="#cb2-34"></a><span class="co">#     doParallel::registerDoParallel(cluster)</span></span>
+<span id="cb2-35"><a href="#cb2-35"></a><span class="co">#   }</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a><span class="co">#}</span></span>
+<span id="cb2-37"><a href="#cb2-37"></a></span>
+<span id="cb2-38"><a href="#cb2-38"></a><span class="co"># This function is going to be executed on each worker node.</span></span>
+<span id="cb2-39"><a href="#cb2-39"></a><span class="co"># Hence, it is the convenient place to define global settings, </span></span>
+<span id="cb2-40"><a href="#cb2-40"></a><span class="co"># in particular:</span></span>
+<span id="cb2-41"><a href="#cb2-41"></a><span class="co"># - set global option values, </span></span>
+<span id="cb2-42"><a href="#cb2-42"></a><span class="co"># - call the function PCMGenerateModelTypes to generate the default PCM model types;</span></span>
+<span id="cb2-43"><a href="#cb2-43"></a><span class="co"># - write custom S3 methods for PCMBase::PCMParentClasses and PCMBase::PCMSpecify </span></span>
+<span id="cb2-44"><a href="#cb2-44"></a><span class="co"># for custom PCM model types (see corresponding man pages in the PCMBase package), </span></span>
+<span id="cb2-45"><a href="#cb2-45"></a><span class="co"># - define S3 methods for the PCMBase::PCMParamUpperLimit and PCMParamLowerLimit in the </span></span>
+<span id="cb2-46"><a href="#cb2-46"></a><span class="co"># global environment (see R-code below). </span></span>
+<span id="cb2-47"><a href="#cb2-47"></a>generatePCMModelsFunction &lt;-<span class="st"> </span><span class="cf">function</span>() {</span>
+<span id="cb2-48"><a href="#cb2-48"></a>  <span class="co"># make results reproducible but keep in mind that data_id is unique for this specific </span></span>
+<span id="cb2-49"><a href="#cb2-49"></a>  <span class="co"># worker node, and will be used to generate a unique parametric boostrap set of trait values.</span></span>
+<span id="cb2-50"><a href="#cb2-50"></a>  <span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(data_id, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</span>
+<span id="cb2-51"><a href="#cb2-51"></a></span>
+<span id="cb2-52"><a href="#cb2-52"></a>  <span class="kw">PCMGenerateModelTypes</span>()</span>
+<span id="cb2-53"><a href="#cb2-53"></a>  </span>
+<span id="cb2-54"><a href="#cb2-54"></a>  <span class="co"># An example DefineParameterLimits.R file can be found in </span></span>
+<span id="cb2-55"><a href="#cb2-55"></a>  <span class="co"># vignettes/DefineParameterLimits.R of the PCMFit package source-code. </span></span>
+<span id="cb2-56"><a href="#cb2-56"></a>  <span class="co"># Note that the path here is relative to the working directory of</span></span>
+<span id="cb2-57"><a href="#cb2-57"></a>  <span class="co"># the worker node R-process. </span></span>
+<span id="cb2-58"><a href="#cb2-58"></a>  <span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span>(<span class="st">'../../DefineParameterLimits.R'</span>, <span class="dt">local =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb2-59"><a href="#cb2-59"></a>}</span>
+<span id="cb2-60"><a href="#cb2-60"></a></span>
+<span id="cb2-61"><a href="#cb2-61"></a><span class="co"># Inferred best model (</span></span>
+<span id="cb2-62"><a href="#cb2-62"></a><span class="co"># replace this with the result from a previous call to  RetrieveBestFitScore(fitObject)$inferredModel)</span></span>
+<span id="cb2-63"><a href="#cb2-63"></a>bestModel &lt;-<span class="st"> </span></span>
+<span id="cb2-64"><a href="#cb2-64"></a><span class="st">  </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel</span>
+<span id="cb2-65"><a href="#cb2-65"></a><span class="co"># Inferred tree</span></span>
+<span id="cb2-66"><a href="#cb2-66"></a>tree &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(bestModel, <span class="st">"tree"</span>)</span>
+<span id="cb2-67"><a href="#cb2-67"></a><span class="co"># Simulate parameteric bootstrap trait values</span></span>
+<span id="cb2-68"><a href="#cb2-68"></a>X &lt;-<span class="st"> </span><span class="kw">PCMSim</span>(tree, bestModel, bestModel<span class="op">$</span>X0)[, <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(<span class="kw">PCMTreeNumTips</span>(tree))]</span>
+<span id="cb2-69"><a href="#cb2-69"></a></span>
+<span id="cb2-70"><a href="#cb2-70"></a>currentResultFile &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"CurrentResults_fits_"</span>, prefixFiles, <span class="st">".RData"</span>)</span>
+<span id="cb2-71"><a href="#cb2-71"></a><span class="cf">if</span>(<span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(currentResultFile)) {</span>
+<span id="cb2-72"><a href="#cb2-72"></a>  <span class="kw"><a href="https://rdrr.io/r/base/load.html">load</a></span>(currentResultFile)</span>
+<span id="cb2-73"><a href="#cb2-73"></a>  tableFitsPrev &lt;-<span class="st"> </span>listResults<span class="op">$</span>tableFits</span>
+<span id="cb2-74"><a href="#cb2-74"></a>} <span class="cf">else</span> {</span>
+<span id="cb2-75"><a href="#cb2-75"></a>  tableFitsPrev &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb2-76"><a href="#cb2-76"></a>}</span>
+<span id="cb2-77"><a href="#cb2-77"></a></span>
+<span id="cb2-78"><a href="#cb2-78"></a>fitMGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/PCMFitMixed.html">PCMFitMixed</a></span>(</span>
+<span id="cb2-79"><a href="#cb2-79"></a>    <span class="dt">X =</span> X, <span class="dt">tree =</span> tree, <span class="dt">metaIFun =</span> PCMInfoCpp,</span>
+<span id="cb2-80"><a href="#cb2-80"></a>    <span class="dt">generatePCMModelsFun =</span> generatePCMModelsFunction, </span>
+<span id="cb2-81"><a href="#cb2-81"></a>    <span class="dt">maxNumRoundRobins =</span> <span class="dv">2</span>, <span class="dt">maxNumPartitionsInRoundRobins =</span> <span class="dv">2</span>,</span>
+<span id="cb2-82"><a href="#cb2-82"></a>    <span class="dt">tableFitsPrev =</span> tableFitsPrev,</span>
+<span id="cb2-83"><a href="#cb2-83"></a>    <span class="dt">prefixFiles =</span> prefixFiles,</span>
+<span id="cb2-84"><a href="#cb2-84"></a>    <span class="dt">doParallel =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb2-85"><a href="#cb2-85"></a></span>
+<span id="cb2-86"><a href="#cb2-86"></a><span class="kw"><a href="https://rdrr.io/r/base/save.html">save</a></span>(fitMGPM_A_F_BC2_RR, <span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Result_"</span>, prefixFiles, <span class="st">".RData"</span>))</span></code></pre></div>
 </div>
 <div id="running-the-parametric-bootstrap-inference-script-on-a-cluster" class="section level2">
 <h2 class="hasAnchor">
 <a href="#running-the-parametric-bootstrap-inference-script-on-a-cluster" class="anchor"></a>Running the parametric bootstrap inference script on a cluster</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># File: FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="co"># Usage: sh FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Control">for</a></span> <span class="fu">id</span> in <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Quotes">`</a></span><span class="fu">seq</span> 1 1 10<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Quotes">`</a></span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw">do</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="fu">mkdir</span> -p ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_<span class="va">$id</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="bu">cd</span> ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_<span class="va">$id</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Control">if</a></span><span class="bu"> [</span> <span class="ot">-f</span> <span class="st">"Result_MGPM_A_F_BC2_RR_BSID_"</span><span class="va">$id</span><span class="st">".RData"</span><span class="bu"> ]</span></a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="kw">then</span></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="fu">rm</span> MPI*.log</a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="fu">rm</span> Current*.RData</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Control">else</a></span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="ex">bsub</span> -M 10000 -n 8 -W 3:59 -R ib sh R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args <span class="va">$id</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="kw">fi</span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="bu">cd</span> ../..</a>
-<a class="sourceLine" id="cb3-15" data-line-number="15"><span class="kw">done</span></a></code></pre></div>
+<ul>
+<li>Copy the following unix shell script code to a file FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh in the TEST directory:</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># File: FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># Usage: sh FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw"><a href="https://rdrr.io/r/base/Control.html">for</a></span> <span class="fu">id</span> in <span class="kw"><a href="https://rdrr.io/r/base/Quotes.html">`</a></span><span class="fu">seq</span> 1 1 10<span class="kw"><a href="https://rdrr.io/r/base/Quotes.html">`</a></span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">do</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="fu">mkdir</span> -p ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_<span class="va">$id</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="bu">cd</span> ResultsBootstrap/MGPM_A_F_BC2_RR_BSID_<span class="va">$id</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="kw"><a href="https://rdrr.io/r/base/Control.html">if</a></span><span class="bu"> [</span> <span class="ot">-f</span> <span class="st">"Result_MGPM_A_F_BC2_RR_BSID_"</span><span class="va">$id</span><span class="st">".RData"</span><span class="bu"> ]</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="kw">then</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="fu">rm</span> MPI*.log</span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="fu">rm</span> CurrentResults*.RData</span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="kw"><a href="https://rdrr.io/r/base/Control.html">else</a></span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co"># The following would execute only if the bsub command is available on your system</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co"># bsub -M 10000 -n 8 -W 3:59 -R ib R --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args $id</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co"># Should run on unix systems. Comment or remove this line if uncommenting the above.</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="ex">R</span> --vanilla --slave -f ../../FitBootstrap_MGPM_A_F_BC2_RR.R --args <span class="va">$id</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="kw">fi</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="bu">cd</span> ../..</span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="kw">done</span></span></code></pre></div>
+<ul>
+<li>Run the script by calling the command <code>sh FitBootstrap_MGPM_A_F_BC2_RR_bsub.sh</code> from the command prompt in the TEST directory.</li>
+</ul>
 </div>
 </div>
 <div id="collect-bootstrap-results" class="section level1">
 <h1 class="hasAnchor">
 <a href="#collect-bootstrap-results" class="anchor"></a>Collect bootstrap results</h1>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">inferredModel &lt;-<span class="st"> </span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">  </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">inferredTree &lt;-<span class="st"> </span><span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTree.html">PCMTree</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/attr">attr</a></span>(inferredModel, <span class="st">"tree"</span>))</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">epochsHD &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(.<span class="dv">2</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(<span class="kw"><a href="http://venelin.github.io/PCMBase/reference/PCMTreeNodeTimes.html">PCMTreeNodeTimes</a></span>(inferredTree)), </a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">                <span class="dt">by =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">bs_MGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CollectBootstrapResults.html">CollectBootstrapResults</a></span>(</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">  <span class="dt">resultDir =</span> <span class="st">"ResultsBootstrap"</span>,</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">  <span class="dt">prefixFiles =</span> <span class="st">"MGPM_A_F_BC2_RR_BSID_"</span>,</a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">  <span class="dt">nameFitObject =</span> <span class="st">'fitMGPM_A_F_BC2_RR'</span>,</a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">  <span class="dt">ids =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">10</span>),</a>
-<a class="sourceLine" id="cb4-13" data-line-number="13">  <span class="dt">inferredTree =</span> inferredTree,</a>
-<a class="sourceLine" id="cb4-14" data-line-number="14">  <span class="dt">epochs =</span> epochsHD,</a>
-<a class="sourceLine" id="cb4-15" data-line-number="15">  <span class="dt">minLength =</span> <span class="fl">0.2</span>,</a>
-<a class="sourceLine" id="cb4-16" data-line-number="16">  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>inferredModel &lt;-<span class="st"> </span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="st">  </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPM_A_F_BC2_RR)<span class="op">$</span>inferredModel</span>
+<span id="cb4-3"><a href="#cb4-3"></a>inferredTree &lt;-<span class="st"> </span><span class="kw">PCMTree</span>(<span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(inferredModel, <span class="st">"tree"</span>))</span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a>epochsHD &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(.<span class="dv">2</span>, <span class="kw"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw">PCMTreeNodeTimes</span>(inferredTree)), </span>
+<span id="cb4-6"><a href="#cb4-6"></a>                <span class="dt">by =</span> <span class="dv">2</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a>bs_MGPM_A_F_BC2_RR &lt;-<span class="st"> </span><span class="kw"><a href="../reference/CollectBootstrapResults.html">CollectBootstrapResults</a></span>(</span>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="dt">resultDir =</span> <span class="st">"ResultsBootstrap"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10"></a>  <span class="dt">prefixFiles =</span> <span class="st">"MGPM_A_F_BC2_RR_BSID_"</span>,</span>
+<span id="cb4-11"><a href="#cb4-11"></a>  <span class="dt">nameFitObject =</span> <span class="st">'fitMGPM_A_F_BC2_RR'</span>,</span>
+<span id="cb4-12"><a href="#cb4-12"></a>  <span class="dt">ids =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(<span class="dv">10</span>),</span>
+<span id="cb4-13"><a href="#cb4-13"></a>  <span class="dt">inferredTree =</span> inferredTree,</span>
+<span id="cb4-14"><a href="#cb4-14"></a>  <span class="dt">epochs =</span> epochsHD,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>  <span class="dt">minLength =</span> <span class="fl">0.2</span>,</span>
+<span id="cb4-16"><a href="#cb4-16"></a>  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 </div>
 <div id="references" class="section level1">
 <h1 class="hasAnchor">
@@ -270,6 +300,7 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -290,17 +321,20 @@
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Venelin Mitov.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

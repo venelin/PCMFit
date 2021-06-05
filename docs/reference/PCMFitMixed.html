@@ -9,21 +9,25 @@
 <title>Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
 measurements at its tips and a score function. — PCMFitMixed • PCMFit</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -31,9 +35,9 @@ measurements at its tips and a score function. — PCMFitMixed • PCMFit</title
 
 
 
+
 <meta property="og:title" content="Search for an optimal mixed Gaussian phylogenetic model, given a tree, trait
 measurements at its tips and a score function. — PCMFitMixed" />
-
 <meta property="og:description" content="A mixed Gaussian phylogenetic model (MGPM) represents a
 Gaussian phylogenetic model with shifts in the underlying parameters and,
 optionally, type of Gaussian stochastic process (e.g. shifts from a BM to an
@@ -47,8 +51,11 @@ clade-fitsModel type fits to all clades in the tree bigger than a specified
 RCPRecursive clade partition search.
 Round-robinRound-robin search for an optimal model type mapping in
 the best partitions found during the RCP-step. This step is optional.
+
+
 " />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -71,6 +78,7 @@ the best partitions found during the RCP-step. This step is optional.
 
   gtag('config', 'UA-129563006-6');
 </script>
+
 
   </head>
 
@@ -125,7 +133,6 @@ the best partitions found during the RCP-step. This step is optional.
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -135,6 +142,7 @@ the best partitions found during the RCP-step. This step is optional.
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -147,7 +155,6 @@ measurements at its tips and a score function.</h1>
     </div>
 
     <div class="ref-description">
-    
     <p>A mixed Gaussian phylogenetic model (MGPM) represents a
 Gaussian phylogenetic model with shifts in the underlying parameters and,
 optionally, type of Gaussian stochastic process (e.g. shifts from a BM to an
@@ -161,31 +168,46 @@ note that the algorithm proceeds in three steps as follows:</p><dl class='dl-hor
 <dt>RCP</dt><dd><p>Recursive clade partition search.</p></dd>
 <dt>Round-robin</dt><dd><p>Round-robin search for an optimal model type mapping in
 the best partitions found during the RCP-step. This step is optional.</p></dd>
+
 </dl>
-    
+
     </div>
 
-    <pre class="usage"><span class='fu'>PCMFitMixed</span>(<span class='no'>X</span>, <span class='no'>tree</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='fu'>MGPMDefaultModelTypes</span>(),
-  <span class='kw'>subModels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>B</span> <span class='kw'>=</span> <span class='st'>"A"</span>, <span class='kw'>C</span> <span class='kw'>=</span> <span class='st'>"A"</span>, <span class='kw'>D</span> <span class='kw'>=</span> <span class='st'>"B"</span>, <span class='kw'>E</span> <span class='kw'>=</span> <span class='st'>"D"</span>, <span class='kw'>F</span> <span class='kw'>=</span> <span class='st'>"E"</span>),
+    <pre class="usage"><span class='fu'>PCMFitMixed</span>(
+  <span class='no'>X</span>,
+  <span class='no'>tree</span>,
+  <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='fu'>MGPMDefaultModelTypes</span>(),
+  <span class='kw'>subModels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>B</span> <span class='kw'>=</span> <span class='st'>"A"</span>, <span class='kw'>C</span> <span class='kw'>=</span> <span class='st'>"A"</span>, <span class='kw'>D</span> <span class='kw'>=</span> <span class='st'>"B"</span>, <span class='kw'>E</span> <span class='kw'>=</span> <span class='st'>"D"</span>, <span class='kw'>F</span> <span class='kw'>=</span> <span class='st'>"E"</span>),
   <span class='kw'>argsMixedGaussian</span> <span class='kw'>=</span> <span class='fu'>Args_MixedGaussian_MGPMDefaultModelTypes</span>(),
-  <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>nrow</a></span>(<span class='no'>X</span>), <span class='fu'>PCMTreeNumTips</span>(<span class='no'>tree</span>)),
-  <span class='kw'>generatePCMModelsFun</span> <span class='kw'>=</span> <span class='no'>PCMGenerateModelTypes</span>, <span class='kw'>metaIFun</span> <span class='kw'>=</span> <span class='no'>PCMInfo</span>,
-  <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>scoreFun</span> <span class='kw'>=</span> <span class='no'>AIC</span>, <span class='kw'>fitMappingsPrev</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>SE</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fl'>0</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span>(<span class='no'>X</span>), <span class='fu'>PCMTreeNumTips</span>(<span class='no'>tree</span>)),
+  <span class='kw'>generatePCMModelsFun</span> <span class='kw'>=</span> <span class='no'>PCMGenerateModelTypes</span>,
+  <span class='kw'>metaIFun</span> <span class='kw'>=</span> <span class='no'>PCMInfo</span>,
+  <span class='kw'>positiveValueGuard</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>scoreFun</span> <span class='kw'>=</span> <span class='no'>AIC</span>,
+  <span class='kw'>fitMappingsPrev</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>tableFitsPrev</span> <span class='kw'>=</span> <span class='no'>fitMappingsPrev</span>$<span class='no'>tableFits</span>,
-  <span class='kw'>modelTypesInTableFitsPrev</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>listPartitions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>minCladeSizes</span> <span class='kw'>=</span> <span class='fl'>20L</span>, <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>character</a></span>(),
-  <span class='kw'>maxCladePartitionLevel</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/NULL'>is.null</a></span>(<span class='no'>listPartitions</span>)) <span class='fl'>8L</span> <span class='kw'>else</span> <span class='fl'>1L</span>,
+  <span class='kw'>modelTypesInTableFitsPrev</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>listPartitions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>minCladeSizes</span> <span class='kw'>=</span> <span class='fl'>20L</span>,
+  <span class='kw'>skipNodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/character.html'>character</a></span>(),
+  <span class='kw'>maxCladePartitionLevel</span> <span class='kw'>=</span> <span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span>(<span class='no'>listPartitions</span>)) <span class='fl'>8L</span> <span class='kw'>else</span> <span class='fl'>1L</span>,
   <span class='kw'>maxNumNodesPerCladePartition</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
-  <span class='kw'>listAllowedModelTypesIndices</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"best-clade-2"</span>, <span class='st'>"best-clade"</span>, <span class='st'>"all"</span>),
+  <span class='kw'>listAllowedModelTypesIndices</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"best-clade-2"</span>, <span class='st'>"best-clade"</span>, <span class='st'>"all"</span>),
   <span class='kw'>argsConfigOptim1</span> <span class='kw'>=</span> <span class='fu'><a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a></span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
   <span class='kw'>argsConfigOptim2</span> <span class='kw'>=</span> <span class='fu'><a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a></span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>4</span>),
   <span class='kw'>argsConfigOptim3</span> <span class='kw'>=</span> <span class='fu'><a href='DefaultArgsConfigOptim.html'>DefaultArgsConfigOptim</a></span>(<span class='kw'>numCallsOptim</span> <span class='kw'>=</span> <span class='fl'>10</span>),
-  <span class='kw'>maxNumRoundRobins</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>maxNumPartitionsInRoundRobins</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>listPCMOptions</span> <span class='kw'>=</span> <span class='fu'>PCMOptions</span>(), <span class='kw'>skipFitWhenFoundInTableFits</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>prefixFiles</span> <span class='kw'>=</span> <span class='st'>"fits_"</span>,
-  <span class='kw'>saveTempWorkerResults</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>printFitVectorsToConsole</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>debug</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
-    
+  <span class='kw'>maxNumRoundRobins</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>maxNumPartitionsInRoundRobins</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>listPCMOptions</span> <span class='kw'>=</span> <span class='fu'>PCMOptions</span>(),
+  <span class='kw'>skipFitWhenFoundInTableFits</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>doParallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>prefixFiles</span> <span class='kw'>=</span> <span class='st'>"fits_"</span>,
+  <span class='kw'>saveTempWorkerResults</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>printFitVectorsToConsole</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>debug</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -197,7 +219,7 @@ the measured trait values for species <code>i</code> (the tip with integer
 identifier equal to <code>i</code> in <code>tree</code>). Missing values can be either
 not-available (<code>NA</code>) or not existing (<code>NaN</code>). These two values are
 treated differently when calculating likelihoods (see
-<code>PCMPresentCoordinates</code>).</p></td>
+<code><a href='http://venelin.github.io/PCMBase/reference/PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>).</p></td>
     </tr>
     <tr>
       <th>tree</th>
@@ -218,6 +240,7 @@ string denotes a MGPM model class. The default setting is
 and nondiagonal symmetric \(\Sigma\).</p></dd>
 <dt>F. </dt><dd><p>OU (asymmetric H, symmetric \(\Sigma\)): An OU with nondiagonal asymmetric
 H and nondiagonal symmetric \(\Sigma\).</p></dd>
+
 </dl><p>See also the argument <code>subModels</code> and
 <code>MGPMDefaultModelTypes</code>.</p></td>
     </tr>
@@ -229,7 +252,7 @@ relationship between the model types: a model A is a sub-model of a
 model B if A's parameters are a subset of B's parameters. During the RCP
 search, the parameters of a sub-model fit to a clade in the tree are used as
 a hint for the parameters of its encompassing models. The default setting is
-<code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c(B = 'A', C = 'A', D = 'B', E = 'D', F = 'E')</a></code>. Note that this
+<code><a href='https://rdrr.io/r/base/c.html'>c(B = 'A', C = 'A', D = 'B', E = 'D', F = 'E')</a></code>. Note that this
 setting is valid only for the default setting of the argument
 <code>modelTypes</code>. Setting this argument to <code>NULL</code> will turn off the
 use of nested models as hints.</p></td>
@@ -253,10 +276,11 @@ calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
 as follows:</p><dl class='dl-horizontal'>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+
 </dl><p>Note that the above behavior is consistent with the treatment of the model
 parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
 also specified as upper triangular factors.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+Default: <code><a href='https://rdrr.io/r/base/matrix.html'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>
       <th>generatePCMModelsFun</th>
@@ -288,7 +312,7 @@ is by setting more stringent values for the runtime options
     <tr>
       <th>scoreFun</th>
       <td><p>a information score function such as AIC or BIC.
-Default: <code><a href='https://www.rdocumentation.org/packages/stats/topics/AIC'>AIC</a></code>.</p></td>
+Default: <code><a href='https://rdrr.io/r/stats/AIC.html'>AIC</a></code>.</p></td>
     </tr>
     <tr>
       <th>fitMappingsPrev</th>
@@ -362,7 +386,7 @@ in the search - many more partitions will be visited during the search.</p></td>
     </tr>
     <tr>
       <th>listAllowedModelTypesIndices</th>
-      <td><p>Default setting: <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c("best-clade-2", "best-clade", "all")</a></code>.</p></td>
+      <td><p>Default setting: <code><a href='https://rdrr.io/r/base/c.html'>c("best-clade-2", "best-clade", "all")</a></code>.</p></td>
     </tr>
     <tr>
       <th>argsConfigOptim1, argsConfigOptim2, argsConfigOptim3</th>
@@ -422,11 +446,10 @@ debug = FALSE</code></p></td>
 to the console while running. Default: <code>TRUE</code>.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>an object of S3 class PCMFitModelMappings.</p>
-    
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>[Mitov et al. 2019a] Mitov, V., Bartoszek, K., &amp; Stadler, T. (2019).
@@ -438,27 +461,23 @@ http://doi.org/10.1073/pnas.1813823116</p>
  likelihood calculation for multivariate Gaussian phylogenetic models with
  shifts. Theoretical Population Biology.
  http://doi.org/10.1016/j.tpb.2019.11.005</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code>PCMFitMixed</code> <code>PCMOptions</code></p></div>
-    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-
       <li><a href="#references">References</a></li>
-
       <li><a href="#see-also">See also</a></li>
-          </ul>
+    </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -466,13 +485,16 @@ http://doi.org/10.1073/pnas.1813823116</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

@@ -8,21 +8,25 @@
 
 <title>A heuristic-based guess of the optimal parameters of a model — GuessInitVecParams • PCMFit</title>
 
+
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,14 +34,15 @@
 
 
 
-<meta property="og:title" content="A heuristic-based guess of the optimal parameters of a model — GuessInitVecParams" />
 
+<meta property="og:title" content="A heuristic-based guess of the optimal parameters of a model — GuessInitVecParams" />
 <meta property="og:description" content="This is an S3 generic function that returns a
 nxPCMParamCount(o) matrix of parameter vectors.
 Implementations try to deduce parameter values based on the passed tree
 and data, that should be suitable for starting points for likelihood
 optimization or MCMC inference." />
 <meta name="twitter:card" content="summary" />
+
 
 
 
@@ -60,6 +65,7 @@ optimization or MCMC inference." />
 
   gtag('config', 'UA-129563006-6');
 </script>
+
 
   </head>
 
@@ -114,7 +120,6 @@ optimization or MCMC inference." />
   <a href="../news/index.html">News</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
@@ -124,6 +129,7 @@ optimization or MCMC inference." />
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -135,25 +141,33 @@ optimization or MCMC inference." />
     </div>
 
     <div class="ref-description">
-    
     <p>This is an S3 generic function that returns a
 <code>n</code>x<code>PCMParamCount(o)</code> matrix of parameter vectors.
 Implementations try to deduce parameter values based on the passed tree
 and data, that should be suitable for starting points for likelihood
 optimization or MCMC inference.</p>
-    
     </div>
 
-    <pre class="usage"><span class='fu'>GuessInitVecParams</span>(<span class='no'>o</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>as.character</a></span>(<span class='fu'>PCMRegimes</span>(<span class='no'>o</span>)),
-  <span class='kw'>oParent</span> <span class='kw'>=</span> <span class='no'>o</span>, <span class='kw'>accessExpr</span> <span class='kw'>=</span> <span class='st'>""</span>, <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
-  <span class='kw'>argsPCMParamLowerLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>argsPCMParamUpperLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>X</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>tree</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>SE</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>tableAnc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>varyParams</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>returnWithinBoundsOnly</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>res</span> <span class='kw'>=</span> <span class='fu'>PCMParamRandomVecParams</span>(<span class='kw'>o</span> <span class='kw'>=</span> <span class='no'>oParent</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fu'>PCMNumTraits</span>(<span class='no'>oParent</span>), <span class='kw'>R</span>
-  <span class='kw'>=</span> <span class='fu'>PCMNumRegimes</span>(<span class='no'>oParent</span>), <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>argsPCMParamLowerLimit</span> <span class='kw'>=</span>
-  <span class='no'>argsPCMParamLowerLimit</span>, <span class='kw'>argsPCMParamUpperLimit</span> <span class='kw'>=</span> <span class='no'>argsPCMParamUpperLimit</span>),
-  <span class='no'>...</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>GuessInitVecParams</span>(
+  <span class='no'>o</span>,
+  <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span>(<span class='fu'>PCMRegimes</span>(<span class='no'>o</span>)),
+  <span class='kw'>oParent</span> <span class='kw'>=</span> <span class='no'>o</span>,
+  <span class='kw'>accessExpr</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>n</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
+  <span class='kw'>argsPCMParamLowerLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>argsPCMParamUpperLimit</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>X</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>tree</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>SE</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>tableAnc</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>varyParams</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>returnWithinBoundsOnly</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>res</span> <span class='kw'>=</span> <span class='fu'>PCMParamRandomVecParams</span>(<span class='kw'>o</span> <span class='kw'>=</span> <span class='no'>oParent</span>, <span class='kw'>k</span> <span class='kw'>=</span> <span class='fu'>PCMNumTraits</span>(<span class='no'>oParent</span>), <span class='kw'>R</span> <span class='kw'>=</span>
+    <span class='fu'>PCMNumRegimes</span>(<span class='no'>oParent</span>), <span class='kw'>n</span> <span class='kw'>=</span> <span class='no'>n</span>, <span class='kw'>argsPCMParamLowerLimit</span> <span class='kw'>=</span> <span class='no'>argsPCMParamLowerLimit</span>,
+    <span class='kw'>argsPCMParamUpperLimit</span> <span class='kw'>=</span> <span class='no'>argsPCMParamUpperLimit</span>),
+  <span class='no'>...</span>
+)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -195,7 +209,7 @@ the measured trait values for species <code>i</code> (the tip with integer
 identifier equal to <code>i</code> in <code>tree</code>). Missing values can be either
 not-available (<code>NA</code>) or not existing (<code>NaN</code>). These two values are
 treated differently when calculating likelihoods (see
-<code>PCMPresentCoordinates</code>).</p></td>
+<code><a href='http://venelin.github.io/PCMBase/reference/PCMPresentCoordinates.html'>PCMPresentCoordinates</a></code>).</p></td>
     </tr>
     <tr>
       <th>tree</th>
@@ -214,10 +228,11 @@ calculated depends on the runtime option <code>PCMBase.Transpose.Sigma_x</code>
 as follows:</p><dl class='dl-horizontal'>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == FALSE</code> (default): </dt><dd><p>VE[, , i] &lt;- SE[, , i] %*% t(SE[, , i])</p></dd>
 <dt>if <code>getOption("PCMBase.Transpose.Sigma_x", FALSE) == TRUE</code>: </dt><dd><p>VE[, , i] &lt;- t(SE[, , i]) %*% SE[, , i]</p></dd>
+
 </dl><p>Note that the above behavior is consistent with the treatment of the model
 parameters <code>Sigma_x</code>, <code>Sigmae_x</code> and <code>Sigmaj_x</code>, which are
 also specified as upper triangular factors.
-Default: <code><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
+Default: <code><a href='https://rdrr.io/r/base/matrix.html'>matrix(0.0, PCMNumTraits(model), PCMTreeNumTips(tree))</a></code>.</p></td>
     </tr>
     <tr>
       <th>tableAnc</th>
@@ -246,42 +261,41 @@ N x N matrix argument named treeVCVMat can be passed which is equal to the
 phylogenetic covariance matrix for tree.</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>an n x p matrix where p is the number of parameters in o.</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>PCMBase</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>PCMFit</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>PCMBase</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>PCMFit</span>)
 <span class='no'>modelBM.ab</span> <span class='kw'>&lt;-</span> <span class='no'>modelBM.ab.Guess</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCM.html'>PCM</a></span>(
-  <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>PCMDefaultModelTypes</a></span>()[<span class='st'>"B"</span>], <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
-<span class='no'>modelBM.ab</span>$<span class='no'>X0</span>[] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>5</span>, <span class='fl'>2</span>)
+  <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>PCMDefaultModelTypes</a></span>()[<span class='st'>"B"</span>], <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
+<span class='no'>modelBM.ab</span>$<span class='no'>X0</span>[] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5</span>, <span class='fl'>2</span>)
 <span class='co'># in regime 'a' the traits evolve according to two independent BM</span>
 <span class='co'># processes (starting from the global vecto X0).</span>
-<span class='no'>modelBM.ab</span>$<span class='no'>Sigma_x</span>[,, <span class='st'>"a"</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>rbind</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1.6</span>, <span class='fl'>0.01</span>),
-                                    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>2.4</span>))
+<span class='no'>modelBM.ab</span>$<span class='no'>Sigma_x</span>[,, <span class='st'>"a"</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1.6</span>, <span class='fl'>0.01</span>),
+                                    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>2.4</span>))
 <span class='co'># in regime 'b' there is a correlation between the traits</span>
-<span class='no'>modelBM.ab</span>$<span class='no'>Sigma_x</span>[,, <span class='st'>"b"</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>rbind</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2.4</span>, <span class='fl'>0.08</span>),
-                                    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0.0</span>, <span class='fl'>0.8</span>))
+<span class='no'>modelBM.ab</span>$<span class='no'>Sigma_x</span>[,, <span class='st'>"b"</span>] <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2.4</span>, <span class='fl'>0.08</span>),
+                                    <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.0</span>, <span class='fl'>0.8</span>))
 <span class='no'>modelOU.ab.Guess</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCM.html'>PCM</a></span>(
-  <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>PCMDefaultModelTypes</a></span>()[<span class='st'>"F"</span>], <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
+  <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>PCMDefaultModelTypes</a></span>()[<span class='st'>"F"</span>], <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>regimes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>))
 
 <span class='no'>modelMG.ab.Guess</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/MixedGaussian.html'>MixedGaussian</a></span>(
 <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>modelTypes</span> <span class='kw'>=</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>MGPMDefaultModelTypes</a></span>(),
-<span class='kw'>mapping</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(
-  <span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/unname'>unname</a></span>(<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>MGPMDefaultModelTypes</a></span>()[<span class='st'>"B"</span>]),
-  <span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/unname'>unname</a></span>(<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>MGPMDefaultModelTypes</a></span>()[<span class='st'>"F"</span>])))
+<span class='kw'>mapping</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(
+  <span class='kw'>a</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span>(<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>MGPMDefaultModelTypes</a></span>()[<span class='st'>"B"</span>]),
+  <span class='kw'>b</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/unname.html'>unname</a></span>(<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMDefaultModelTypes.html'>MGPMDefaultModelTypes</a></span>()[<span class='st'>"F"</span>])))
 
 
-<span class='no'>param</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/double'>double</a></span>(<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMParamCount.html'>PCMParamCount</a></span>(<span class='no'>modelBM.ab</span>))
+<span class='no'>param</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span>(<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMParamCount.html'>PCMParamCount</a></span>(<span class='no'>modelBM.ab</span>))
 
 <span class='co'># load the current model parameters into param</span>
-<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM.ab</span>, <span class='no'>param</span>, <span class='kw'>offset</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>load</span><span class='kw'>=</span><span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] 5.00 2.00 1.60 0.01 2.40 2.40 0.08 0.80</div><div class='input'>
+<span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMParamLoadOrStore.html'>PCMParamLoadOrStore</a></span>(<span class='no'>modelBM.ab</span>, <span class='no'>param</span>, <span class='kw'>offset</span><span class='kw'>=</span><span class='fl'>0</span>, <span class='kw'>load</span><span class='kw'>=</span><span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] 8</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] 5.00 2.00 1.60 0.01 2.40 2.40 0.08 0.80</div><div class='input'>
 
 <span class='co'># make results reproducible</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>2</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>2</span>, <span class='kw'>kind</span> <span class='kw'>=</span> <span class='st'>"Mersenne-Twister"</span>, <span class='kw'>normal.kind</span> <span class='kw'>=</span> <span class='st'>"Inversion"</span>)
 
 <span class='co'># number of regimes</span>
 <span class='no'>R</span> <span class='kw'>&lt;-</span> <span class='fl'>2</span>
@@ -289,22 +303,22 @@ phylogenetic covariance matrix for tree.</p></td>
 <span class='co'># number of extant tips</span>
 <span class='no'>N</span> <span class='kw'>&lt;-</span> <span class='fl'>100</span>
 
-<span class='no'>tree.a</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/ape/topics/rtree'>rtree</a></span>(<span class='kw'>n</span><span class='kw'>=</span><span class='no'>N</span>))
+<span class='no'>tree.a</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTree.html'>PCMTree</a></span>(<span class='kw pkg'>ape</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/ape/man/rtree.html'>rtree</a></span>(<span class='kw'>n</span><span class='kw'>=</span><span class='no'>N</span>))
 <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeSetLabels.html'>PCMTreeSetLabels</a></span>(<span class='no'>tree.a</span>)
 <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html'>PCMTreeSetPartRegimes</a></span>(
-    <span class='no'>tree.a</span>, <span class='kw'>part.regime</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>`101`</span> <span class='kw'>=</span> <span class='st'>"a"</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <span class='no'>tree.a</span>, <span class='kw'>part.regime</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>`101`</span> <span class='kw'>=</span> <span class='st'>"a"</span>), <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='no'>lstDesc</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeListDescendants.html'>PCMTreeListDescendants</a></span>(<span class='no'>tree.a</span>)
-<span class='no'>splitNode</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/names'>names</a></span>(<span class='no'>lstDesc</span>)[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/which'>which</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/lapply'>sapply</a></span>(<span class='no'>lstDesc</span>, <span class='no'>length</span>) <span class='kw'>&gt;</span> <span class='no'>N</span>/<span class='fl'>2</span> <span class='kw'>&amp;</span>
-   <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/lapply'>sapply</a></span>(<span class='no'>lstDesc</span>, <span class='no'>length</span>) <span class='kw'>&lt;</span> <span class='fl'>2</span>*<span class='no'>N</span>/<span class='fl'>3</span>)][<span class='fl'>1</span>]
+<span class='no'>splitNode</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span>(<span class='no'>lstDesc</span>)[<span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span>(<span class='no'>lstDesc</span>, <span class='no'>length</span>) <span class='kw'>&gt;</span> <span class='no'>N</span>/<span class='fl'>2</span> <span class='kw'>&amp;</span>
+   <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span>(<span class='no'>lstDesc</span>, <span class='no'>length</span>) <span class='kw'>&lt;</span> <span class='fl'>2</span>*<span class='no'>N</span>/<span class='fl'>3</span>)][<span class='fl'>1</span>]
 
 <span class='no'>tree.ab</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeInsertSingletons.html'>PCMTreeInsertSingletons</a></span>(
-  <span class='no'>tree.a</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/integer'>as.integer</a></span>(<span class='no'>splitNode</span>),
-  <span class='kw'>positions</span> <span class='kw'>=</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeGetBranchLength.html'>PCMTreeGetBranchLength</a></span>(<span class='no'>tree.a</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/integer'>as.integer</a></span>(<span class='no'>splitNode</span>))/<span class='fl'>2</span>)
+  <span class='no'>tree.a</span>, <span class='kw'>nodes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>splitNode</span>),
+  <span class='kw'>positions</span> <span class='kw'>=</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeGetBranchLength.html'>PCMTreeGetBranchLength</a></span>(<span class='no'>tree.a</span>, <span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span>(<span class='no'>splitNode</span>))/<span class='fl'>2</span>)
 <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMTreeSetPartRegimes.html'>PCMTreeSetPartRegimes</a></span>(
   <span class='no'>tree.ab</span>,
-  <span class='kw'>part.regime</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/structure'>structure</a></span>(
-  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='kw'>names</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/character'>as.character</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>N</span>+<span class='fl'>1</span>, <span class='no'>splitNode</span>))),
+  <span class='kw'>part.regime</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span>(
+  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>), <span class='kw'>names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>N</span>+<span class='fl'>1</span>, <span class='no'>splitNode</span>))),
   <span class='kw'>setPartition</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='no'>traits</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://venelin.github.io/PCMBase/reference/PCMSim.html'>PCMSim</a></span>(<span class='no'>tree.ab</span>, <span class='no'>modelBM.ab</span>, <span class='no'>modelBM.ab</span>$<span class='no'>X0</span>)
@@ -321,18 +335,18 @@ phylogenetic covariance matrix for tree.</p></td>
   <span class='fu'>GuessInitVecParams</span>(<span class='no'>modelMG.ab.Guess</span>, <span class='kw'>X</span> <span class='kw'>=</span> <span class='no'>traits</span>, <span class='kw'>tree</span> <span class='kw'>=</span> <span class='no'>tree.ab</span>)
 
 <span class='co'># likelihood at true parameters used to generate the data</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] 5.00 2.00 1.60 0.01 2.40 2.40 0.08 0.80</div><div class='input'><span class='fu'>likFunBM</span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] -395.0189
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] 5.00 2.00 1.60 0.01 2.40 2.40 0.08 0.80</div><div class='input'><span class='fu'>likFunBM</span>(<span class='no'>param</span>)</div><div class='output co'>#&gt; [1] -395.0189
 #&gt; attr(,"X0")
 #&gt; [1] 5 2</div><div class='input'>
 <span class='co'># likelihood at guessed parameter values for the BM model</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5]     [,6]      [,7]
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5]     [,6]      [,7]
 #&gt; [1,] 5.195898 3.968937 1.501725 -0.1199992 1.878255 2.759574 0.1405427
 #&gt;           [,8]
 #&gt; [1,] 0.7858626</div><div class='input'><span class='fu'>likFunBM</span>(<span class='no'>vecGuessBM</span>)</div><div class='output co'>#&gt; [1] -398.6362
 #&gt; attr(,"X0")
 #&gt; [1] 5.195898 3.968937</div><div class='input'>
 <span class='co'># likelihood at guessed parameter values for the OU model</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessOU</span>)</div><div class='output co'>#&gt;          [,1]     [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]    [,11]
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>vecGuessOU</span>)</div><div class='output co'>#&gt;          [,1]     [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]    [,11]
 #&gt; [1,] 5.195898 3.968937    0    0    0    0    0    0    0     0 3.636564
 #&gt;        [,12]    [,13]    [,14]    [,15]     [,16]    [,17]    [,18]      [,19]
 #&gt; [1,] 7.50923 4.084623 6.026438 1.484078 0.2442901 2.217484 2.067015 -0.0392634
@@ -341,10 +355,10 @@ phylogenetic covariance matrix for tree.</p></td>
 #&gt; attr(,"X0")
 #&gt; [1] 5.195898 3.968937</div><div class='input'>
 <span class='co'># likelihood at guessed parameter values for the BM model</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/print'>print</a></span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5] [,6] [,7] [,8] [,9] [,10]
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt;          [,1]     [,2]     [,3]       [,4]     [,5] [,6] [,7] [,8] [,9] [,10]
 #&gt; [1,] 5.195898 3.968937 1.227323 -0.3968675 1.710291    0    0    0    0     0
-#&gt;      [,11]    [,12]      [,13]     [,14]    [,15] [,16]      [,17]
-#&gt; [1,]     0 2.336112 -0.6563992 0.8052728 0.067928     0 0.08735338</div><div class='input'><span class='fu'>likFunMG</span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt; [1] -409.752
+#&gt;      [,11]    [,12]      [,13]     [,14]     [,15] [,16]      [,17]
+#&gt; [1,]     0 2.336112 -0.6563992 0.8052728 0.0135856     0 0.01747068</div><div class='input'><span class='fu'>likFunMG</span>(<span class='no'>vecGuessMG</span>)</div><div class='output co'>#&gt; [1] -410.007
 #&gt; attr(,"X0")
 #&gt; [1] 5.195898 3.968937</div><div class='input'>
 <span class='co'># likelihood at completely random parameter values</span>
@@ -357,14 +371,13 @@ phylogenetic covariance matrix for tree.</p></td>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
       <li><a href="#value">Value</a></li>
-      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -372,13 +385,16 @@ phylogenetic covariance matrix for tree.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 
