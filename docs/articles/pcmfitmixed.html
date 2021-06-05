@@ -160,10 +160,12 @@
 <span id="cb4-4"><a href="#cb4-4"></a>  <span class="kw"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="dv">4</span>, <span class="dt">kind =</span> <span class="st">"Mersenne-Twister"</span>, <span class="dt">normal.kind =</span> <span class="st">"Inversion"</span>)</span>
 <span id="cb4-5"><a href="#cb4-5"></a></span>
 <span id="cb4-6"><a href="#cb4-6"></a>  <span class="kw">PCMGenerateModelTypes</span>()</span>
-<span id="cb4-7"><a href="#cb4-7"></a>  fileName &lt;-<span class="st"> 'DefineParameterLimits.R'</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a>  codeDefineLimits &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/readChar.html">readChar</a></span>(fileName, <span class="kw"><a href="https://rdrr.io/r/base/file.info.html">file.info</a></span>(fileName)<span class="op">$</span>size)</span>
-<span id="cb4-9"><a href="#cb4-9"></a>  <span class="kw"><a href="https://rdrr.io/r/base/eval.html">eval</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/parse.html">parse</a></span>(<span class="dt">text =</span> codeDefineLimits), .GlobalEnv)</span>
-<span id="cb4-10"><a href="#cb4-10"></a>}</span></code></pre></div>
+<span id="cb4-7"><a href="#cb4-7"></a>  <span class="co"># An example DefineParameterLimits.R file can be found in </span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="co"># vignettes/DefineParameterLimits.R of the PCMFit package source-code. </span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="co"># Note that the path here is relative to the working directory of</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  <span class="co"># the worker node R-process. </span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>  <span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span>(<span class="st">'DefineParameterLimits.R'</span>, <span class="dt">local=</span><span class="ot">FALSE</span>)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>}</span></code></pre></div>
 </div>
 <div id="tree-and-trait-data" class="section level2">
 <h2 class="hasAnchor">
@@ -196,26 +198,33 @@
 <a href="#retrieving-and-analyzing-the-best-scoring-model-fit" class="anchor"></a>Retrieving and analyzing the best scoring model fit</h1>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>bestFit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/RetrieveBestFitScore.html">RetrieveBestFitScore</a></span>(fitMGPM_A_F_BC2_RR)</span>
 <span id="cb7-2"><a href="#cb7-2"></a></span>
-<span id="cb7-3"><a href="#cb7-3"></a>listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</span>
-<span id="cb7-4"><a href="#cb7-4"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitBM), </span>
-<span id="cb7-5"><a href="#cb7-5"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitOU),</span>
-<span id="cb7-6"><a href="#cb7-6"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMapping), </span>
-<span id="cb7-7"><a href="#cb7-7"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMappingCheat), </span>
-<span id="cb7-8"><a href="#cb7-8"></a>  modelTrue,</span>
-<span id="cb7-9"><a href="#cb7-9"></a>  bestFit<span class="op">$</span>inferredModel)</span>
-<span id="cb7-10"><a href="#cb7-10"></a></span>
-<span id="cb7-11"><a href="#cb7-11"></a>dtSummary &lt;-<span class="st"> </span><span class="kw">data.table</span>(</span>
-<span id="cb7-12"><a href="#cb7-12"></a>  <span class="dt">model =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(</span>
-<span id="cb7-13"><a href="#cb7-13"></a>    <span class="st">"Global BM"</span>, </span>
-<span id="cb7-14"><a href="#cb7-14"></a>    <span class="st">"Global OU"</span>, </span>
-<span id="cb7-15"><a href="#cb7-15"></a>    <span class="st">"True MGPM, unknown parameters"</span>, </span>
-<span id="cb7-16"><a href="#cb7-16"></a>    <span class="st">"True MGPM, known true parameters"</span>, </span>
-<span id="cb7-17"><a href="#cb7-17"></a>    <span class="st">"True MGPM, true parameters"</span>,</span>
-<span id="cb7-18"><a href="#cb7-18"></a>    <span class="st">"Inferred MGPM, unknown shift-points and parameters"</span>),</span>
-<span id="cb7-19"><a href="#cb7-19"></a>  <span class="dt">p =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(listModels, PCMParamCount),</span>
-<span id="cb7-20"><a href="#cb7-20"></a>  <span class="dt">logLik =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(listModels, logLik), </span>
-<span id="cb7-21"><a href="#cb7-21"></a>  <span class="dt">AIC =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(listModels, AIC))</span>
-<span id="cb7-22"><a href="#cb7-22"></a>knitr<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span>(dtSummary)</span></code></pre></div>
+<span id="cb7-3"><a href="#cb7-3"></a>modelTrue &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>model[[<span class="dv">1</span>]]</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># We specify the tree and trait values for the true model in order to easily </span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co"># calculate parameter count likelihood and AIC for it:</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(modelTrue, <span class="st">"tree"</span>) &lt;-<span class="st"> </span>PCMFitDemoObjects<span class="op">$</span>dtSimulated<span class="op">$</span>treeWithRegimes[[<span class="dv">1</span>]]</span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(modelTrue, <span class="st">"X"</span>) &lt;-<span class="st"> </span>X</span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="kw"><a href="https://rdrr.io/r/base/attr.html">attr</a></span>(modelTrue, <span class="st">"SE"</span>) &lt;-<span class="st"> </span>X <span class="op">*</span><span class="st"> </span><span class="fl">0.0</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>listModels &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(</span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitBM), </span>
+<span id="cb7-12"><a href="#cb7-12"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitOU),</span>
+<span id="cb7-13"><a href="#cb7-13"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMapping), </span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="kw"><a href="../reference/RetrieveBestModel.html">RetrieveBestModel</a></span>(PCMFitDemoObjects<span class="op">$</span>fitMGPMTrueTypeMappingCheat), </span>
+<span id="cb7-15"><a href="#cb7-15"></a>  modelTrue,</span>
+<span id="cb7-16"><a href="#cb7-16"></a>  bestFit<span class="op">$</span>inferredModel)</span>
+<span id="cb7-17"><a href="#cb7-17"></a></span>
+<span id="cb7-18"><a href="#cb7-18"></a>dtSummary &lt;-<span class="st"> </span><span class="kw">data.table</span>(</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  <span class="dt">model =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(</span>
+<span id="cb7-20"><a href="#cb7-20"></a>    <span class="st">"Global BM"</span>, </span>
+<span id="cb7-21"><a href="#cb7-21"></a>    <span class="st">"Global OU"</span>, </span>
+<span id="cb7-22"><a href="#cb7-22"></a>    <span class="st">"True MGPM, known shifts, unknown parameters"</span>, </span>
+<span id="cb7-23"><a href="#cb7-23"></a>    <span class="st">"True MGPM, known shifts, starting from known true parameters (cheating)"</span>, </span>
+<span id="cb7-24"><a href="#cb7-24"></a>    <span class="st">"True MGPM, fixed true shifts and true parameters"</span>,</span>
+<span id="cb7-25"><a href="#cb7-25"></a>    <span class="st">"Inferred MGPM, unknown shifts and parameters"</span>),</span>
+<span id="cb7-26"><a href="#cb7-26"></a>  <span class="dt">p =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(listModels, PCMParamCount),</span>
+<span id="cb7-27"><a href="#cb7-27"></a>  <span class="dt">logLik =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(listModels, logLik), </span>
+<span id="cb7-28"><a href="#cb7-28"></a>  <span class="dt">AIC =</span> <span class="kw"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span>(listModels, AIC))</span>
+<span id="cb7-29"><a href="#cb7-29"></a>knitr<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span>(dtSummary)</span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">model</th>
@@ -237,25 +246,25 @@
 <td align="right">433.2033</td>
 </tr>
 <tr class="odd">
-<td align="left">True MGPM, unknown parameters</td>
+<td align="left">True MGPM, known shifts, unknown parameters</td>
 <td align="right">18</td>
 <td align="right">-93.65584</td>
 <td align="right">233.3117</td>
 </tr>
 <tr class="even">
-<td align="left">True MGPM, known true parameters</td>
+<td align="left">True MGPM, known shifts, starting from known true parameters (cheating)</td>
 <td align="right">18</td>
 <td align="right">-93.50648</td>
 <td align="right">233.0130</td>
 </tr>
 <tr class="odd">
-<td align="left">True MGPM, true parameters</td>
+<td align="left">True MGPM, fixed true shifts and true parameters</td>
 <td align="right">18</td>
 <td align="right">-102.63502</td>
 <td align="right">251.2700</td>
 </tr>
 <tr class="even">
-<td align="left">Inferred MGPM, unknown shift-points and parameters</td>
+<td align="left">Inferred MGPM, unknown shifts and parameters</td>
 <td align="right">17</td>
 <td align="right">-95.07409</td>
 <td align="right">234.1482</td>

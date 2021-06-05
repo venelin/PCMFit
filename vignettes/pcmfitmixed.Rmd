@@ -92,9 +92,11 @@ generatePCMModelsFunction <- function() {
   set.seed(4, kind = "Mersenne-Twister", normal.kind = "Inversion")
 
   PCMGenerateModelTypes()
-  fileName <- 'DefineParameterLimits.R'
-  codeDefineLimits <- readChar(fileName, file.info(fileName)$size)
-  eval(parse(text = codeDefineLimits), .GlobalEnv)
+  # An example DefineParameterLimits.R file can be found in 
+  # vignettes/DefineParameterLimits.R of the PCMFit package source-code. 
+  # Note that the path here is relative to the working directory of
+  # the worker node R-process. 
+  source('DefineParameterLimits.R', local=FALSE)
 }
 ```
 
@@ -163,6 +165,13 @@ attr(modelTrue, "SE") <- X * 0.0
 ```{r}
 bestFit <- RetrieveBestFitScore(fitMGPM_A_F_BC2_RR)
 
+modelTrue <- PCMFitDemoObjects$dtSimulated$model[[1]]
+# We specify the tree and trait values for the true model in order to easily 
+# calculate parameter count likelihood and AIC for it:
+attr(modelTrue, "tree") <- PCMFitDemoObjects$dtSimulated$treeWithRegimes[[1]]
+attr(modelTrue, "X") <- X
+attr(modelTrue, "SE") <- X * 0.0
+
 listModels <- list(
   RetrieveBestModel(PCMFitDemoObjects$fitBM), 
   RetrieveBestModel(PCMFitDemoObjects$fitOU),
@@ -175,10 +184,10 @@ dtSummary <- data.table(
   model = c(
     "Global BM", 
     "Global OU", 
-    "True MGPM, unknown parameters", 
-    "True MGPM, known true parameters", 
-    "True MGPM, true parameters",
-    "Inferred MGPM, unknown shift-points and parameters"),
+    "True MGPM, known shifts, unknown parameters", 
+    "True MGPM, known shifts, starting from known true parameters (cheating)", 
+    "True MGPM, fixed true shifts and true parameters",
+    "Inferred MGPM, unknown shifts and parameters"),
   p = sapply(listModels, PCMParamCount),
   logLik = sapply(listModels, logLik), 
   AIC = sapply(listModels, AIC))
